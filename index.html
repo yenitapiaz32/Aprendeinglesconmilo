@@ -3903,21 +3903,33 @@ async function generateMiPlan(){
   var lvl=curLevel, goal=profile.goal?goalLabel(profile.goal):'mejorar mi inglés';
   var car=((typeof careerById==='function'&&profile.career&&careerById(profile.career))?careerById(profile.career).name:(profile.career||'general'));
   var mins=((profile&&profile.minutes)||10);
+  var planText='';
   if(CHAT_ENDPOINT){
     try{
-      var prompt='Eres Milo, tutor de inglés. Para un estudiante de nivel '+lvl+', objetivo "'+goal+'", profesión "'+car+'", con '+mins+' min/día, responde SOLO un JSON válido (sin texto extra) con esta forma: {"plan":"texto motivador en español con la meta a 3 meses, enfoque por semanas 1-4 en viñetas con •, y 3 consejos","tasks":[{"label":"tarea corta del día en español","action":"aprender"}]}. El arreglo tasks debe tener EXACTAMENTE 28 tareas (4 semanas), variadas, y cada action SOLO uno de: aprender, reto, hablar, conversar, profesion, juego, pronunciacion.';
-      var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
-      var j=await r.json(); var txt=(j&&(j.reply||j.content))||'';
-      var m=txt.match(/\{[\s\S]*\}/); var obj=null; if(m){try{obj=JSON.parse(m[0]);}catch(e){}}
-      if(obj && obj.plan){
-        store.set('miPlan',{text:obj.plan,date:Date.now()});
-        if(obj.tasks && obj.tasks.length){ var tasks=obj.tasks.filter(function(t){return t&&t.label;}); store.set('miProgram',{tasks:tasks,ptr:0,lastDay:''}); }
-        if(b)b.innerHTML=planHTML(obj.plan); try{renderHome();}catch(e){} return;
-      }
-      if(txt){ store.set('miPlan',{text:txt,date:Date.now()}); store.set('miProgram',{tasks:defaultProgram(),ptr:0,lastDay:''}); if(b)b.innerHTML=planHTML(txt); try{renderHome();}catch(e){} return; }
+      var p1='Eres Milo, tutor de inglés amable. Para un estudiante de nivel '+lvl+', objetivo "'+goal+'", profesión "'+car+'", con '+mins+' min/día, escribe un PLAN motivador en español: una meta a 3 meses, el enfoque de las semanas 1 a 4 en viñetas con "•", y 3 consejos finales. Texto plano, sin markdown ni JSON, pocas emojis.';
+      var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:p1}]})});
+      var j=await r.json(); planText=((j&&(j.reply||j.content))||'').trim();
     }catch(e){}
   }
-  var t2=miPlanFallback(lvl,goal,car,mins); store.set('miPlan',{text:t2,date:Date.now()}); store.set('miProgram',{tasks:defaultProgram(),ptr:0,lastDay:''}); if(b)b.innerHTML=planHTML(t2); try{renderHome();}catch(e){}
+  if(!planText) planText=miPlanFallback(lvl,goal,car,mins);
+  store.set('miPlan',{text:planText,date:Date.now()});
+  if(b)b.innerHTML=planHTML(planText)+'<p class="note" style="text-align:center;margin-top:6px;">🐙 Organizando tu programa diario...</p>';
+  buildProgram(lvl,goal,car,mins);
+}
+async function buildProgram(lvl,goal,car,mins){
+  var tasks=null;
+  if(CHAT_ENDPOINT){
+    try{
+      var p2='Para un estudiante de inglés nivel '+lvl+', objetivo "'+goal+'", profesión "'+car+'": responde SOLO un JSON array (sin texto extra) de EXACTAMENTE 14 tareas diarias cortas. Cada elemento: {"label":"tarea corta en español, máx 8 palabras","action":"X"} donde X es UNO de: aprender, reto, hablar, conversar, profesion, juego, pronunciacion.';
+      var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:p2}]})});
+      var j=await r.json(); var txt=(j&&(j.reply||j.content))||''; var m=txt.match(/\[[\s\S]*\]/);
+      if(m){ var arr=JSON.parse(m[0]); if(arr&&arr.length) tasks=arr.filter(function(t){return t&&t.label&&PLAN_ACT[t.action];}); }
+    }catch(e){}
+  }
+  if(!tasks||!tasks.length) tasks=defaultProgram();
+  store.set('miProgram',{tasks:tasks,ptr:0,lastDay:''});
+  var b=document.getElementById('planBody'); if(b){var sv=store.get('miPlan',null); if(sv)b.innerHTML=planHTML(sv.text)+'<p class="note" style="text-align:center;margin-top:6px;color:var(--green);font-weight:700;">✓ ¡Listo! Tu tarea de hoy ya aparece en el Inicio.</p>';}
+  try{renderHome();}catch(e){}
 }
 /* ===== PROGRAMA DIARIO (organiza la plataforma para cumplir el plan) ===== */
 var PLAN_ACT={ aprender:{ico:'📚',label:'Aprender tu nivel',go:"goTab('levels')"}, reto:{ico:'🔥',label:'Reto diario',go:"goTab('challenge')"}, hablar:{ico:'🎤',label:'Speak Now',go:"goTab('speak')"}, conversar:{ico:'💬',label:'Conversar con Milo',go:"openMiloChat()"}, profesion:{ico:'💼',label:'Inglés de tu profesión',go:"goTab('dental')"}, juego:{ico:'🎮',label:'Juegos',go:"goTab('games')"}, pronunciacion:{ico:'🗣️',label:'Pronunciación',go:"goTab('pron')"} };
