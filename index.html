@@ -3905,14 +3905,37 @@ async function generateMiPlan(){
   var mins=((profile&&profile.minutes)||10);
   if(CHAT_ENDPOINT){
     try{
-      var prompt='Eres Milo, un tutor de inglés amable. Crea un PLAN DE ESTUDIO personalizado y motivador, en español, para un estudiante. Datos: nivel actual '+lvl+', objetivo "'+goal+'", profesión "'+car+'", dispone de '+mins+' minutos al día. Estructura: 1) una meta a 3 meses, 2) el enfoque de las semanas 1 a 4 en viñetas con "•", 3) tres consejos finales. Breve y claro, sin encabezados de markdown, pocas emojis.';
+      var prompt='Eres Milo, tutor de inglés. Para un estudiante de nivel '+lvl+', objetivo "'+goal+'", profesión "'+car+'", con '+mins+' min/día, responde SOLO un JSON válido (sin texto extra) con esta forma: {"plan":"texto motivador en español con la meta a 3 meses, enfoque por semanas 1-4 en viñetas con •, y 3 consejos","tasks":[{"label":"tarea corta del día en español","action":"aprender"}]}. El arreglo tasks debe tener EXACTAMENTE 28 tareas (4 semanas), variadas, y cada action SOLO uno de: aprender, reto, hablar, conversar, profesion, juego, pronunciacion.';
       var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
       var j=await r.json(); var txt=(j&&(j.reply||j.content))||'';
-      if(txt){ store.set('miPlan',{text:txt,date:Date.now()}); if(b)b.innerHTML=planHTML(txt); try{renderHome();}catch(e){} return; }
+      var m=txt.match(/\{[\s\S]*\}/); var obj=null; if(m){try{obj=JSON.parse(m[0]);}catch(e){}}
+      if(obj && obj.plan){
+        store.set('miPlan',{text:obj.plan,date:Date.now()});
+        if(obj.tasks && obj.tasks.length){ var tasks=obj.tasks.filter(function(t){return t&&t.label;}); store.set('miProgram',{tasks:tasks,ptr:0,lastDay:''}); }
+        if(b)b.innerHTML=planHTML(obj.plan); try{renderHome();}catch(e){} return;
+      }
+      if(txt){ store.set('miPlan',{text:txt,date:Date.now()}); store.set('miProgram',{tasks:defaultProgram(),ptr:0,lastDay:''}); if(b)b.innerHTML=planHTML(txt); try{renderHome();}catch(e){} return; }
     }catch(e){}
   }
-  var t2=miPlanFallback(lvl,goal,car,mins); store.set('miPlan',{text:t2,date:Date.now()}); if(b)b.innerHTML=planHTML(t2); try{renderHome();}catch(e){}
+  var t2=miPlanFallback(lvl,goal,car,mins); store.set('miPlan',{text:t2,date:Date.now()}); store.set('miProgram',{tasks:defaultProgram(),ptr:0,lastDay:''}); if(b)b.innerHTML=planHTML(t2); try{renderHome();}catch(e){}
 }
+/* ===== PROGRAMA DIARIO (organiza la plataforma para cumplir el plan) ===== */
+var PLAN_ACT={ aprender:{ico:'📚',label:'Aprender tu nivel',go:"goTab('levels')"}, reto:{ico:'🔥',label:'Reto diario',go:"goTab('challenge')"}, hablar:{ico:'🎤',label:'Speak Now',go:"goTab('speak')"}, conversar:{ico:'💬',label:'Conversar con Milo',go:"openMiloChat()"}, profesion:{ico:'💼',label:'Inglés de tu profesión',go:"goTab('dental')"}, juego:{ico:'🎮',label:'Juegos',go:"goTab('games')"}, pronunciacion:{ico:'🗣️',label:'Pronunciación',go:"goTab('pron')"} };
+function defaultProgram(){ var seq=['aprender','reto','hablar','aprender','profesion','juego','conversar']; var t=[]; for(var i=0;i<28;i++){var a=seq[i%seq.length]; t.push({label:PLAN_ACT[a].label,action:a});} return t; }
+function programTaskHTML(){
+  var pr=store.get('miProgram',null); if(!pr||!pr.tasks||!pr.tasks.length) return '';
+  if(pr.ptr>=pr.tasks.length){ return '<div class="card" style="border:2px solid var(--green);"><h2>🎉 ¡Plan completado!</h2><p class="note" style="margin:0 0 8px;">Terminaste tu programa con Milo. ¡Crea uno nuevo para seguir avanzando!</p><button class="btn primary" onclick="openMiPlan()">Crear nuevo plan</button></div>'; }
+  var task=pr.tasks[pr.ptr]; var act=PLAN_ACT[task.action]||PLAN_ACT.aprender;
+  var doneToday=(pr.lastDay===todayStr());
+  return '<div class="card" style="border:2px solid var(--blue);"><h2>📅 Hoy en tu plan</h2>'
+    +'<p class="note" style="margin:0 0 6px;">Día '+(pr.ptr+1)+' de '+pr.tasks.length+' · Milo organizó esto para ti:</p>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="font-size:1.8rem;">'+act.ico+'</div><div style="font-weight:700;">'+task.label+'</div></div>'
+    +(doneToday
+      ? '<p style="color:var(--green);font-weight:700;margin:0;">✓ ¡Tarea de hoy completada! Vuelve mañana 🐙</p>'
+      : '<button class="btn primary" style="margin-right:6px;" onclick="'+act.go+'">▶ Hacer ahora</button><button class="btn" onclick="markProgramDone()">✓ Ya lo hice</button>')
+    +'</div>';
+}
+function markProgramDone(){ var pr=store.get('miProgram',null); if(!pr)return; if(pr.lastDay===todayStr()){toast('Ya hiciste tu tarea de hoy 🐙');return;} pr.ptr=(pr.ptr||0)+1; pr.lastDay=todayStr(); store.set('miProgram',pr); try{addXP(10);}catch(e){} confetti(); toast('✅ ¡Tarea del plan completada! +10 XP'); try{renderHome();}catch(e){} }
 function askFeedback(){
   if(store.get('fbAsked',false))return; store.set('fbAsked',true);
   if(confirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejarnos un comentario? Nos ayuda muchísimo a mejorar (y puede salir como testimonio).')){
@@ -4313,6 +4336,7 @@ function renderHome(){
   h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?'✓ Reto diario completado hoy':'🔥 Reto diario · 3 minutos')+'</button>';
   /* repaso solo si hay pendientes */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">🔁 Repasar lo que fallé ('+review.length+')</button>'; }
+  h+=programTaskHTML();
   h+=miPlanCardHTML();
   /* logro reciente, pequeño */
   if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">🏆 Logro: '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
