@@ -102,9 +102,9 @@
   .mouth-word{font-size:1.7rem;font-weight:800;color:#16357f;margin-bottom:6px;word-break:break-word;}
   .mouth-sound{margin-top:6px;color:#444;font-size:.95rem;}
   .mouth-btns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
-  #mInner,#mLips{transition:rx .12s ease,ry .12s ease;}
-  #mTongue{transition:cy .12s ease,opacity .12s ease;}
-  #mTeethTop,#mTeethBot{transition:y .12s ease,opacity .12s ease;}
+  #mLower,#mULip,#mLLip{transition:transform .2s ease;}
+  #mTongue{transition:d .2s ease;}
+  .mouth-tip{background:#eef3ff;border-radius:12px;padding:10px 12px;margin-top:10px;color:#16357f;font-weight:700;font-size:.95rem;}
   .auth-gate{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(160deg,#16357f,#2456d6 60%,#3f7be0);overflow:auto;}
   .gate-card{background:#fff;border-radius:24px;padding:26px 22px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);}
   .gate-logo{font-size:3rem;line-height:1;}
@@ -466,7 +466,7 @@ function waLink(msg){return 'https://wa.me/'+MILO_WA+'?text='+encodeURIComponent
    Pega tus llaves de Wompi aquí. La pública es segura en el navegador.
    Si las dejas vacías, los botones de pago usan WhatsApp como respaldo. */
 var FREE_MODE=true;           /* TRUE = todo gratis (paquetes visibles pero sin cobrar). Cambia a false para activar pagos. */
-var CHAT_ENDPOINT='';         /* URL de tu función de IA (Supabase Edge Function). Vacío = "muy pronto". */
+var CHAT_ENDPOINT='https://afzfigzjhfxfowmpuyfv.supabase.co/functions/v1/milo-chat';         /* URL de tu función de IA (Supabase Edge Function). Vacío = "muy pronto". */
 var AZURE_TOKEN_ENDPOINT='';  /* URL de tu función que entrega el token de Azure. Vacío = boca esquemática (actual). */
 var AZURE_REGION='';          /* región de Azure, ej. 'eastus' (también puede venir del endpoint). */
 var AZURE_VOICE='en-US-JennyNeural';
@@ -769,7 +769,7 @@ async function sendMiloChat(){
     renderMiloChat(); return;
   }
   try{
-    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario:chatScenario,messages:chatHistory})});
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:chatScenario,messages:chatHistory})});
     var j=await r.json();
     chatHistory.push({role:'assistant',content:(j&&(j.reply||j.content))||'(sin respuesta)'});
   }catch(e){ chatHistory.push({role:'assistant',content:'Ups, no pude conectar con la IA. Intenta de nuevo. 🐙'}); }
@@ -932,26 +932,28 @@ function speak(text,slow){
 /* ===== BOCA ANIMADA (articulación: labios + dientes + lengua) ===== */
 /* Cada "viseme" = una forma de boca. rx/ry = abertura; round = redondeo de labios;
    teeth: none|top|both|bite ; tongue: low|mid|up|out (entre dientes, para TH) */
+/* Vista de PERFIL: jaw=abertura(0-1), rnd=redondeo labios(0-1),
+   tng=posición punta lengua (low|mid|high|alv|teeth|back), bk=dorso (flat|up), bite=f/v, hint=instrucción */
 var VIS={
-  rest:{rx:30,ry:7,round:.3,teeth:'none',tongue:'low',lbl:'—'},
-  AA:{rx:34,ry:30,round:.1,teeth:'top',tongue:'low',lbl:'a'},
-  AE:{rx:42,ry:26,round:0,teeth:'top',tongue:'low',lbl:'æ (cat)'},
-  EH:{rx:36,ry:20,round:.1,teeth:'top',tongue:'mid',lbl:'e'},
-  IY:{rx:46,ry:11,round:0,teeth:'top',tongue:'mid',lbl:'iː (sheep)'},
-  IH:{rx:40,ry:15,round:.1,teeth:'top',tongue:'mid',lbl:'ɪ (ship)'},
-  OW:{rx:24,ry:26,round:1,teeth:'none',tongue:'low',lbl:'o'},
-  UW:{rx:16,ry:18,round:1,teeth:'none',tongue:'low',lbl:'uː'},
-  UH:{rx:32,ry:20,round:.3,teeth:'top',tongue:'mid',lbl:'ʌ'},
-  M:{rx:22,ry:3,round:.4,teeth:'none',tongue:'low',lbl:'m/b/p'},
-  F:{rx:34,ry:9,round:.1,teeth:'bite',tongue:'low',lbl:'f/v'},
-  TH:{rx:38,ry:16,round:.1,teeth:'top',tongue:'out',lbl:'th'},
-  L:{rx:34,ry:24,round:.1,teeth:'top',tongue:'up',lbl:'l'},
-  TD:{rx:32,ry:16,round:.1,teeth:'top',tongue:'up',lbl:'t/d/n'},
-  S:{rx:36,ry:8,round:.1,teeth:'both',tongue:'mid',lbl:'s/z'},
-  SH:{rx:26,ry:16,round:.8,teeth:'both',tongue:'mid',lbl:'sh/ch'},
-  R:{rx:28,ry:17,round:.6,teeth:'top',tongue:'mid',lbl:'r'},
-  W:{rx:15,ry:15,round:1,teeth:'none',tongue:'low',lbl:'w'},
-  K:{rx:34,ry:20,round:.2,teeth:'top',tongue:'low',lbl:'k/g'}
+  rest:{jaw:.15,rnd:.1,tng:'low',bk:'flat',lbl:'—',hint:'Relaja la boca'},
+  AA:{jaw:1,rnd:.1,tng:'low',bk:'flat',lbl:'a',hint:'Abre bien la boca; lengua abajo'},
+  AE:{jaw:.85,rnd:0,tng:'low',bk:'flat',lbl:'æ (cat)',hint:'Boca abierta y estirada'},
+  EH:{jaw:.55,rnd:.1,tng:'mid',bk:'flat',lbl:'e',hint:'Boca medio abierta'},
+  IY:{jaw:.25,rnd:0,tng:'high',bk:'up',lbl:'iː (sheep)',hint:'Sonríe; lengua alta y adelante'},
+  IH:{jaw:.4,rnd:.1,tng:'mid',bk:'flat',lbl:'ɪ (ship)',hint:'Corta y relajada'},
+  OW:{jaw:.6,rnd:1,tng:'low',bk:'up',lbl:'o',hint:'Labios redondos'},
+  UW:{jaw:.3,rnd:1,tng:'low',bk:'up',lbl:'uː',hint:'Labios muy redondos y hacia afuera'},
+  UH:{jaw:.5,rnd:.2,tng:'mid',bk:'flat',lbl:'ʌ',hint:'Sonido neutro y corto'},
+  M:{jaw:0,rnd:.3,tng:'low',bk:'flat',lbl:'m/b/p',hint:'Cierra los labios'},
+  F:{jaw:.18,rnd:0,tng:'low',bk:'flat',bite:true,lbl:'f/v',hint:'Dientes de arriba sobre el labio de abajo'},
+  TH:{jaw:.35,rnd:0,tng:'teeth',bk:'flat',lbl:'th',hint:'Saca la punta de la lengua entre los dientes'},
+  L:{jaw:.5,rnd:0,tng:'alv',bk:'flat',lbl:'l',hint:'Punta de la lengua detrás de los dientes de arriba'},
+  TD:{jaw:.4,rnd:0,tng:'alv',bk:'flat',lbl:'t/d/n',hint:'Toca el techo con la punta, detrás de los dientes'},
+  S:{jaw:.18,rnd:0,tng:'high',bk:'flat',lbl:'s/z',hint:'Dientes casi juntos; aire por el centro'},
+  SH:{jaw:.35,rnd:.7,tng:'mid',bk:'up',lbl:'sh/ch',hint:'Labios hacia afuera, como “shh”'},
+  R:{jaw:.4,rnd:.5,tng:'mid',bk:'up',lbl:'r',hint:'Lengua atrás sin tocar (R americana)'},
+  W:{jaw:.3,rnd:1,tng:'low',bk:'up',lbl:'w',hint:'Labios bien redondos, como “u”'},
+  K:{jaw:.45,rnd:.1,tng:'back',bk:'up',lbl:'k/g',hint:'La parte de atrás de la lengua sube'}
 };
 /* convierte una palabra inglesa en una secuencia de visemes (aproximado pero útil) */
 function wordToVisemes(word){
@@ -1003,45 +1005,42 @@ function wordToVisemes(word){
   if(!out.length)out.push('AA');
   return out;
 }
-var MOUTH_SVG='<svg id="mthSvg" viewBox="0 0 240 240" width="100%" style="max-width:280px;">'
- +'<circle cx="120" cy="120" r="108" fill="#ffe0bd" stroke="#e8b98c" stroke-width="3"/>'
- +'<ellipse cx="84" cy="98" rx="11" ry="13" fill="#fff"/><circle cx="86" cy="100" r="6" fill="#3a2a20"/>'
- +'<ellipse cx="156" cy="98" rx="11" ry="13" fill="#fff"/><circle cx="154" cy="100" r="6" fill="#3a2a20"/>'
- +'<path d="M70 78 Q86 70 102 78" stroke="#7a5638" stroke-width="4" fill="none" stroke-linecap="round"/>'
- +'<path d="M138 78 Q154 70 170 78" stroke="#7a5638" stroke-width="4" fill="none" stroke-linecap="round"/>'
- +'<path d="M114 120 Q108 134 120 138" stroke="#e0a878" stroke-width="4" fill="none" stroke-linecap="round"/>'
- +'<g id="mthGroup">'
- +'<ellipse id="mLips" cx="120" cy="170" rx="46" ry="22" fill="#d9776f"/>'
- +'<ellipse id="mInner" cx="120" cy="170" rx="30" ry="7" fill="#5c1417"/>'
- +'<rect id="mTeethTop" x="96" y="150" width="48" height="11" rx="3" fill="#fff" opacity="0"/>'
- +'<rect id="mTeethBot" x="96" y="182" width="48" height="11" rx="3" fill="#fff" opacity="0"/>'
- +'<ellipse id="mTongue" cx="120" cy="178" rx="20" ry="11" fill="#e8857f" opacity="0"/>'
+var MOUTH_SVG='<svg id="mthSvg" viewBox="0 0 260 220" width="100%" style="max-width:330px;">'
+ +'<ellipse cx="150" cy="110" rx="120" ry="105" fill="#ffe9d6"/>'
+ +'<path d="M58,104 Q150,72 248,98 L248,120 Q150,108 66,122 Z" fill="#f4b9c0" opacity=".55"/>'
+ +'<path d="M64,100 Q150,74 244,98" stroke="#d98b97" stroke-width="6" fill="none" stroke-linecap="round"/>'
+ +'<path id="mTongue" d="M52,150 Q58,148 86,150 Q135,150 172,148 Q198,148 204,152 Q120,162 52,160 Z" fill="#e8857f" stroke="#d76a64" stroke-width="2"/>'
+ +'<g id="mUpper">'
+   +'<rect id="mUTeeth" x="58" y="92" width="17" height="20" rx="3" fill="#fff" stroke="#dfe4ee" stroke-width="1.5"/>'
+   +'<path id="mULip" d="M34,90 Q50,76 80,88 L75,100 Q52,94 40,104 Z" fill="#d9776f"/>'
+ +'</g>'
+ +'<g id="mLower">'
+   +'<rect id="mLTeeth" x="58" y="116" width="17" height="20" rx="3" fill="#fff" stroke="#dfe4ee" stroke-width="1.5"/>'
+   +'<path id="mLLip" d="M34,142 Q50,156 80,144 L75,132 Q52,138 40,128 Z" fill="#c85f57"/>'
  +'</g></svg>';
 function applyViseme(v){
   var P=VIS[v]||VIS.rest;
-  var cy=170;
-  var inner=document.getElementById('mInner'), lips=document.getElementById('mLips'),
-      tt=document.getElementById('mTeethTop'), tb=document.getElementById('mTeethBot'),
-      tg=document.getElementById('mTongue'), lbl=document.getElementById('mthLbl');
-  if(!inner)return;
+  var lower=document.getElementById('mLower'), tongue=document.getElementById('mTongue'),
+      ulip=document.getElementById('mULip'), llip=document.getElementById('mLLip'),
+      lbl=document.getElementById('mthLbl'), tip=document.getElementById('mthTip');
+  if(!lower)return;
   function set(el,a,val){try{el.setAttribute(a,val);}catch(e){}}
-  set(inner,'rx',P.rx); set(inner,'ry',P.ry);
-  var lrx=Math.max(14,P.rx+12-P.round*20), lry=P.ry+11+P.round*7;
-  set(lips,'rx',lrx); set(lips,'ry',lry);
-  /* dientes arriba */
-  var showTop=(P.teeth==='top'||P.teeth==='both'||P.teeth==='bite');
-  set(tt,'opacity',showTop?1:0);
-  set(tt,'y', P.teeth==='bite' ? (cy-6) : (cy-P.ry-1));
-  /* dientes abajo */
-  set(tb,'opacity',P.teeth==='both'?1:0);
-  set(tb,'y', cy+P.ry-10);
-  /* lengua */
-  if(P.tongue==='low'){ set(tg,'opacity',1); set(tg,'cy',cy+P.ry-4); }
-  else if(P.tongue==='mid'){ set(tg,'opacity',1); set(tg,'cy',cy+2); }
-  else if(P.tongue==='up'){ set(tg,'opacity',1); set(tg,'cy',cy-P.ry+6); }
-  else if(P.tongue==='out'){ set(tg,'opacity',1); set(tg,'cy',cy-P.ry+2); }
-  else { set(tg,'opacity',0); }
+  /* mandíbula baja al abrir */
+  var open=P.jaw*32;
+  set(lower,'transform','translate(0,'+open+')');
+  /* redondeo: labios se proyectan hacia adelante (izquierda) */
+  var pro=-P.rnd*15;
+  set(ulip,'transform','translate('+pro+',0)');
+  set(llip,'transform','translate('+pro+','+(P.bite?-9:0)+')');
+  /* lengua (coordenadas absolutas para que la punta alcance los dientes) */
+  var tipX=(P.tng==='teeth')?42:58;
+  var tipY=(P.tng==='teeth')?112:(P.tng==='alv')?108:(P.tng==='high')?116:(P.tng==='mid')?134:150;
+  var backY=(P.tng==='back')?104:(P.bk==='up')?118:148;
+  var midY=Math.min(tipY,backY)-4;
+  var d='M50,156 Q'+tipX+','+tipY+' 90,'+(tipY+6)+' Q135,'+midY+' 172,'+backY+' Q198,'+backY+' 204,154 Q120,164 50,162 Z';
+  set(tongue,'d',d);
   if(lbl)lbl.textContent=P.lbl;
+  if(tip)tip.textContent=P.hint||'';
 }
 var mouthToken=null;
 function ensureMouthModal(){
@@ -1053,11 +1052,12 @@ function ensureMouthModal(){
     +'<div id="mthWord" class="mouth-word"></div>'
     +MOUTH_SVG
     +'<div class="mouth-sound">Sonido: <b id="mthLbl">—</b></div>'
+    +'<div class="mouth-tip" id="mthTip">Toca ▶ para ver el movimiento</div>'
     +'<div class="mouth-btns">'
     +'<button class="btn primary" onclick="playMouth(false)">▶ Ver y oír</button>'
     +'<button class="btn" onclick="playMouth(true)">🐢 Lento</button>'
     +'</div>'
-    +'<p class="note" style="margin:8px 0 0;">Mira los labios y la lengua. La lengua rosada entre los dientes = sonido <b>th</b>; el diente sobre el labio = <b>f/v</b>.</p>'
+    +'<p class="note" style="margin:8px 0 0;">Vista de perfil: 👁️ mira la <b>lengua</b> (rosada) y los <b>labios</b>. La instrucción de arriba cambia con cada sonido.</p>'
     +'</div>';
   document.body.appendChild(d);
 }
@@ -1080,7 +1080,7 @@ function playMouth(slow){
 }
 function schematicMouth(word, slow, token){
   var seq=wordToVisemes(word);
-  var step=slow?420:230;
+  var step=slow?620:380;
   speak(word,slow);
   applyViseme('rest');
   var k=0;
@@ -2778,10 +2778,10 @@ function renderContent(){
   if(curSub==='units'){ h+=renderUnitsHTML(L); }
   else if(curSub==='tenses'){
     h+='<p class="note">Tiempos verbales de tu nivel (según Cambridge). Forma, uso y 5 ejemplos con traducción.</p>';
-    d.tenses.forEach(t=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div><p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>h+=exLi(e));h+='</ul></div>';});
+    d.tenses.forEach((t,ti)=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div><p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'tenses\','+ti+')">🎮 Practicar este tiempo</button>'+ownBoxHTML(L,ti)+'</div>';});
   } else if(curSub==='grammar'){
     h+='<p class="note">Gramática clave del nivel. Cada tema con su forma y 5 ejemplos con traducción.</p>';
-    d.grammar.forEach(g=>{h+='<div class="skillbox"><h4>'+g.t+'</h4><p><b>Forma:</b> '+g.form+'</p><ul>';g.ex.forEach(e=>h+=exLi(e));h+='</ul></div>';});
+    d.grammar.forEach((g,gi)=>{h+='<div class="skillbox"><h4>'+g.t+'</h4><p><b>Forma:</b> '+g.form+'</p><ul>';g.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'grammar\','+gi+')">🎮 Practicar este tema</button></div>';});
   } else if(curSub==='vocab'){
     h+='<p class="note">Vocabulario con traducción, 5 ejemplos cada uno'+((L==='B1'||L==='B2'||L==='C1')?' y <span class="syn">sinónimos</span> para ampliar':'')+'.</p>';
     d.vocab.forEach(v=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(v.w+' '+v.es+' '+v.ex.map(enOnly).join(' '))+'</span><span class="vt">'+v.w+'</span> '+sb(v.w)+mb(v.w)+' <span style="font-weight:400;color:var(--muted)">— '+v.es+'</span></div>';if(v.ph)h+='<p style="margin:-2px 0 6px;color:var(--pink);font-size:.84rem;">🗣️ Se pronuncia: <b>'+v.ph+'</b></p>';if(v.syn)h+='<p class="syn">Sinónimos: '+v.syn+'</p>';h+='<ul>';v.ex.forEach(e=>h+=exLi(e));h+='</ul></div>';});
@@ -2837,16 +2837,129 @@ function renderContent(){
 /* ===== FILL ===== */
 function renderFill(d){
   let h='<p class="note">Escribe la palabra que falta y pulsa Revisar. (Mín. 6 ejercicios)</p><div class="skillbox">';
-  d.fill.forEach((f,i)=>{h+='<p>'+(i+1)+'. '+f[0].replace('___','<input class="fill" id="fill'+i+'" autocomplete="off">')+'</p>';});
+  d.fill.forEach((f,i)=>{h+='<p>'+(i+1)+'. '+f[0].replace('___','<input class="fill" id="fill'+i+'" autocomplete="off">')+' <span class="fillans" id="fillans'+i+'" style="font-weight:700;font-size:.9rem;"></span></p>';});
   h+='<button class="btn primary" onclick="checkFill('+d.fill.length+')">Revisar</button> <span id="fillScore" style="font-weight:700;margin-left:8px;"></span></div>';
   window.__fillAns=d.fill.map(f=>f[1]);
   return h;
 }
 function checkFill(n){
   let ok=0;
-  for(let i=0;i<n;i++){const inp=document.getElementById('fill'+i);const val=norm(inp.value);const ans=norm(window.__fillAns[i]);if(val===ans){inp.classList.add('ok');inp.classList.remove('no');ok++;}else{inp.classList.add('no');inp.classList.remove('ok');inp.title='Respuesta: '+window.__fillAns[i];}}
-  document.getElementById('fillScore').textContent=ok+' / '+n+' correctas'+(ok<n?' (pasa el cursor por las rojas para ver la respuesta)':' 🎉');
+  for(let i=0;i<n;i++){const inp=document.getElementById('fill'+i);const val=norm(inp.value);const ans=norm(window.__fillAns[i]);const sp=document.getElementById('fillans'+i);
+    if(val===ans){inp.classList.add('ok');inp.classList.remove('no');ok++; if(sp){sp.textContent=' ✓';sp.style.color='var(--green)';}}
+    else{inp.classList.add('no');inp.classList.remove('ok'); if(sp){sp.innerHTML='✗ Respuesta: <b style="color:var(--green)">'+window.__fillAns[i]+'</b>';sp.style.color='var(--red)';}}}
+  document.getElementById('fillScore').textContent=ok+' / '+n+' correctas'+(ok<n?' — la respuesta correcta aparece en verde junto a cada error.':' 🎉');
   if(ok>=Math.ceil(n*0.7)) markDone(curLevel,'fill');
+}
+
+/* ===== PRÁCTICA INTERACTIVA POR TEMA (varios juegos) ===== */
+var tpState=null;
+function tpWords(en){return String(en).replace(/[.,!?¡¿]/g,'').split(/\s+/).filter(Boolean);}
+function tpNorm(s){return String(s).toLowerCase().replace(/[.,!?¡¿]/g,'').replace(/\s+/g,' ').trim();}
+function tpKeyIndex(words){var bi=1,bl=0;words.forEach(function(w,i){if(i>0&&w.length>bl){bl=w.length;bi=i;}});return bi;}
+function tpListenDistractors(es){var d=DATA[curLevel]||DATA.A1;var pool=[];(d.vocab||[]).forEach(function(v){if(v.es&&v.es!==es)pool.push(v.es);});pool=shuffle(pool).slice(0,2);while(pool.length<2)pool.push('—');return pool.slice(0,2);}
+function makeTpItem(en,es,words,exs){
+  var types=['order','choose','fill','tf','listen'];
+  var t=types[Math.floor(Math.random()*types.length)];
+  if(words.length>9 && t==='order') t='choose';
+  if(t==='order') return {type:'order',en:en,es:es};
+  if(t==='tf'){ var wrong=Math.random()<0.5, shownEs=es; if(wrong){var o=exs[Math.floor(Math.random()*exs.length)];var oe=(String(o).split('|')[1]||'').trim(); if(oe&&oe!==es)shownEs=oe; else wrong=false;} return {type:'tf',en:en,es:shownEs,correct:!wrong}; }
+  if(t==='listen'){ var opts=shuffle([es].concat(tpListenDistractors(es))); return {type:'listen',en:en,es:es,opts:opts}; }
+  var ki=tpKeyIndex(words), ans=words[ki]; var bl=words.slice(); bl[ki]='___'; var sent=bl.join(' ');
+  if(t==='fill') return {type:'fill',sent:sent,ans:ans,es:es};
+  var pool=[]; exs.forEach(function(x){ tpWords(enOnly(x)).forEach(function(w){ if(w.toLowerCase()!==ans.toLowerCase()&&w.length>2)pool.push(w); }); });
+  pool=shuffle([...new Set(pool)]).slice(0,2); while(pool.length<2)pool.push(ans+'s');
+  return {type:'choose',sent:sent,ans:ans,opts:shuffle([ans].concat(pool)),es:es};
+}
+function practiceTopic(kind,idx){
+  var d=DATA[curLevel]||DATA.A1; var arr=(kind==='tenses'?d.tenses:d.grammar)||[]; var topic=arr[idx]; if(!topic){return;}
+  var exs=(topic.ex||[]).filter(Boolean); var items=[];
+  exs.forEach(function(e){ var en=enOnly(e), es=(String(e).split('|')[1]||'').trim(); var w=tpWords(en); if(w.length>=2&&es) items.push(makeTpItem(en,es,w,exs)); });
+  items=shuffle(items);
+  if(!items.length){toast('Aún no hay suficientes ejemplos para practicar.');return;}
+  tpState={items:items,i:0,score:0,topic:(topic.n||topic.t||'Práctica')};
+  ensureTP(); document.getElementById('tpOv').style.display='flex'; renderTP();
+}
+function ensureTP(){ if(document.getElementById('tpOv'))return; var d=document.createElement('div'); d.id='tpOv'; d.className='chat-ov'; d.innerHTML='<div class="chat-card"><div class="chat-head"><h3>🎮 Practicar</h3><button class="chat-x" onclick="closeTP()">✕</button></div><div id="tpBody" style="flex:1;overflow:auto;padding:18px;"></div></div>'; document.body.appendChild(d); }
+function closeTP(){ stopSpeak(); var o=document.getElementById('tpOv'); if(o)o.style.display='none'; }
+function renderTP(){
+  var b=document.getElementById('tpBody'); if(!b)return;
+  if(tpState.i>=tpState.items.length){ finishTP(b); return; }
+  var it=tpState.items[tpState.i];
+  var h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">'+tpState.topic+' · '+(tpState.i+1)+'/'+tpState.items.length+' · Aciertos: '+tpState.score+'</div>';
+  if(it.type==='order'){
+    tpState.cur=[]; var scr=shuffle(tpWords(it.en).slice());
+    h+='<p class="q">🔀 Ordena la oración en inglés:</p><p class="note" style="margin-top:0;">Significado: '+it.es+'</p>';
+    h+='<div id="tpAns" style="min-height:42px;border:2px dashed #ccd6ea;border-radius:10px;padding:8px;margin:8px 0;font-weight:700;"></div>';
+    h+='<div>'+scr.map(function(w,i){return '<button class="btn" id="tpc'+i+'" style="margin:3px;" onclick="tpPick('+i+')">'+w+'</button>';}).join('')+'</div>';
+    h+='<div style="margin-top:12px;"><button class="btn" onclick="renderTP()">↺ Borrar</button> <button class="btn primary" onclick="tpCheckOrder()">Revisar</button></div><div class="feedback" id="tpFb"></div>';
+    tpState._scr=scr;
+  } else if(it.type==='choose'){
+    h+='<p class="q">Elige la palabra correcta:</p><p style="font-size:1.15rem;font-weight:700;">'+it.sent.replace('___','______')+'</p><p class="note">'+it.es+'</p><div class="opts">'+it.opts.map(function(o){return '<button class="opt" onclick="tpChoose(this,\''+o.replace(/'/g,"\\'")+'\',\''+it.ans.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div><div class="feedback" id="tpFb"></div>';
+  } else if(it.type==='fill'){
+    h+='<p class="q">Escribe la palabra que falta:</p><p style="font-size:1.15rem;font-weight:700;">'+it.sent.replace('___','______')+'</p><p class="note">'+it.es+'</p><input class="fill" id="tpFill" autocomplete="off"> <button class="btn primary" onclick="tpFillCheck(\''+it.ans.replace(/'/g,"\\'")+'\')">OK</button><div class="feedback" id="tpFb"></div>';
+  } else if(it.type==='tf'){
+    h+='<p class="q">¿La traducción es correcta?</p><p style="font-size:1.1rem;font-weight:700;">'+it.en+'</p><p style="font-size:1.05rem;">➡️ '+it.es+'</p><div class="opts"><button class="opt" onclick="tpTF(true,'+it.correct+')">✅ Sí, correcta</button><button class="opt" onclick="tpTF(false,'+it.correct+')">❌ No, está mal</button></div><div class="feedback" id="tpFb"></div>';
+  } else if(it.type==='listen'){
+    h+='<p class="q">🎧 Escucha y elige el significado:</p><button class="btn primary" onclick="speak(\''+it.en.replace(/'/g,"\\'")+'\')">🔊 Escuchar otra vez</button><div class="opts" style="margin-top:10px;">'+it.opts.map(function(o){return '<button class="opt" onclick="tpChoose(this,\''+o.replace(/'/g,"\\'")+'\',\''+it.es.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div><div class="feedback" id="tpFb"></div>';
+  }
+  b.innerHTML=h;
+  if(it.type==='listen'){ setTimeout(function(){try{speak(it.en);}catch(e){}},300); }
+}
+function tpPick(i){ var btn=document.getElementById('tpc'+i); if(!btn||btn.disabled)return; tpState.cur=tpState.cur||[]; tpState.cur.push(btn.textContent); btn.disabled=true; btn.style.opacity=.35; document.getElementById('tpAns').textContent=tpState.cur.join(' '); }
+function tpCheckOrder(){ var it=tpState.items[tpState.i]; var good=tpNorm((tpState.cur||[]).join(' '))===tpNorm(it.en); tpFeedback(good,it.en); }
+function tpChoose(btn,choice,ans){ document.querySelectorAll('#tpBody .opt').forEach(function(b){b.disabled=true;}); var good=choice===ans; if(!good)btn.classList.add('wrong'); tpFeedback(good,ans); }
+function tpFillCheck(ans){ var v=tpNorm((document.getElementById('tpFill')||{}).value||''); tpFeedback(v===tpNorm(ans),ans); }
+function tpTF(choice,correct){ tpFeedback(choice===correct, correct?'Sí era correcta':'No, estaba mal'); }
+function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';} setTimeout(function(){tpState.i++;renderTP();},1350); }
+function finishTP(b){ var pct=Math.round(tpState.score/tpState.items.length*100); try{addXP(tpState.score*3);confetti();beep('win');}catch(e){} b.innerHTML='<div style="text-align:center;"><div class="scorebig">'+tpState.score+' / '+tpState.items.length+'</div><p>'+(pct>=70?'🏆 ¡Muy bien!':'💪 ¡Sigue practicando!')+'</p><p class="note">+'+(tpState.score*3)+' XP 🐙</p><button class="btn primary" onclick="closeTP()">Listo</button></div>'; }
+
+/* ===== ESCRIBE TUS PROPIOS EJEMPLOS (aprendizaje activo) ===== */
+function ownBoxHTML(L,ti){
+  var saved=store.get('own_'+L+'_'+ti,['','','','','']);
+  var ins='';
+  for(var j=0;j<5;j++){ var v=saved[j]?String(saved[j]).replace(/"/g,'&quot;'):''; ins+='<input class="fill" id="own_'+L+'_'+ti+'_'+j+'" style="width:100%;margin-bottom:6px;" placeholder="Tu ejemplo '+(j+1)+'..." value="'+v+'">'; }
+  return '<div class="skillbox" style="background:var(--card2);border:1px dashed var(--blue);margin-top:10px;">'
+    +'<h4>✍️ Tu turno: escribe 5 ejemplos tuyos</h4>'
+    +'<p class="note" style="margin:0 0 8px;">Crea frases <b>de tu vida diaria</b> usando este tiempo. Escribir tú mismo fija el aprendizaje. Milo las revisa. 🐙</p>'
+    +ins
+    +'<button class="btn primary" onclick="checkOwn(\''+L+'\','+ti+')">✅ Revisar mis ejemplos</button>'
+    +'<div id="ownres_'+L+'_'+ti+'" style="margin-top:8px;"></div></div>';
+}
+async function gradeSentence(tense, sentence){
+  if(!CHAT_ENDPOINT) return null;
+  try{
+    var prompt='Eres un profesor de inglés amable. El estudiante practica el tiempo verbal "'+tense+'". Evalúa SOLO esta frase del estudiante: "'+sentence+'". Responde en español y muy breve (máx. 2 frases). Empieza con "✅ Correcta" o "❌ Revisa:". Si hay error, di cuál es y escribe la versión corregida en inglés. Si la frase no usa ese tiempo verbal, indícalo con cariño.';
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
+    var j=await r.json(); return (j&&(j.reply||j.content))||null;
+  }catch(e){ return null; }
+}
+function heurCheck(name,s){
+  var n=String(name).toLowerCase(), x=' '+s.toLowerCase()+' ', tag='';
+  function has(re){return re.test(x);}
+  if(/continu/.test(n)){ tag=(has(/\b(am|is|are|was|were)\b/)&&/\w+ing\b/.test(x))?'✅ Estructura correcta (to be + verbo-ing).':'⚠️ Recuerda: am/is/are + verbo en -ing. Ej: "I am studying".'; }
+  else if(/perfect/.test(n)){ tag=has(/\b(have|has|had)\b/)?'✅ Usa have/has + participio.':'⚠️ Recuerda: have/has + participio. Ej: "I have finished".'; }
+  else if(/futur|will/.test(n)){ tag=(has(/\bwill\b/)||/going to/.test(x))?'✅ Bien (will / going to).':'⚠️ Para futuro usa "will" o "going to". Ej: "I will travel".'; }
+  else if(/to be/.test(n)){ tag=has(/\b(am|is|are|was|were)\b/)?'✅ Bien (verbo to be).':'⚠️ Recuerda usar am/is/are. Ej: "I am happy".'; }
+  else if(/past|pasado/.test(n)){ tag='📝 Revisión básica: verifica que el verbo esté en pasado (play→played, go→went).'; }
+  else { tag='📝 Revisión básica hecha: verifica que coincida con la estructura del tiempo.'; }
+  return tag+' <span style="color:var(--muted)">(Revisión básica. La corrección detallada con IA se activa en la guía.)</span>';
+}
+async function checkOwn(L,ti){
+  var t=(DATA[L]&&DATA[L].tenses&&DATA[L].tenses[ti])?DATA[L].tenses[ti]:null; var name=t?t.n:'';
+  var arr=[]; for(var j=0;j<5;j++){var el=document.getElementById('own_'+L+'_'+ti+'_'+j); arr.push(el?el.value.trim():'');}
+  store.set('own_'+L+'_'+ti,arr);
+  var res=document.getElementById('ownres_'+L+'_'+ti); if(!res)return;
+  var filled=arr.filter(function(x){return x;});
+  if(!filled.length){ res.innerHTML='<p class="note">Escribe al menos una frase para que Milo la revise. ✍️</p>'; return; }
+  res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos...</p>';
+  var out='';
+  for(var j2=0;j2<arr.length;j2++){ if(!arr[j2])continue;
+    var fb=await gradeSentence(name,arr[j2]); if(!fb) fb=heurCheck(name,arr[j2]);
+    out+='<div style="border-bottom:1px solid #eef1f8;padding:7px 0;"><div style="font-weight:700;">'+(j2+1)+'. '+arr[j2]+'</div><div class="note" style="margin:3px 0 0;">'+fb+'</div></div>';
+  }
+  out+='<p class="note" style="margin-top:8px;color:var(--green);font-weight:700;">💾 Guardado. ¡Buen trabajo escribiendo tus propias frases! +5 XP</p>';
+  res.innerHTML=out;
+  try{addXP(5);}catch(e){}
 }
 
 /* ===== QUIZ ENGINE ===== */
