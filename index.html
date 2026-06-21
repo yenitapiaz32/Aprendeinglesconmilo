@@ -1049,15 +1049,14 @@ function ensureMouthModal(){
   d.id='mouthOv'; d.className='mouth-ov'; d.style.display='none';
   d.innerHTML='<div class="mouth-card">'
     +'<button class="mouth-x" onclick="closeMouth()">✕</button>'
+    +'<div style="font-size:2.6rem;line-height:1;">🐙</div>'
     +'<div id="mthWord" class="mouth-word"></div>'
-    +MOUTH_SVG
-    +'<div class="mouth-sound">Sonido: <b id="mthLbl">—</b></div>'
-    +'<div class="mouth-tip" id="mthTip">Toca ▶ para ver el movimiento</div>'
     +'<div class="mouth-btns">'
-    +'<button class="btn primary" onclick="playMouth(false)">▶ Ver y oír</button>'
-    +'<button class="btn" onclick="playMouth(true)">🐢 Lento</button>'
+    +'<button class="btn primary" onclick="speak(mouthWord)">🔊 Escuchar</button>'
+    +'<button class="btn" onclick="speak(mouthWord,true)">🐢 Lento</button>'
     +'</div>'
-    +'<p class="note" style="margin:8px 0 0;">Vista de perfil: 👁️ mira la <b>lengua</b> (rosada) y los <b>labios</b>. La instrucción de arriba cambia con cada sonido.</p>'
+    +'<button class="btn" style="width:100%;margin-top:10px;" onclick="coachWord(false)">🧠 ¿Cómo se pronuncia? (Milo te explica)</button>'
+    +'<div class="mouth-tip" id="mthCoach" style="display:none;text-align:left;"></div>'
     +'</div>';
   document.body.appendChild(d);
 }
@@ -1066,9 +1065,9 @@ function showMouth(word){
   ensureMouthModal();
   mouthWord=String(word);
   document.getElementById('mthWord').textContent=mouthWord;
-  applyViseme('rest');
+  var c=document.getElementById('mthCoach'); if(c){c.style.display='none';c.innerHTML='';}
   document.getElementById('mouthOv').style.display='flex';
-  setTimeout(function(){playMouth(false);},250);
+  setTimeout(function(){try{speak(mouthWord);}catch(e){}},250);
 }
 function closeMouth(){ if(mouthToken)mouthToken.cancel=true; stopSpeak(); var o=document.getElementById('mouthOv'); if(o)o.style.display='none'; }
 function playMouth(slow){
@@ -1079,9 +1078,11 @@ function playMouth(slow){
   schematicMouth(mouthWord, slow, token);
 }
 function schematicMouth(word, slow, token){
-  var seq=wordToVisemes(word);
+  playVisemeSeq(wordToVisemes(word), word, slow, token);
+}
+function playVisemeSeq(seq, word, slow, token){
   var step=slow?620:380;
-  speak(word,slow);
+  if(word) speak(word,slow);
   applyViseme('rest');
   var k=0;
   (function tick(){
@@ -1090,6 +1091,22 @@ function schematicMouth(word, slow, token){
     applyViseme(seq[k]); k++;
     setTimeout(tick, step);
   })();
+}
+/* Coach de pronunciación con IA (Gemini): explica + genera visemes exactos */
+async function coachWord(slow){
+  var word=mouthWord; var coach=document.getElementById('mthCoach'); if(!coach)return;
+  if(!CHAT_ENDPOINT){ coach.style.display='block'; coach.innerHTML='🔒 Activa la IA (guía Gemini) para que Milo te explique cómo pronunciar cada palabra.'; return; }
+  coach.style.display='block'; coach.innerHTML='🐙 Milo está analizando la pronunciación...';
+  try{
+    var allowed='rest,AA,AE,EH,IY,IH,OW,UW,UH,M,F,TH,L,TD,S,SH,R,W,K';
+    var prompt='Eres profesor de fonética del inglés. Para la palabra inglesa "'+word+'", responde SOLO un JSON válido, sin texto adicional, con esta forma exacta: {"tip":"explicación breve en español (1-2 frases) de cómo mover labios y lengua para pronunciarla","visemes":["...","..."]}. El campo visemes debe ser una lista, EN ORDEN de pronunciación, usando SOLO estos códigos: '+allowed+'. Usa entre 2 y 10 visemes.';
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
+    var j=await r.json(); var txt=(j&&(j.reply||j.content))||'';
+    var m=txt.match(/\{[\s\S]*\}/); var obj=null; if(m){ try{obj=JSON.parse(m[0]);}catch(e){} }
+    if(obj && obj.tip) coach.innerHTML='🐙 '+obj.tip;
+    else coach.innerHTML='🐙 '+(txt||'No pude analizar esta palabra.');
+    try{ speak(word, slow); }catch(e){}
+  }catch(e){ coach.innerHTML='No pude conectar con la IA. Intenta de nuevo.'; }
 }
 /* Mapa de los 22 visemas de Azure -> formas de boca de Milo */
 var AZURE_VIS=['rest','UH','AA','OW','EH','R','IY','UW','OW','AA','OW','AA','AA','R','L','S','SH','TH','F','TD','K','M'];
@@ -1121,7 +1138,7 @@ async function azureMouth(word, slow, token){
   }catch(e){ schematicMouth(word,slow,token); }
 }
 /* botón 👄 para abrir la boca animada de una palabra */
-function mb(t){var e=String(t).replace(/'/g,"\\'").replace(/"/g,'&quot;');return '<button class="speakbtn mouthbtn" title="Ver cómo se pronuncia (boca)" onclick="showMouth(\''+e+'\')">👄</button>';}
+function mb(t){var e=String(t).replace(/'/g,"\\'").replace(/"/g,'&quot;');return '<button class="speakbtn mouthbtn" title="Cómo se pronuncia (Milo te explica)" onclick="showMouth(\''+e+'\')">👄</button>';}
 function setDiag(msg){var b=document.getElementById('audioDiag');if(b){b.style.display='block';b.innerHTML=msg;}}
 function testAudio(){
   var has=('speechSynthesis' in window);
@@ -3687,7 +3704,7 @@ function orderCheck(){
 }
 
 /* ===== PRON / ACCENT ===== */
-function renderPron(){let h='<p class="note" style="margin-top:0;">Toca 🔊 para oír, 🐢 para oírlo lento y <b>👄 para ver cómo Milo mueve los labios y la lengua</b>.</p>';pron.forEach(s=>{h+='<div class="skillbox"><h4>'+s.t+'</h4><p>'+s.d+'</p><div class="pill-row">'+s.ex.map(e=>'<span>'+e+' '+sb(enOnly(e))+mb(enOnly(e))+'</span>').join('')+'</div></div>';});document.getElementById('pronContent').innerHTML=h;}
+function renderPron(){let h='<p class="note" style="margin-top:0;">Toca 🔊 para oír, 🐢 para oírlo lento y <b>👄 para que Milo te explique cómo se pronuncia</b>.</p>';pron.forEach(s=>{h+='<div class="skillbox"><h4>'+s.t+'</h4><p>'+s.d+'</p><div class="pill-row">'+s.ex.map(e=>'<span>'+e+' '+sb(enOnly(e))+mb(enOnly(e))+'</span>').join('')+'</div></div>';});document.getElementById('pronContent').innerHTML=h;}
 function renderAccent(){let h='';accent.forEach(s=>{h+='<div class="skillbox"><h4>'+s.t+'</h4><p>'+s.d+'</p>'+(s.ex.length?('<ul>'+s.ex.map(e=>exLi(e)).join('')+'</ul>'):'')+'</div>';});document.getElementById('accentContent').innerHTML=h;}
 
 /* ===== TEMAS DE COLOR (marketing) ===== */
