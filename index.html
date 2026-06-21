@@ -545,6 +545,24 @@ function cancelPremium(){
 }
 function trialActive(){ try{ return !!(profile.trialUntil && new Date(profile.trialUntil)>new Date()); }catch(e){ return false; } }
 function isPremium(){ try{ if(trialActive()) return true; return !!(profile.premium && profile.premiumUntil && new Date(profile.premiumUntil)>new Date()); }catch(e){ return false; } }
+
+/* ===== VIDAS (corazones) — se activan cuando NO es gratis y el usuario no es Pro ===== */
+var MAX_LIVES=5, REFILL_MS=30*60*1000;
+function livesEnabled(){ return (!FREE_MODE) && !isPremium(); }
+function livesState(){ var s=store.get('lives',{n:MAX_LIVES,refillAt:0}); if(s.refillAt && Date.now()>=s.refillAt){ s={n:MAX_LIVES,refillAt:0}; store.set('lives',s); } if(typeof s.n!=='number'){s={n:MAX_LIVES,refillAt:0};} return s; }
+function livesLeft(){ return livesState().n; }
+function refillMsLeft(){ var s=livesState(); return s.refillAt?Math.max(0,s.refillAt-Date.now()):0; }
+function fmtMs(ms){ var t=Math.ceil(ms/1000); var m=Math.floor(t/60), s=t%60; return m+':'+(s<10?'0':'')+s; }
+function loseLife(){ if(!livesEnabled())return; var s=livesState(); if(s.n>0){ s.n--; if(!s.refillAt) s.refillAt=Date.now()+REFILL_MS; store.set('lives',s); } updateLivesUI(); }
+function livesBarHTML(){ if(!livesEnabled()) return ''; var n=livesLeft(); var hearts=''; for(var i=0;i<MAX_LIVES;i++)hearts+=(i<n?'❤️':'🤍'); var clk=(n<MAX_LIVES)?(' &nbsp; <span id="lifeClock" style="color:var(--muted);font-size:.9rem;">⏳ '+fmtMs(refillMsLeft())+'</span>'):''; return '<div id="livesBar" style="text-align:center;font-size:1.15rem;margin-bottom:8px;">'+hearts+clk+'</div>'; }
+function updateLivesUI(){ var b=document.getElementById('livesBar'); if(b){ var tmp=document.createElement('div'); tmp.innerHTML=livesBarHTML(); if(tmp.firstChild){ b.parentNode.replaceChild(tmp.firstChild,b); } else { b.remove(); } } }
+function startLifeClock(){ if(window._lifeT)clearInterval(window._lifeT); window._lifeT=setInterval(function(){ var c=document.getElementById('lifeClock'); if(!c)return; var ms=refillMsLeft(); if(ms<=0){ updateLivesUI(); } else { c.textContent='⏳ '+fmtMs(ms); } },1000); }
+function canPractice(){
+  if(!livesEnabled()) return true;
+  if(livesLeft()>0) return true;
+  if(confirm('Te quedaste sin vidas ❤️.\n\nSe recargan en '+fmtMs(refillMsLeft())+'.\n\n¿Quieres vidas ILIMITADAS? Hazte Pro. ¿Ver Pro?')) { try{notifyPremium();}catch(e){} }
+  return false;
+}
 function authCardHTML(){
   return '<div class="land-card" id="authCard">'
     +'<div class="gate-tabs"><button id="gtabIn" class="active" onclick="gateTab(\'in\')">Iniciar sesión</button><button id="gtabUp" onclick="gateTab(\'up\')">Crear cuenta</button></div>'
@@ -575,67 +593,32 @@ function ensureGate(){
       +'<button class="lnav" onclick="gateScroll(\'secContacto\')">Contáctanos</button>'
       +'<button class="btn" onclick="gateScroll(\'secAuth\')">Iniciar sesión / Crear cuenta</button>'
     +'</div></div>';
-  /* HERO (sin formulario: solo venta + botones) */
+  /* HERO */
   h+='<div class="land-hero"><div>'
     +'<div class="land-badges"><span class="land-badge">A1 → C1</span><span class="land-badge">🇺🇸 Inglés americano</span><span class="land-badge">Hecho para hispanohablantes</span></div>'
-    +'<h1>¡Hola! Soy <span class="hl">Milo</span> 🐙<br>Tu profe de inglés con <span class="hl">8 brazos</span> para ayudarte a hablar de verdad.</h1>'
-    +'<p class="sub">Soy un pulpo… ¡y eso es a propósito! El pulpo es uno de los animales <b>más inteligentes del planeta</b>: aprende rápido, resuelve problemas y se adapta. Así quiero que aprendas tú: con mi voz natural, mi <b>boca animada</b> que te enseña a mover labios y lengua, y práctica que se adapta a ti. Sin aburrirte y sin pena.</p>'
-    +'<div class="land-badges"><span class="land-badge">👄 Boca animada</span><span class="land-badge">🧠 Repetición espaciada</span><span class="land-badge">🎮 Juegos y XP</span><span class="land-badge">💼 Inglés por carrera</span></div>'
+    +'<h1>Aprende inglés <span class="hl">hablando</span> desde el primer día.</h1>'
+    +'<p class="sub">Con Milo 🐙, tu tutor con IA: conversa, mejora tu pronunciación y aprende el inglés de tu profesión. Todo en español y a tu ritmo.</p>'
+    +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secAuth\')">🚀 Crear cuenta gratis</button>'
     +'</div><div style="text-align:center;"><div class="land-milo">🐙</div><div style="color:#dde6ff;font-weight:700;font-size:.85rem;margin-top:4px;">Milo, tu pulpo políglota</div></div></div>';
-  /* STATS */
-  h+='<div class="land-sec" style="padding:18px;"><div class="feat-grid" style="text-align:center;">'
-    +'<div><div style="font-size:1.6rem;font-weight:800;color:#16357f;">5 niveles</div><div style="color:#8493ad;font-size:.85rem;">A1 a C1</div></div>'
-    +'<div><div style="font-size:1.6rem;font-weight:800;color:#16357f;">1.000+</div><div style="color:#8493ad;font-size:.85rem;">palabras y frases</div></div>'
-    +'<div><div style="font-size:1.6rem;font-weight:800;color:#16357f;">14+</div><div style="color:#8493ad;font-size:.85rem;">carreras</div></div>'
-    +'<div><div style="font-size:1.6rem;font-weight:800;color:#16357f;">4 idiomas</div><div style="color:#8493ad;font-size:.85rem;">EN · ES · PT · FR</div></div>'
-    +'</div></div>';
-  /* ¿POR QUÉ UN PULPO? */
-  h+='<div class="land-sec" style="background:linear-gradient(135deg,#eef3ff,#ffffff);"><h2>¿Por qué un pulpo? 🐙</h2><p class="lead">No es casualidad. Milo es un pulpo porque el pulpo es uno de los animales más <b>inteligentes</b> que existen.</p><div class="feat-grid">'
-    +feat('🧠','Cerebro brillante','El pulpo tiene millones de neuronas y aprende a una velocidad asombrosa. Milo usa esa inteligencia para enseñarte mejor.')
-    +feat('🐙','8 brazos para ti','Mientras estudias, Milo hace muchas cosas a la vez: te corrige, te motiva y recuerda lo que te cuesta.')
-    +feat('🔄','Se adapta a ti','El pulpo cambia y se adapta a cualquier entorno. Milo adapta tu aprendizaje a tu nivel, tu meta y tu carrera.')
-    +'</div></div>';
-  /* FEATURES */
-  h+='<div class="land-sec" id="secFeatures"><h2>¿Qué hace especial a Milo? 🐙</h2><p class="lead">No es otra app genérica. Es la forma más humana y divertida de aprender a hablar.</p><div class="feat-grid">'
-    +feat('🔊🐢','Escúchame las veces que quieras','Voz natural, normal o en cámara lenta, para que captes cada sonido.')
-    +feat('👄','Te enseño a pronunciar','Mi boca animada te muestra cómo poner labios y lengua. ¡Ninguna otra app hace esto!')
-    +feat('🧠','Recuerdo lo que te cuesta','Repetición espaciada inteligente: te repito justo lo que necesitas hasta dominarlo.')
-    +feat('🎮','Aprender engancha','Ganas XP, subes de nivel y mantienes tu racha diaria. Como un juego.')
-    +feat('💼','Inglés para TU carrera','Odontología, negocios, software, turismo, datos y más. Vocabulario real de tu profesión.')
-    +feat('🌍','Tú eliges el idioma','Inglés, español, portugués o francés. Yo te acompaño en todos.')
-    +feat('📊','Empieza en tu nivel','Examen de nivelación: no empiezas desde cero si ya sabes algo.')
-    +feat('☁️','Tu progreso te sigue','Guardado en tu cuenta: entra desde el celular, la tablet o el computador.')
-    +'</div></div>';
-  /* HOW IT WORKS */
-  h+='<div class="land-sec"><h2>Empieza en 3 pasos</h2><div class="steps">'
-    +'<div class="step"><div class="num">1</div><h3>Crea tu cuenta gratis</h3><p>Tu nombre, correo y listo. Sin tarjetas para empezar.</p></div>'
-    +'<div class="step"><div class="num">2</div><h3>Cuéntame de ti</h3><p>Tu nivel, tu meta y tu carrera. Personalizo todo para ti.</p></div>'
-    +'<div class="step"><div class="num">3</div><h3>Aprende jugando conmigo</h3><p>10 minutos al día y verás resultados. Yo te recuerdo y te motivo.</p></div>'
-    +'</div></div>';
-  /* WHY US */
-  h+='<div class="land-sec"><h2>¿Por qué elegir a Milo?</h2><div class="feat-grid">'
-    +feat('🦷','Hecho por una profesional','Creado por una odontóloga, con contenido real de profesiones, no plantillas frías.')
-    +feat('👄','Único con boca animada','Verás de verdad cómo se pronuncia. Es como tener un profe mostrándote la boca.')
-    +feat('🇪🇸','100% en español','Pensado para los errores típicos del hispanohablante (her/his, pasados, sonar más natural).')
-    +feat('🚫','Sin anuncios, sin relleno','Directo a lo que te hace hablar. Tu tiempo vale.')
+  /* 3 BENEFICIOS */
+  h+='<div class="land-sec" id="secFeatures"><h2>¿Por qué Milo? 🐙</h2><div class="feat-grid">'
+    +feat('💬','IA conversacional','Practica conversaciones reales (entrevista, viajes, tu profesión) y Milo te responde y corrige.')
+    +feat('🗣️','Pronunciación guiada','Escucha cada palabra (normal o lento) y Milo te explica cómo pronunciarla.')
+    +feat('💼','Inglés para tu profesión','Odontología, salud, negocios, tecnología y más. El inglés que de verdad usas.')
     +'</div></div>';
   /* TESTIMONIOS */
   h+='<div class="land-sec"><h2>Lo que dicen nuestros estudiantes</h2><p class="lead">(Reemplaza estos por testimonios reales cuando los tengas 😉)</p><div class="testi-grid">'
-    +testi('Por fin entiendo cómo mover la boca para la "th". La boca animada me cambió todo.','Laura M. · Enfermera')
+    +testi('Practicar hablando con Milo me quitó la pena. Ahora me lanzo a conversar.','Laura M. · Enfermera')
     +testi('Las repeticiones me hicieron recordar los verbos sin estudiar como loca. Lo amo.','Andrés P. · Estudiante')
     +testi('El inglés para mi carrera fue lo que necesitaba. Hablo con más confianza en el trabajo.','Carolina R. · Hotelería')
     +'</div></div>';
-  /* PLANES */
-  h+='<div class="land-sec" id="secPlanes"><h2>Planes para ti</h2><p class="lead">Empieza gratis. Cuando quieras todo, hazte Premium.</p>'
-    +(FREE_MODE
-      ? '<div class="trial-banner">🎉 <b>¡Por lanzamiento, TODO es GRATIS!</b> Crea tu cuenta y disfruta el contenido completo. Los planes de abajo son para más adelante.</div>'
-      : '<div class="trial-banner">🎁 <b>Prueba Premium GRATIS por 7 días.</b> Acceso completo. Si no cancelas antes, continúa al plan mensual ('+PRICE_M+'/mes). <button class="btn" style="background:#fff;color:#16357f;font-weight:800;margin-left:6px;" onclick="startTrial()">Empezar prueba gratis</button></div>')
-    +'<div class="plans">'
-    +'<div class="plan"><h3>🆓 Gratis</h3><div class="price">'+'$0'+' <small>/ siempre</small></div><ul><li>Nivel A1 completo</li><li>Audio normal</li><li>Juegos básicos</li><li>Tu progreso en la nube</li></ul><button class="btn" onclick="gateScroll(\'secAuth\',\'up\')">Empezar gratis</button></div>'
-    +'<div class="plan pop"><div class="tag">🚀 LANZAMIENTO</div><h3>⭐ Premium mensual</h3><div class="price">'+PRICE_M+' <small>/ mes</small></div><ul><li>Todos los niveles A1–C1</li><li>👄 Boca animada</li><li>🐢 Audio en cámara lenta</li><li>🧠 Repetición espaciada</li><li>💼 Inglés para tu carrera</li><li>Sin límites</li></ul><button class="btn primary" onclick="payWompi(\'month\')">Suscribirme</button></div>'
-    +'<div class="plan"><h3>🔥 Premium 3 meses</h3><div class="price">'+PRICE_Q+' <small>/ 3 meses</small></div><ul><li>Todo lo de Premium</li><li>Ahorra vs. mensual</li><li>Ideal para tomar el ritmo</li></ul><button class="btn" onclick="payWompi(\'quarter\')">Quiero 3 meses</button></div>'
-    +'<div class="plan"><h3>👑 Premium anual</h3><div class="price">'+PRICE_Y+' <small>/ año</small></div><ul><li>Todo lo de Premium</li><li>Ahorras ~3 meses</li><li>El mejor precio</li></ul><button class="btn" onclick="payWompi(\'year\')">Quiero el anual</button></div>'
-    +'</div><p class="lead" style="margin-top:14px;font-size:.85rem;">* Precios en pesos colombianos (COP). Pagos seguros con Wompi (tarjeta, PSE, Nequi). Puedes cancelar cuando quieras. Consulta <a href="#" onclick="openLegal(\'cancel\');return false;">Política de cancelación</a>.</p></div>';
+  /* PLANES (mensaje simple: gratis ahora, Pro pronto) */
+  h+='<div class="land-sec" id="secPlanes" style="text-align:center;">'
+    +'<div class="trial-banner" style="font-size:1.05rem;">🎉 <b>¡Por ahora, Milo es 100% GRATIS!</b><br>Crea tu cuenta y accede a todo el contenido sin pagar.</div>'
+    +'<h2>Pronto: Milo Pro ✨</h2>'
+    +'<p class="lead">Estamos preparando funciones <b>Pro</b> (conversaciones con IA ilimitadas, inglés profesional completo, certificados y más) que <b>dejarán de estar gratis</b>. Si entras ahora, aprovechas todo gratis mientras dure el lanzamiento.</p>'
+    +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;" onclick="gateScroll(\'secAuth\')">Empezar gratis ahora</button>'
+    +'</div>';
   /* FAQ */
   h+='<div class="land-sec"><h2>Preguntas frecuentes</h2>'
     +faq('¿Necesito saber algo de inglés?','Para nada. Empiezas en A1 desde cero, o haces el examen de nivelación si ya sabes algo.')
@@ -729,10 +712,20 @@ var SCENARIOS=[
   {id:'emergency',ico:'🚑',name:'Emergencia médica',greet:"911, what's your emergency?"}
 ];
 var chatScenario='free', chatHistory=[];
+/* Límite de conversación con IA: solo cuando NO es gratis y el usuario no es Pro */
+var CHAT_LIMIT_MS=5*60*1000, CHAT_WINDOW_MS=30*60*1000;
+function limitsEnabled(){ return (!FREE_MODE) && !isPremium(); }
+function chatTimeState(){ var s=store.get('chatTime',{used:0,win:0}); if(!s.win || (Date.now()-s.win)>=CHAT_WINDOW_MS){ s={used:0,win:Date.now()}; store.set('chatTime',s);} if(typeof s.used!=='number')s.used=0; return s; }
+function chatRemainingMs(){ if(!limitsEnabled())return CHAT_LIMIT_MS; return Math.max(0, CHAT_LIMIT_MS - chatTimeState().used); }
+function chatWindowResetMs(){ var s=chatTimeState(); return Math.max(0, CHAT_WINDOW_MS-(Date.now()-s.win)); }
+function chatAddUsed(ms){ if(!limitsEnabled())return; var s=chatTimeState(); s.used+=ms; store.set('chatTime',s); }
+function saveChat(){ try{ store.set('chatSave',{scenario:chatScenario,history:chatHistory}); }catch(e){} }
 function miloChatCardHTML(){
+  var resumeNote=''; try{var sv=store.get('chatSave',null); if(sv&&sv.history&&sv.history.length>1)resumeNote='<p class="note" style="margin:0 0 8px;color:var(--green);">▶ Tienes una conversación guardada. Puedes retomarla donde la dejaste.</p>';}catch(e){}
   return '<div class="card" style="border:2px solid var(--blue);"><h2>💬 Practica hablando con Milo (IA)</h2>'
     +'<p class="note" style="margin:0 0 8px;">Conversa en inglés con Milo en situaciones reales: entrevista, consulta dental, restaurante y más. Te responde y te corrige. 🐙</p>'
-    +'<button class="btn primary" onclick="openMiloChat()">Empezar a conversar</button></div>';
+    +resumeNote
+    +'<button class="btn primary" onclick="openMiloChat()">Conversar</button></div>';
 }
 function ensureChat(){
   if(document.getElementById('chatOv'))return;
@@ -742,15 +735,31 @@ function ensureChat(){
     +'<div id="chatScene"></div></div>';
   document.body.appendChild(d);
 }
-function openMiloChat(){ ensureChat(); chatHistory=[]; document.getElementById('chatScene').innerHTML='<div style="padding:14px 14px 0;"><p class="note" style="margin:0;">Elige una situación para practicar:</p></div><div class="scen-grid">'+SCENARIOS.map(function(s){return '<div class="scen" onclick="chooseScenario(\''+s.id+'\')">'+s.ico+'<br>'+s.name+'</div>';}).join('')+'</div>'; document.getElementById('chatOv').style.display='flex'; }
-function closeMiloChat(){ var o=document.getElementById('chatOv'); if(o)o.style.display='none'; }
+function showScenePicker(){ document.getElementById('chatScene').innerHTML='<div style="padding:14px 14px 0;"><p class="note" style="margin:0;">Elige una situación para practicar:</p></div><div class="scen-grid">'+SCENARIOS.map(function(s){return '<div class="scen" onclick="chooseScenario(\''+s.id+'\')">'+s.ico+'<br>'+s.name+'</div>';}).join('')+'</div>'; }
+function openMiloChat(){
+  ensureChat();
+  var saved=null; try{saved=store.get('chatSave',null);}catch(e){}
+  if(saved && saved.history && saved.history.length){ chatScenario=saved.scenario||'free'; chatHistory=saved.history.slice(); showChatView(); }
+  else { showScenePicker(); }
+  document.getElementById('chatOv').style.display='flex';
+}
+function closeMiloChat(){ stopChatTimer(); saveChat(); var o=document.getElementById('chatOv'); if(o)o.style.display='none'; }
 function chooseScenario(id){
   chatScenario=id; var s=SCENARIOS.find(function(x){return x.id===id;})||SCENARIOS[0];
-  chatHistory=[{role:'assistant',content:s.greet}];
-  document.getElementById('chatScene').innerHTML='<div class="chat-body" id="chatBody"></div>'
-    +'<div class="chat-foot"><input id="chatIn" placeholder="Escribe en inglés..." onkeydown="if(event.key===\'Enter\')sendMiloChat()"><button class="btn primary" onclick="sendMiloChat()">Enviar</button></div>';
-  renderMiloChat();
+  chatHistory=[{role:'assistant',content:s.greet}]; saveChat(); showChatView();
 }
+function newMiloChat(){ try{store.set('chatSave',null);}catch(e){} chatHistory=[]; stopChatTimer(); showScenePicker(); }
+function showChatView(){
+  document.getElementById('chatScene').innerHTML=
+     '<div id="chatTimer" style="text-align:center;font-size:.78rem;color:var(--muted);padding:6px;"></div>'
+    +'<div class="chat-body" id="chatBody"></div>'
+    +'<div class="chat-foot"><input id="chatIn" placeholder="Escribe en inglés..." onkeydown="if(event.key===\'Enter\')sendMiloChat()"><button class="btn primary" id="chatSendBtn" onclick="sendMiloChat()">Enviar</button></div>'
+    +'<div style="text-align:center;padding:0 0 8px;"><button class="btn" style="font-size:.8rem;padding:5px 12px;" onclick="newMiloChat()">🔄 Nueva conversación</button></div>';
+  renderMiloChat(); startChatTimer();
+}
+function startChatTimer(){ stopChatTimer(); updateChatTimer(); window._chatT=setInterval(function(){ if(limitsEnabled())chatAddUsed(1000); updateChatTimer(); },1000); }
+function stopChatTimer(){ if(window._chatT){clearInterval(window._chatT);window._chatT=null;} }
+function updateChatTimer(){ var t=document.getElementById('chatTimer'); if(!t)return; if(!limitsEnabled()){ t.textContent=''; return; } var rem=chatRemainingMs(); var inp=document.getElementById('chatIn'); if(rem>0){ t.textContent='⏳ Tiempo de conversación restante: '+fmtMs(rem); if(inp)inp.disabled=false; } else { t.innerHTML='⏳ Tiempo agotado · vuelve en '+fmtMs(chatWindowResetMs())+' · <a href="#" onclick="notifyPremium();return false;" style="color:var(--blue);">Hazte Pro</a>'; if(inp)inp.disabled=true; } }
 function renderMiloChat(typing){
   var b=document.getElementById('chatBody'); if(!b)return;
   var h=chatHistory.map(function(m){
@@ -762,18 +771,19 @@ function renderMiloChat(typing){
   b.innerHTML=h; b.scrollTop=b.scrollHeight;
 }
 async function sendMiloChat(){
+  if(limitsEnabled() && chatRemainingMs()<=0){ if(confirm('Se acabó tu tiempo de conversación con la IA ⏳.\nVuelve en '+fmtMs(chatWindowResetMs())+'.\n\n¿Quieres conversación ILIMITADA? Hazte Pro. ¿Ver Pro?')){try{notifyPremium();}catch(e){}} return; }
   var inp=document.getElementById('chatIn'); if(!inp)return; var txt=inp.value.trim(); if(!txt)return;
-  chatHistory.push({role:'user',content:txt}); inp.value=''; renderMiloChat(true);
+  chatHistory.push({role:'user',content:txt}); inp.value=''; saveChat(); renderMiloChat(true);
   if(!CHAT_ENDPOINT){
     chatHistory.push({role:'assistant',content:"🐙 ¡Muy pronto podré conversar contigo de verdad con IA! Esta función llegará con Milo Premium. Por ahora, ¡sigue practicando con los ejercicios!"});
-    renderMiloChat(); return;
+    saveChat(); renderMiloChat(); return;
   }
   try{
     var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:chatScenario,messages:chatHistory})});
     var j=await r.json();
     chatHistory.push({role:'assistant',content:(j&&(j.reply||j.content))||'(sin respuesta)'});
   }catch(e){ chatHistory.push({role:'assistant',content:'Ups, no pude conectar con la IA. Intenta de nuevo. 🐙'}); }
-  renderMiloChat();
+  saveChat(); renderMiloChat();
 }
 function gateScroll(id,tab){
   if(tab)gateTab(tab);
@@ -2888,6 +2898,7 @@ function makeTpItem(en,es,words,exs){
   return {type:'choose',sent:sent,ans:ans,opts:shuffle([ans].concat(pool)),es:es};
 }
 function practiceTopic(kind,idx){
+  if(!canPractice())return;
   var d=DATA[curLevel]||DATA.A1; var arr=(kind==='tenses'?d.tenses:d.grammar)||[]; var topic=arr[idx]; if(!topic){return;}
   var exs=(topic.ex||[]).filter(Boolean); var items=[];
   exs.forEach(function(e){ var en=enOnly(e), es=(String(e).split('|')[1]||'').trim(); var w=tpWords(en); if(w.length>=2&&es) items.push(makeTpItem(en,es,w,exs)); });
@@ -2902,7 +2913,7 @@ function renderTP(){
   var b=document.getElementById('tpBody'); if(!b)return;
   if(tpState.i>=tpState.items.length){ finishTP(b); return; }
   var it=tpState.items[tpState.i];
-  var h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">'+tpState.topic+' · '+(tpState.i+1)+'/'+tpState.items.length+' · Aciertos: '+tpState.score+'</div>';
+  var h=livesBarHTML()+'<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">'+tpState.topic+' · '+(tpState.i+1)+'/'+tpState.items.length+' · Aciertos: '+tpState.score+'</div>';
   if(it.type==='order'){
     tpState.cur=[]; var scr=shuffle(tpWords(it.en).slice());
     h+='<p class="q">🔀 Ordena la oración en inglés:</p><p class="note" style="margin-top:0;">Significado: '+it.es+'</p>';
@@ -2920,6 +2931,7 @@ function renderTP(){
     h+='<p class="q">🎧 Escucha y elige el significado:</p><button class="btn primary" onclick="speak(\''+it.en.replace(/'/g,"\\'")+'\')">🔊 Escuchar otra vez</button><div class="opts" style="margin-top:10px;">'+it.opts.map(function(o){return '<button class="opt" onclick="tpChoose(this,\''+o.replace(/'/g,"\\'")+'\',\''+it.es.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div><div class="feedback" id="tpFb"></div>';
   }
   b.innerHTML=h;
+  startLifeClock();
   if(it.type==='listen'){ setTimeout(function(){try{speak(it.en);}catch(e){}},300); }
 }
 function tpPick(i){ var btn=document.getElementById('tpc'+i); if(!btn||btn.disabled)return; tpState.cur=tpState.cur||[]; tpState.cur.push(btn.textContent); btn.disabled=true; btn.style.opacity=.35; document.getElementById('tpAns').textContent=tpState.cur.join(' '); }
@@ -2927,7 +2939,9 @@ function tpCheckOrder(){ var it=tpState.items[tpState.i]; var good=tpNorm((tpSta
 function tpChoose(btn,choice,ans){ document.querySelectorAll('#tpBody .opt').forEach(function(b){b.disabled=true;}); var good=choice===ans; if(!good)btn.classList.add('wrong'); tpFeedback(good,ans); }
 function tpFillCheck(ans){ var v=tpNorm((document.getElementById('tpFill')||{}).value||''); tpFeedback(v===tpNorm(ans),ans); }
 function tpTF(choice,correct){ tpFeedback(choice===correct, correct?'Sí era correcta':'No, estaba mal'); }
-function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';} setTimeout(function(){tpState.i++;renderTP();},1350); }
+function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} loseLife(); if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';}
+  if(livesEnabled() && livesLeft()<=0){ setTimeout(function(){ var b=document.getElementById('tpBody'); if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Te quedaste sin vidas</h3><p class="note">Se recargan en <b>'+fmtMs(refillMsLeft())+'</b>. ¿Quieres vidas ilimitadas?</p><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>'; },1200); return; }
+  setTimeout(function(){tpState.i++;renderTP();},1350); }
 function finishTP(b){ var pct=Math.round(tpState.score/tpState.items.length*100); try{addXP(tpState.score*3);confetti();beep('win');}catch(e){} b.innerHTML='<div style="text-align:center;"><div class="scorebig">'+tpState.score+' / '+tpState.items.length+'</div><p>'+(pct>=70?'🏆 ¡Muy bien!':'💪 ¡Sigue practicando!')+'</p><p class="note">+'+(tpState.score*3)+' XP 🐙</p><button class="btn primary" onclick="closeTP()">Listo</button></div>'; }
 
 /* ===== ESCRIBE TUS PROPIOS EJEMPLOS (aprendizaje activo) ===== */
