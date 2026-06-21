@@ -300,6 +300,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 <header style="position:relative;">
@@ -402,8 +403,8 @@ async function sbInitSession(){
   if(!supa||sbInited) return; sbInited=true;
   try{
     var s=await supa.auth.getSession();
-    if(s&&s.data&&s.data.session){ sbUser=s.data.session.user; await loadCloud(); }
-    supa.auth.onAuthStateChange(function(_e,session){ sbUser=session?session.user:null; renderGate(); renderAuth(); });
+    if(s&&s.data&&s.data.session){ sbUser=s.data.session.user; await loadCloud(); try{publishStats();}catch(e){} try{resolveFriendParam();}catch(e){} }
+    supa.auth.onAuthStateChange(function(_e,session){ sbUser=session?session.user:null; renderGate(); renderAuth(); if(sbUser){try{publishStats();}catch(e){}} });
   }catch(e){}
   renderGate(); renderAuth();
 }
@@ -607,7 +608,7 @@ function ensureGate(){
     +feat('💼','Inglés para tu profesión','Odontología, salud, negocios, tecnología y más. El inglés que de verdad usas.')
     +'</div></div>';
   /* TESTIMONIOS */
-  h+='<div class="land-sec"><h2>Lo que dicen nuestros estudiantes</h2><p class="lead">(Reemplaza estos por testimonios reales cuando los tengas 😉)</p><div class="testi-grid">'
+  h+='<div class="land-sec"><h2>Lo que dicen nuestros estudiantes</h2><div class="testi-grid">'
     +testi('Practicar hablando con Milo me quitó la pena. Ahora me lanzo a conversar.','Laura M. · Enfermera')
     +testi('Las repeticiones me hicieron recordar los verbos sin estudiar como loca. Lo amo.','Andrés P. · Estudiante')
     +testi('El inglés para mi carrera fue lo que necesitaba. Hablo con más confianza en el trabajo.','Carolina R. · Hotelería')
@@ -670,7 +671,7 @@ var LEGAL={
   +'<p><i>Última actualización: '+LEGAL_UPDATED+'.</i></p>'
   +'<p>En cumplimiento de la Ley 1581 de 2012 y normas concordantes (Colombia), te informamos cómo tratamos tus datos personales.</p>'
   +'<h4>1. Responsable</h4><p>La titular de Milo English. Contacto: WhatsApp '+MILO_WA_DISP+'.</p>'
-  +'<h4>2. Datos que recolectamos</h4><p>Nombre o apodo, correo electrónico y tu progreso de aprendizaje (niveles, puntajes, racha). Los pagos los procesa Wompi; no almacenamos los datos completos de tu tarjeta.</p>'
+  +'<h4>2. Datos que recolectamos</h4><p>Nombre o apodo, correo electrónico y tu progreso de aprendizaje (niveles, puntajes, constancia). Los pagos los procesa Wompi; no almacenamos los datos completos de tu tarjeta.</p>'
   +'<h4>3. Finalidad</h4><p>Crear y gestionar tu cuenta, guardar y sincronizar tu progreso, brindar soporte, procesar pagos y mejorar el servicio.</p>'
   +'<h4>4. Encargados</h4><p>Usamos proveedores como <b>Supabase</b> (autenticación y base de datos) y <b>Wompi</b> (pagos), que pueden almacenar datos en servidores propios bajo sus políticas.</p>'
   +'<h4>5. Tus derechos</h4><p>Puedes conocer, actualizar, rectificar y solicitar la supresión de tus datos, así como revocar la autorización, escribiendo al WhatsApp de contacto.</p>'
@@ -2403,7 +2404,7 @@ B1:{
   grammar:[
     {t:"Por vs Para",form:"para = purpose/destination/deadline · por = cause/exchange/duration",ex:["Estudo para aprender. | I study in order to learn.","Este presente é para você. | This gift is for you.","Comprei por dez reais. | I bought it for ten reais.","Caminhei por uma hora. | I walked for an hour.","Obrigado pela ajuda. | Thanks for the help."]},
     {t:"Subjuntivo: introdução",form:"quero que + subj · espero que + subj · é importante que + subj",ex:["Quero que você venha. | I want you to come.","Espero que chegue a tempo. | I hope you arrive on time.","É importante que você estude. | It's important that you study.","Não quero que vá embora. | I don't want you to leave.","Tomara que faça bom tempo. | Hopefully the weather will be good."]},
-    {t:"False friends (PT vs EN)",form:"words that look similar but differ",ex:["polvo = octopus (not powder!) | polvo = polvo","borracha = rubber eraser (not 'drunk'!) | borracha = goma de borrar","presunçoso = presumptuous (not ham!) | presuntoso = presumido","esquisito = weird (not 'exquisite'!) | raro/extraño","policia = police (noun, f.) | policía"]}
+    {t:"False friends (PT vs EN)",form:"words that look similar but differ",ex:["polvo = octopus (not powder!) | polvo = polvo","borconstancia = rubber eraser (not 'drunk'!) | borconstancia = goma de borrar","presunçoso = presumptuous (not ham!) | presuntoso = presumido","esquisito = weird (not 'exquisite'!) | raro/extraño","policia = police (noun, f.) | policía"]}
   ],
   vocab:[
     {w:"melhorar",es:"to improve",syn:"progredir, avançar",ex:["Quero melhorar meu português. | I want to improve my Portuguese.","Ela melhorou muito. | She improved a lot.","A prática melhora tudo. | Practice improves everything.","Como posso melhorar? | How can I improve?","Sua pronúncia melhorou. | Your pronunciation has improved."]},
@@ -3534,7 +3535,7 @@ function renderChallenge(){
   const doneToday=store.get('challengeDate','')===todayStr();
   let h='';
   if(doneToday){
-    h+='<div class="skillbox" style="text-align:center;border:2px solid var(--green);"><h4>✅ ¡Reto de hoy completado!</h4><p>Vuelve mañana para mantener tu racha 🔥 ('+streak.count+' días)</p><button class="btn" onclick="store.set(\'challengeDate\',\'\');renderChallenge();">Repetir de todos modos</button></div>';
+    h+='<div class="skillbox" style="text-align:center;border:2px solid var(--green);"><h4>✅ ¡Reto de hoy completado!</h4><p>Vuelve mañana para mantener tu constancia 🔥 ('+streak.count+' días)</p><button class="btn" onclick="store.set(\'challengeDate\',\'\');renderChallenge();">Repetir de todos modos</button></div>';
     el.innerHTML=h;return;
   }
   const words=todaysWords();
@@ -3656,9 +3657,61 @@ function renderGames(){
   let h='<div class="subnav">'
     +'<button class="'+(curGame==='match'?'active':'')+'" onclick="curGame=\'match\';renderGames();">🔗 Emparejar</button>'
     +'<button class="'+(curGame==='order'?'active':'')+'" onclick="curGame=\'order\';renderGames();">🧩 Ordenar oración</button>'
+    +'<button class="'+(curGame==='soup'?'active':'')+'" onclick="curGame=\'soup\';renderGames();">🔤 Sopa de letras</button>'
     +'</div><div id="gameHost"></div>';
   el.innerHTML=h;
-  if(curGame==='match') startMatch(); else startOrder();
+  if(curGame==='match') startMatch(); else if(curGame==='order') startOrder(); else startSoup();
+}
+/* --- Sopa de letras (usa el vocabulario del idioma activo) --- */
+var wsState=null;
+function startSoup(){
+  var host=document.getElementById('gameHost'); if(!host)return;
+  var d=DATA[curLevel]||DATA.A1;
+  var words=shuffle((d.vocab||[]).slice()).map(function(v){return {w:enOnly(v.w).toUpperCase().replace(/[^A-ZÁÉÍÓÚÑ]/g,''), clue:v.es};}).filter(function(x){return x.w.length>=3 && x.w.length<=9;}).slice(0,7);
+  if(words.length<4){ host.innerHTML='<p class="note">No hay suficientes palabras para la sopa en este nivel.</p>'; return; }
+  var maxLen=Math.max.apply(null,words.map(function(x){return x.w.length;}));
+  var size=Math.max(10,Math.min(13,maxLen+2));
+  var g=makeSoup(words,size);
+  wsState={grid:g.grid, place:g.place, words:words, found:[], size:size, sel:null};
+  renderSoup();
+}
+function makeSoup(words,size){
+  var grid=[]; for(var r=0;r<size;r++){var row=[];for(var c=0;c<size;c++)row.push('');grid.push(row);}
+  var dirs=[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]]; var place=[];
+  words.forEach(function(it){ var w=it.w, placed=false, t=0;
+    while(!placed && t<300){ t++; var d=dirs[Math.floor(Math.random()*dirs.length)];
+      var r=Math.floor(Math.random()*size), c=Math.floor(Math.random()*size);
+      var er=r+d[0]*(w.length-1), ec=c+d[1]*(w.length-1);
+      if(er<0||er>=size||ec<0||ec>=size)continue;
+      var ok=true, cells=[]; for(var i=0;i<w.length;i++){var rr=r+d[0]*i,cc=c+d[1]*i; var cur=grid[rr][cc]; if(cur&&cur!==w[i]){ok=false;break;} cells.push([rr,cc]);}
+      if(!ok)continue; for(var i2=0;i2<w.length;i2++)grid[cells[i2][0]][cells[i2][1]]=w[i2]; place.push({w:w,cells:cells}); placed=true;
+    }
+  });
+  var A='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; for(var r3=0;r3<size;r3++)for(var c3=0;c3<size;c3++){if(!grid[r3][c3])grid[r3][c3]=A[Math.floor(Math.random()*26)];}
+  return {grid:grid,place:place};
+}
+function renderSoup(){
+  var host=document.getElementById('gameHost'); if(!host)return; var s=wsState;
+  var cell=Math.floor(Math.min(34, 330/s.size));
+  var lang=(typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].name:'inglés';
+  var h='<p class="note">Encuentra las palabras en <b>'+lang+'</b>. Toca la <b>primera</b> y la <b>última</b> letra de cada palabra.</p>';
+  h+='<div style="overflow:auto;"><table style="border-collapse:collapse;margin:0 auto;">';
+  for(var r=0;r<s.size;r++){ h+='<tr>'; for(var c=0;c<s.size;c++){ h+='<td id="ws_'+r+'_'+c+'" onclick="soupTap('+r+','+c+')" style="width:'+cell+'px;height:'+cell+'px;text-align:center;border:1px solid #e6ecfb;font-weight:700;cursor:pointer;font-size:'+Math.round(cell*0.5)+'px;">'+s.grid[r][c]+'</td>'; } h+='</tr>'; }
+  h+='</table></div>';
+  h+='<div style="margin-top:10px;text-align:center;">'+s.words.map(function(it){var done=s.found.indexOf(it.w)>=0; return '<span style="display:inline-block;margin:3px;padding:5px 10px;border-radius:99px;background:'+(done?'#d4f7e2':'#eef1f8')+';'+(done?'text-decoration:line-through;color:#0f7a4d;':'color:#334;')+'font-size:.85rem;">'+it.clue+'</span>';}).join('')+'</div>';
+  h+='<div style="text-align:center;margin-top:10px;"><button class="btn" onclick="startSoup()">🔄 Otra sopa</button></div>';
+  host.innerHTML=h;
+  s.place.forEach(function(p){ if(s.found.indexOf(p.w)>=0)p.cells.forEach(function(cl){var td=document.getElementById('ws_'+cl[0]+'_'+cl[1]); if(td){td.style.background='#bff0d0';td.style.color='#0f5132';}}); });
+}
+function soupTap(r,c){
+  var s=wsState; if(!s)return; var td=document.getElementById('ws_'+r+'_'+c);
+  if(!s.sel){ s.sel=[r,c]; if(td)td.style.background='#ffe08a'; return; }
+  var r0=s.sel[0],c0=s.sel[1], dr=r-r0,dc=c-c0, adr=Math.abs(dr),adc=Math.abs(dc);
+  var cells=[]; if(dr===0||dc===0||adr===adc){ var len=Math.max(adr,adc)+1, sr=dr===0?0:(dr>0?1:-1), sc=dc===0?0:(dc>0?1:-1); for(var i=0;i<len;i++)cells.push([r0+sr*i,c0+sc*i]); }
+  var word=cells.map(function(cl){return s.grid[cl[0]][cl[1]];}).join(''); var rev=word.split('').reverse().join('');
+  var match=null; s.words.forEach(function(it){ if(it.w===word||it.w===rev)match=it.w; });
+  if(match && s.found.indexOf(match)<0){ s.found.push(match); try{beep('good');addXP(3);}catch(e){} if(s.found.length>=s.words.length){ try{confetti();beep('win');}catch(e){} setTimeout(function(){toast('🏆 ¡Sopa completada!');},200); } }
+  s.sel=null; renderSoup();
 }
 /* --- Juego Emparejar --- */
 let matchSel=null,matchLeft=0;
@@ -3781,13 +3834,13 @@ function countDone(){let c=0;LEVELS.forEach(L=>LESSONS.forEach(([s])=>{if(isDone
 
 const ACHS=[
   {id:'first',ico:'🌱',t:'Primer paso',d:'Completa tu 1ª lección',ok:()=>countDone()>=1},
-  {id:'ten',ico:'🔥',t:'En racha',d:'Completa 10 lecciones',ok:()=>countDone()>=10},
+  {id:'ten',ico:'🔥',t:'En constancia',d:'Completa 10 lecciones',ok:()=>countDone()>=10},
   {id:'dialog1',ico:'🗨️',t:'Primer diálogo',d:'Completa tu primer diálogo',ok:()=>Object.keys(done).some(k=>k.endsWith('.dialog'))},
   {id:'a1',ico:'🎓',t:'A1 dominado',d:'Aprueba el examen A1',ok:()=>unlocked.includes('A2')},
   {id:'b1',ico:'🚀',t:'Nivel intermedio',d:'Desbloquea B2',ok:()=>unlocked.includes('B2')},
-  {id:'streak3',ico:'📅',t:'3 días seguidos',d:'Racha de 3 días',ok:()=>streak.count>=3},
-  {id:'streak7',ico:'🗓️',t:'1 semana seguida',d:'Racha de 7 días',ok:()=>streak.count>=7},
-  {id:'streak30',ico:'🏅',t:'1 mes imparable',d:'Racha de 30 días',ok:()=>streak.count>=30},
+  {id:'streak3',ico:'📅',t:'3 días seguidos',d:'Constancia de 3 días',ok:()=>streak.count>=3},
+  {id:'streak7',ico:'🗓️',t:'1 semana seguida',d:'Constancia de 7 días',ok:()=>streak.count>=7},
+  {id:'streak30',ico:'🏅',t:'1 mes imparable',d:'Constancia de 30 días',ok:()=>streak.count>=30},
   {id:'words100',ico:'📚',t:'100 lecciones',d:'Completa 100 lecciones',ok:()=>countDone()>=100},
   {id:'challenge',ico:'⚡',t:'Reto diario',d:'Completa un reto diario',ok:()=>!!store.get('challengeDate','')},
   {id:'all',ico:'👑',t:'Maestra',d:'Completa todo C1',ok:()=>levelPct('C1')===100}
@@ -3807,11 +3860,145 @@ const DAILY_XP={reading:5,listening:8,writing:8,speaking:10};
 function userLevel(){let lvl=1,need=40,acc=0;while(xp>=acc+need){acc+=need;lvl++;need+=10;}return {lvl:lvl,acc:acc,need:need,into:xp-acc};}
 function addXP(n){
   xp+=n;store.set('xp',xp);xpPop('+'+n+' XP');
-  markActiveDay(); addDailyXP(n);
+  markActiveDay(); addDailyXP(n); addWeeklyXP(n);
   const nl=userLevel().lvl, prev=store.get('ulevel',1);
   if(nl>prev){store.set('ulevel',nl);setTimeout(function(){confetti();beep('win');toast('⭐ ¡Subiste a Nivel '+nl+'!');},500);}
+  try{schedulePublish();}catch(e){}
 }
-/* Días activos (para calendario semanal y rachas visuales) */
+/* ===== RANKING SOCIAL (Supabase tabla 'leaderboard') ===== */
+function weekStartStr(){ var d=new Date(); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.toISOString().slice(0,10); }
+function addWeeklyXP(n){ try{ var ws=weekStartStr(); if(!profile)return; if(profile.weekStart!==ws){profile.weekStart=ws;profile.weekXp=0;} profile.weekXp=(profile.weekXp||0)+n; store.set('profile',profile); }catch(e){} }
+var pubTimer=null;
+function schedulePublish(){ if(!supa||!sbUser)return; clearTimeout(pubTimer); pubTimer=setTimeout(publishStats,4000); }
+async function publishStats(){
+  if(!supa||!sbUser)return;
+  try{
+    var ws=weekStartStr(); var wx=(profile&&profile.weekStart===ws)?(profile.weekXp||0):0;
+    var row={user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', nick:(profile&&profile.nick)||null, xp:xp, streak:(streak&&streak.count)||0, ulevel:userLevel().lvl, week_xp:wx, week_start:ws, updated_at:new Date()};
+    var up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select();
+    if(!up.error && (!up.data||up.data.length===0)){ await supa.from('leaderboard').insert(row); }
+  }catch(e){}
+}
+/* ===== PLAN PERSONALIZADO DE MILO ===== */
+function miPlanCardHTML(){
+  var has=store.get('miPlan',null);
+  return '<div class="card" style="border:2px solid var(--blue);margin-bottom:10px;"><h2>🎯 Mi plan personalizado</h2><p class="note" style="margin:0 0 8px;">'+(has?'Tu ruta hecha a tu medida por Milo. 🐙':'Milo crea un plan según tu meta, nivel y profesión.')+'</p><button class="btn primary" onclick="openMiPlan()">'+(has?'Ver mi plan':'✨ Crear mi plan con Milo')+'</button></div>';
+}
+function ensureMiPlan(){ if(document.getElementById('planOv'))return; var d=document.createElement('div'); d.id='planOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🎯 Mi plan con Milo</h3><button class="legal-x" onclick="document.getElementById(\'planOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="planBody"></div></div>'; document.body.appendChild(d); }
+function planHTML(t){ return '<div style="white-space:pre-wrap;line-height:1.55;">'+String(t).replace(/</g,'&lt;')+'</div><div style="text-align:center;margin-top:12px;"><button class="btn" onclick="generateMiPlan()">🔄 Regenerar plan</button></div>'; }
+function planDataLine(){ var car=((typeof careerById==='function'&&profile.career&&careerById(profile.career))?careerById(profile.career).name:(profile.career||'general')); return 'Nivel '+curLevel+' · Objetivo: '+(profile.goal?goalLabel(profile.goal):'—')+' · Profesión: '+car+' · '+((profile&&profile.minutes)||10)+' min/día'; }
+function openMiPlan(){ ensureMiPlan(); var saved=store.get('miPlan',null); var b=document.getElementById('planBody'); document.getElementById('planOv').style.display='flex';
+  if(saved&&saved.text){ b.innerHTML=planHTML(saved.text); }
+  else { b.innerHTML='<p class="note">Milo armará tu plan según:<br><b>'+planDataLine()+'</b></p><button class="btn primary" onclick="generateMiPlan()">✨ Generar mi plan</button>'; } }
+function miPlanFallback(lvl,goal,car,mins){
+  return 'Tu meta a 3 meses: avanzar con seguridad desde '+lvl+' hacia el siguiente nivel, enfocándote en '+goal+'.\n\n'
+   +'• Semana 1: vocabulario base de '+lvl+' + 1 reto diario ('+mins+' min/día).\n'
+   +'• Semana 2: tiempos verbales de '+lvl+' + práctica de hablar (Speak Now).\n'
+   +'• Semana 3: inglés de tu profesión ('+car+') + repasar lo que falles.\n'
+   +'• Semana 4: conversación con Milo (IA) + examen del nivel.\n\n'
+   +'Consejos de Milo 🐙:\n• Practica en voz alta, no solo leas.\n• 10 minutos diarios valen más que 1 hora el domingo.\n• Repasa lo que fallas hasta dominarlo.';
+}
+async function generateMiPlan(){
+  var b=document.getElementById('planBody'); if(b)b.innerHTML='<p class="note">🐙 Milo está diseñando tu plan a tu medida...</p>';
+  var lvl=curLevel, goal=profile.goal?goalLabel(profile.goal):'mejorar mi inglés';
+  var car=((typeof careerById==='function'&&profile.career&&careerById(profile.career))?careerById(profile.career).name:(profile.career||'general'));
+  var mins=((profile&&profile.minutes)||10);
+  if(CHAT_ENDPOINT){
+    try{
+      var prompt='Eres Milo, un tutor de inglés amable. Crea un PLAN DE ESTUDIO personalizado y motivador, en español, para un estudiante. Datos: nivel actual '+lvl+', objetivo "'+goal+'", profesión "'+car+'", dispone de '+mins+' minutos al día. Estructura: 1) una meta a 3 meses, 2) el enfoque de las semanas 1 a 4 en viñetas con "•", 3) tres consejos finales. Breve y claro, sin encabezados de markdown, pocas emojis.';
+      var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
+      var j=await r.json(); var txt=(j&&(j.reply||j.content))||'';
+      if(txt){ store.set('miPlan',{text:txt,date:Date.now()}); if(b)b.innerHTML=planHTML(txt); try{renderHome();}catch(e){} return; }
+    }catch(e){}
+  }
+  var t2=miPlanFallback(lvl,goal,car,mins); store.set('miPlan',{text:t2,date:Date.now()}); if(b)b.innerHTML=planHTML(t2); try{renderHome();}catch(e){}
+}
+function askFeedback(){
+  if(store.get('fbAsked',false))return; store.set('fbAsked',true);
+  if(confirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejarnos un comentario? Nos ayuda muchísimo a mejorar (y puede salir como testimonio).')){
+    try{ window.open(waLink('Hola Milo 🐙, mi comentario sobre la plataforma: '),'_blank'); }catch(e){}
+  }
+}
+var lbTab='global';
+function myNick(){ return (profile&&profile.nick)?profile.nick:''; }
+function friendsPanel(){
+  var nick=myNick();
+  var nickLine = nick
+    ? '<p style="margin:0 0 6px;">Tu nickname: <b>@'+nick+'</b> <button class="btn" style="padding:3px 10px;font-size:.78rem;" onclick="setNick()">cambiar</button></p>'
+    : '<p style="margin:0 0 8px;"><button class="btn primary" onclick="setNick()">✏️ Crear mi nickname</button> <span class="note">(para que tus amigos te encuentren)</span></p>';
+  var qr = nick
+    ? '<p class="note" style="margin:10px 0 4px;">Tu código QR (que lo escaneen con la cámara del celular):</p><div id="qrBox" style="display:flex;justify-content:center;padding:8px;background:#fff;border-radius:12px;"></div>'
+    : '';
+  return '<div class="card" style="background:var(--card2);">'
+    +nickLine
+    +'<p class="note" style="margin:6px 0 4px;"><b>Buscar y agregar amigo</b> por su nickname:</p>'
+    +'<input class="fill" id="friendNick" placeholder="@nickname de tu amigo" style="width:100%;margin-bottom:6px;">'
+    +'<button class="btn primary" onclick="addFriendByNick()">🔍 Buscar y agregar</button>'
+    +qr
+    +'</div>';
+}
+function setNick(){
+  if(!sbUser){alert('Inicia sesión primero.');return;}
+  var v=prompt('Elige tu nickname (solo letras y números, sin espacios):',(profile&&profile.nick)||'');
+  if(v===null)return; v=v.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if(v.length<3){alert('El nickname debe tener al menos 3 caracteres (letras/números).');return;}
+  (async function(){
+    try{ var r=await supa.from('leaderboard').select('user_id').eq('nick',v).maybeSingle();
+      if(r&&r.data&&r.data.user_id&&r.data.user_id!==sbUser.id){ alert('Ese nickname ya está tomado. Prueba otro.'); return; }
+    }catch(e){}
+    profile.nick=v; store.set('profile',profile); try{await publishStats();}catch(e){} toast('✅ Nickname guardado: @'+v); try{renderLeaderboard();}catch(e){} try{renderPerfil();}catch(e){}
+  })();
+}
+async function addFriendByNick(){
+  var v=((document.getElementById('friendNick')||{}).value||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if(!v){return;}
+  if(v===myNick()){toast('Ese eres tú 🐙');return;}
+  try{
+    var r=await supa.from('leaderboard').select('user_id,name,nick').eq('nick',v).maybeSingle();
+    if(!r||!r.data){ alert('No encontré a @'+v+'. Verifica el nickname (debe haber iniciado sesión al menos una vez).'); return; }
+    addFriendId(r.data.user_id, r.data.name||('@'+v));
+  }catch(e){ alert('No se pudo buscar. Intenta de nuevo.'); }
+}
+function addFriendId(id,label){
+  if(!id)return; if(sbUser&&id===sbUser.id){toast('Ese eres tú 🐙');return;}
+  profile.friends=profile.friends||[]; if(profile.friends.indexOf(id)<0)profile.friends.push(id);
+  store.set('profile',profile); toast('✅ ¡'+(label||'Amigo')+' agregado!'); renderLeaderboard();
+}
+function drawFriendQR(){
+  try{ var box=document.getElementById('qrBox'); if(!box||box.childNodes.length||!window.QRCode)return;
+    var nick=myNick(); if(!nick)return;
+    var url='https://aprendeconmilo.com/?friend='+encodeURIComponent(nick);
+    new QRCode(box,{text:url,width:150,height:150});
+  }catch(e){}
+}
+/* Agregar amigo desde un enlace QR (?friend=nick) */
+async function resolveFriendParam(){
+  try{ var p=new URLSearchParams(location.search); var f=p.get('friend'); if(!f||!supa||!sbUser)return;
+    var v=String(f).toLowerCase().replace(/[^a-z0-9_]/g,'');
+    if(v && v!==myNick()){ var r=await supa.from('leaderboard').select('user_id,name,nick').eq('nick',v).maybeSingle(); if(r&&r.data){ addFriendId(r.data.user_id, r.data.name||('@'+v)); } }
+    try{history.replaceState({},'',location.pathname);}catch(e){}
+  }catch(e){}
+}
+async function renderLeaderboard(){
+  var host=document.getElementById('lbHost'); if(!host)return;
+  var tabs='<div class="gate-tabs" style="margin-bottom:10px;"><button class="'+(lbTab==='global'?'active':'')+'" onclick="lbTab=\'global\';renderLeaderboard();">🌍 Global</button><button class="'+(lbTab==='week'?'active':'')+'" onclick="lbTab=\'week\';renderLeaderboard();">🔥 Semanal</button><button class="'+(lbTab==='friends'?'active':'')+'" onclick="lbTab=\'friends\';renderLeaderboard();">👥 Amigos</button></div>';
+  if(!supa||!sbUser){ host.innerHTML=tabs+'<p class="note">Inicia sesión para ver el ranking.</p>'; return; }
+  host.innerHTML=tabs+'<p class="note">Cargando...</p>';
+  try{
+    var rows=[], key=(lbTab==='week')?'week_xp':'xp';
+    if(lbTab==='friends'){
+      var fr=(profile&&profile.friends)||[]; var mine=sbUser?[sbUser.id]:[]; var ids=mine.concat(fr);
+      if(ids.length){ var rf=await supa.from('leaderboard').select('*').in('user_id',ids).order('xp',{ascending:false}); rows=rf.data||[]; }
+    } else {
+      var rr=await supa.from('leaderboard').select('*').order(key,{ascending:false}).limit(30); rows=rr.data||[];
+    }
+    var list=rows.map(function(p,i){ var me=(sbUser&&p.user_id===sbUser.id); var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div><div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:74px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div></div>'; }).join('');
+    host.innerHTML=tabs+(lbTab==='friends'?friendsPanel():'')+(list||'<p class="note">Aún no hay datos. ¡Gana XP para aparecer! 🐙</p>');
+    if(lbTab==='friends') setTimeout(drawFriendQR,50);
+  }catch(e){ host.innerHTML=tabs+'<p class="note">No se pudo cargar (¿ya creaste la tabla <b>leaderboard</b> en Supabase?).</p>'; }
+}
+/* Días activos (para calendario semanal y constancias visuales) */
 function markActiveDay(){var t=todayStr();var d=store.get('activeDays',[]);if(d.indexOf(t)<0){d.push(t);if(d.length>400)d=d.slice(-400);store.set('activeDays',d);}}
 /* XP de hoy (para meta diaria por tiempo) */
 function addDailyXP(n){var t=todayStr();var dx=store.get('dailyXP',{d:'',n:0});if(dx.d!==t){dx={d:t,n:0};}dx.n+=n;store.set('dailyXP',dx);}
@@ -3843,7 +4030,7 @@ function weekCalHTML(){
     cells+='<div style="text-align:center;"><div style="font-size:.72rem;color:#8493ad;margin-bottom:3px;">'+days[i]+'</div>'
       +'<div style="width:34px;height:34px;border-radius:50%;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto;">'+mark+'</div></div>';
   }
-  return '<div class="card"><h2>📅 Tu semana</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">Racha actual: 🔥 '+streak.count+' días. ¡No la rompas!</p></div>';
+  return '<div class="card"><h2>📅 Tu semana</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">Constancia actual: 🔥 '+streak.count+' días. ¡No la rompas!</p></div>';
 }
 function wordOfDayHTML(){
   var d=DATA[curLevel]||DATA.A1; var v=pick(d.vocab);
@@ -3928,7 +4115,7 @@ function rutaHTML(){
     +'<p class="note" style="margin:0 0 4px;">Sigue estos pasos en orden, '+((profile&&profile.name)||'')+'. Milo te guía 🐙</p>';
   h+=rutaStep(1,'📊','Ubícate','Haz el examen y descubre tu nivel real (no empieces de cero si ya sabes).', lvlDone?('Repetir examen'):('Hacer examen de nivelación'),'renderPlacement()', lvlDone);
   h+=rutaStep(2,'📚','Aprende tu nivel ('+curLevel+')','Tu ruta principal: vocabulario, gramática, lecturas y mini-unidades de tu nivel.','Ir a mis lecciones',"goTab('levels')", false);
-  h+=rutaStep(3,'🔥','Vuelve cada día','3 minutos diarios mantienen tu racha. La constancia es lo que de verdad funciona.', challengeDoneToday?'✓ Reto de hoy hecho':'Hacer el reto diario',"goTab('challenge')", challengeDoneToday);
+  h+=rutaStep(3,'🔥','Vuelve cada día','3 minutos diarios mantienen tu constancia. La constancia es lo que de verdad funciona.', challengeDoneToday?'✓ Reto de hoy hecho':'Hacer el reto diario',"goTab('challenge')", challengeDoneToday);
   h+=rutaStep(4,'🎤','Practica hablando','Usa Speak Now y conversa con Milo (IA) para soltarte sin pena.','Ir a Speak Now',"goTab('speak')", false);
   h+=rutaStep(5,'💼','Suma tu profesión','Aprende el inglés específico de tu carrera en "Mi carrera".','Ir a Mi carrera',"goTab('dental')", false);
   h+='<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0 2px;">'
@@ -3994,7 +4181,7 @@ function miloSays(){
     'Toca 👄 para verme mover labios y lengua. Imítame y verás. 🐙'
   ];
   if(dc===4) return '¡Completaste tu meta de hoy, '+nm+'! Chócala con mis 8 brazos. 🐙🏆';
-  if(streak.count>=2) return 'Llevas '+streak.count+' días seguidos. ¡No rompas la racha, '+nm+'! 🔥';
+  if(streak.count>=2) return 'Llevas '+streak.count+' días seguidos. ¡No rompas la constancia, '+nm+'! 🔥';
   if(dc>0 && dc<4) return 'Te faltan '+(4-dc)+' de 4 prácticas hoy. ¡Yo te acompaño! 🐙🎯';
   if(streak.count<=1 && dc===0) return '¡Hola '+nm+'! Soy Milo 🐙. Hagamos una práctica rápida, ¿te animas?';
   return tips[Math.floor(Math.random()*tips.length)];
@@ -4019,7 +4206,7 @@ function importProgress(){
 const TOUR=[
   {ico:'🐙',t:'¡Bienvenida a Milo!',d:'Soy Milo, tu coach. Te muestro en 1 minuto cómo usar la app. Toca "Siguiente".'},
   {ico:'📚',t:'Niveles y unidades',d:'En "Niveles" aprendes paso a paso: A1.1, A1.2, A1.3… Cada unidad enseña un tema y se desbloquea al completar la anterior.'},
-  {ico:'🔥',t:'Reto diario',d:'Haz el reto de 3 minutos cada día para ganar XP y mantener tu racha. ¡La constancia es lo que más ayuda!'},
+  {ico:'🔥',t:'Reto diario',d:'Haz el reto de 3 minutos cada día para ganar XP y mantener tu constancia. ¡La constancia es lo que más ayuda!'},
   {ico:'🎤',t:'Speak Now',d:'Practica tu pronunciación: toca el micrófono, di la frase y Milo te da un puntaje.'},
   {ico:'💼',t:'Mi carrera',d:'Aprende el inglés de tu profesión (odontología, negocios, tecnología y más). Elige la tuya.'},
   {ico:'🎮',t:'Juegos y Colecciones',d:'Aprende jugando: empareja palabras, ordena oraciones y colecciona tarjetas de vocabulario.'},
@@ -4126,6 +4313,7 @@ function renderHome(){
   h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?'✓ Reto diario completado hoy':'🔥 Reto diario · 3 minutos')+'</button>';
   /* repaso solo si hay pendientes */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">🔁 Repasar lo que fallé ('+review.length+')</button>'; }
+  h+=miPlanCardHTML();
   /* logro reciente, pequeño */
   if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">🏆 Logro: '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
   /* nota gratis/premium, discreta */
@@ -4139,7 +4327,7 @@ function renderPracticar(){
   var el=document.getElementById('practicarContent'); if(!el)return;
   var challengeDoneToday=store.get('challengeDate','')===todayStr();
   var h='<div class="card"><h2>🎯 Practicar</h2><p class="lead">Refuerza lo aprendido. Elige cómo quieres practicar hoy.</p></div>';
-  h+=hubItem('🔥','Reto diario','3 minutos para mantener tu racha.',challengeDoneToday?'✓ Hecho hoy':'Empezar',"goTab('challenge')");
+  h+=hubItem('🔥','Reto diario','3 minutos para mantener tu constancia.',challengeDoneToday?'✓ Hecho hoy':'Empezar',"goTab('challenge')");
   h+=hubItem('🎤','Speak Now','Habla y Milo evalúa tu pronunciación.','Practicar',"goTab('speak')");
   h+=hubItem('💬','Conversar con Milo (IA)','Diálogos reales: entrevista, consulta, viajes…','Conversar','openMiloChat()');
   h+=hubItem('🗣️','Pronunciación','Los sonidos que te hacen sonar nativa.','Ver',"goTab('pron')");
@@ -4152,7 +4340,7 @@ function renderProgreso(){
   var el=document.getElementById('progresoContent'); if(!el)return;
   var ul=userLevel();
   var h='<div class="card"><h2>📊 Tu progreso</h2><div class="stats">'
-    +'<div class="stat"><div class="n">🔥 '+streak.count+'</div><div class="l">racha</div></div>'
+    +'<div class="stat"><div class="n">🔥 '+streak.count+'</div><div class="l">constancia</div></div>'
     +'<div class="stat"><div class="n">⭐ '+ul.lvl+'</div><div class="l">nivel</div></div>'
     +'<div class="stat"><div class="n">⚡ '+xp+'</div><div class="l">XP</div></div>'
     +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">niveles</div></div>'
@@ -4162,9 +4350,11 @@ function renderProgreso(){
   ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
   h+='</div></div>';
   h+=certificatesHTML();
+  h+='<div class="card"><h2>🏆 Ranking</h2><p class="note" style="margin:0 0 8px;">Compite por XP con todos y con tus amigos. ¡Gana XP para subir!</p><div id="lbHost"></div></div>';
   h+=hubItem('🏅','Colecciones','Tu álbum de tarjetas de vocabulario.','Ver',"goTab('collections')");
   h+=premiumTeaserHTML();
   el.innerHTML=h;
+  try{renderLeaderboard();}catch(e){}
 }
 /* ===== PERFIL ===== */
 function onPhotoPick(input){
@@ -4193,6 +4383,7 @@ function renderPerfil(){
   /* Información personal */
   h+='<div class="card"><h2>📋 Información personal</h2>'
     +infoRow('Nombre',nm)
+    +infoRow('Nickname',(profile.nick?('@'+profile.nick):'—'))
     +infoRow('Correo',(sbUser&&sbUser.email)||'—')
     +infoRow('Idioma nativo',TL[profile.native]||'—')
     +infoRow('Aprendiendo',TL[profile.lang]||'Inglés')
@@ -4200,7 +4391,8 @@ function renderPerfil(){
     +infoRow('Objetivo',profile.goal?goalLabel(profile.goal):'—')
     +infoRow('Profesión',(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
     +infoRow('Tiempo diario',(profile.minutes||10)+' min')
-    +'<button class="btn" style="margin-top:10px;" onclick="editName()">✏️ Editar nombre</button></div>';
+    +'<button class="btn" style="margin-top:10px;margin-right:6px;" onclick="editName()">✏️ Editar nombre</button>'
+    +'<button class="btn" style="margin-top:10px;" onclick="setNick()">🏷️ '+(profile.nick?'Cambiar nickname':'Crear nickname')+'</button></div>';
   /* Suscripción */
   h+='<div class="card"><h2>💳 Mi suscripción</h2>'
     +'<p style="margin:0 0 8px;">Plan actual: <b>'+planTxt+'</b></p>';
@@ -4293,6 +4485,8 @@ try{ ensureGate(); renderGate(); }catch(e){}
 try{ sbInitSession(); }catch(e){}
 /* Verificar regreso de un pago de Wompi */
 try{ checkWompiReturn(); }catch(e){}
+/* A los 10 minutos, invitar a dejar un comentario (una sola vez) */
+try{ if(!store.get('fbAsked',false)){ setTimeout(askFeedback, 600000); } }catch(e){}
 /* Precargar voces del navegador (para el respaldo de audio) */
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}catch(e){}}
 /* Limpiar service worker y caché viejos para que SIEMPRE cargue la última versión */
