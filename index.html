@@ -2812,6 +2812,8 @@ function renderContent(){
     d.grammar.forEach((g,gi)=>{h+='<div class="skillbox"><h4>'+g.t+'</h4><p><b>Forma:</b> '+g.form+'</p><ul>';g.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'grammar\','+gi+')">🎮 Practicar este tema</button></div>';});
   } else if(curSub==='vocab'){
     h+='<p class="note">Vocabulario con traducción, 5 ejemplos cada uno'+((L==='B1'||L==='B2'||L==='C1')?' y <span class="syn">sinónimos</span> para ampliar':'')+'.</p>';
+    window.VG_POOL=(d.vocab||[]).map(function(v){return [enOnly(v.w), v.es];});
+    h+='<button class="btn primary" style="width:100%;margin-bottom:10px;" onclick="startVocabGame(window.VG_POOL,\'Vocabulario '+L+'\')">🎮 Jugar con el vocabulario</button>';
     d.vocab.forEach(v=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(v.w+' '+v.es+' '+v.ex.map(enOnly).join(' '))+'</span><span class="vt">'+v.w+'</span> '+sb(v.w)+mb(v.w)+' <span style="font-weight:400;color:var(--muted)">— '+v.es+'</span></div>';if(v.ph)h+='<p style="margin:-2px 0 6px;color:var(--pink);font-size:.84rem;">🗣️ Se pronuncia: <b>'+v.ph+'</b></p>';if(v.syn)h+='<p class="syn">Sinónimos: '+v.syn+'</p>';h+='<ul>';v.ex.forEach(e=>h+=exLi(e));h+='</ul></div>';});
   } else if(curSub==='dialog'){
     const dl=d.dialog||[];
@@ -3406,6 +3408,48 @@ function renderDentalBar(){
     bar.appendChild(btn);
   });
 }
+/* ===== JUEGO DE VOCABULARIO (palabra/imagen ↔ significado) ===== */
+var vgState=null;
+function collectPairs(modules){
+  var out=[]; (modules||[]).forEach(function(m){ (m.items||[]).forEach(function(it){ if(it&&it[0]&&it[1] && String(it[0]).length<=22) out.push([it[0],it[1]]); }); });
+  return out;
+}
+function startVocabGame(pairs,title){
+  pairs=(pairs||[]).filter(function(p){return p&&p[0]&&p[1];});
+  if(pairs.length<4){toast('Pocas palabras para jugar 🐙');return;}
+  if(!canPractice())return;
+  var items=shuffle(pairs.slice()).slice(0,10).map(function(p){
+    var others=shuffle(pairs.filter(function(x){return x[0]!==p[0];}));
+    if(Math.random()<0.5){
+      var opts=shuffle([p[0]].concat(others.slice(0,3).map(function(x){return x[0];})));
+      return {q:'¿Cómo se dice <b>'+p[1]+'</b> en inglés?',a:p[0],opts:opts,audio:p[0]};
+    } else {
+      var ic=(typeof iconHTML==='function')?iconHTML(p[0]+' '+p[1],'2.4rem'):'';
+      var opts2=shuffle([p[1]].concat(others.slice(0,3).map(function(x){return x[1];})));
+      return {q:(ic?('<div style="font-size:2.2rem;text-align:center;margin-bottom:4px;">'+ic+'</div>'):'')+'¿Qué significa <b>'+p[0]+'</b>?',a:p[1],opts:opts2,audio:p[0]};
+    }
+  });
+  vgState={items:items,i:0,score:0,title:title||'Juego de vocabulario'};
+  ensureTP(); document.getElementById('tpOv').style.display='flex'; renderVG();
+}
+function renderVG(){
+  var b=document.getElementById('tpBody'); if(!b)return;
+  if(vgState.i>=vgState.items.length){ var pct=Math.round(vgState.score/vgState.items.length*100); try{addXP(vgState.score*3);confetti();beep('win');}catch(e){} b.innerHTML='<div style="text-align:center;"><div class="scorebig">'+vgState.score+' / '+vgState.items.length+'</div><p>'+(pct>=70?'🏆 ¡Muy bien!':'💪 ¡Sigue practicando!')+'</p><p class="note">+'+(vgState.score*3)+' XP 🐙</p><button class="btn primary" onclick="closeTP()">Listo</button></div>'; return; }
+  var it=vgState.items[vgState.i];
+  var h=livesBarHTML()+'<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">'+vgState.title+' · '+(vgState.i+1)+'/'+vgState.items.length+' · Aciertos: '+vgState.score+'</div>';
+  h+='<div class="q">'+it.q+'</div>';
+  if(it.audio)h+='<div style="margin:6px 0;"><button class="btn" onclick="speak(\''+String(it.audio).replace(/'/g,"\\'")+'\')">🔊 Oír</button></div>';
+  h+='<div class="opts">'+it.opts.map(function(o){return '<button class="opt" onclick="vgAns(this,\''+String(o).replace(/'/g,"\\'")+'\',\''+String(it.a).replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div><div class="feedback" id="tpFb"></div>';
+  b.innerHTML=h; startLifeClock();
+}
+function vgAns(btn,choice,ans){
+  document.querySelectorAll('#tpBody .opt').forEach(function(x){x.disabled=true;});
+  var good=choice===ans, fb=document.getElementById('tpFb');
+  if(good){vgState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
+  else{btn.classList.add('wrong');try{beep('bad');}catch(e){}loseLife();if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Era: '+ans+'</span>';}
+  if(livesEnabled()&&livesLeft()<=0){ setTimeout(function(){var b=document.getElementById('tpBody');if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Sin vidas</h3><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>';},1100); return; }
+  setTimeout(function(){vgState.i++;renderVG();},1150);
+}
 function renderDental(){
   const el=document.getElementById('dentalContent');
   /* 1) Sin carrera elegida -> selector llamativo */
@@ -3436,7 +3480,9 @@ function renderDental(){
     document.getElementById('dentalBar').innerHTML='';
     const c=careerById(profile.career)||CAREERS[1];
     let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
-    h+='<div class="skillbox" style="text-align:center;"><div style="font-size:2.4rem;">'+c.emoji+'</div><h4>Inglés para '+c.name+'</h4></div>';
+    h+='<div class="skillbox" style="text-align:center;"><div style="font-size:2.4rem;">'+c.emoji+'</div><h4>Inglés para '+c.name+'</h4>';
+    window.VG_POOL=collectPairs(c.modules);
+    h+='<button class="btn primary" style="margin-top:6px;" onclick="startVocabGame(window.VG_POOL,\'Inglés para '+c.name.replace(/'/g,"")+'\')">🎮 Jugar con estas palabras</button></div>';
     (c.modules||[]).forEach(function(mod){
       h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
       mod.items.forEach(function(it){h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
@@ -3449,6 +3495,8 @@ function renderDental(){
   const d=DENTAL_ACADEMY[curDental];
   let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
   h+='<div class="badge b-'+d.code.replace('D-','')+'">'+d.code+' · '+d.name+'</div>';
+  window.VG_POOL=collectPairs(d.modules);
+  h+='<button class="btn primary" style="width:100%;margin:8px 0;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
   d.modules.forEach(mod=>{
     h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
     mod.items.forEach(it=>{h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
@@ -3888,7 +3936,8 @@ function ensureMiPlan(){ if(document.getElementById('planOv'))return; var d=docu
 function planHTML(t){ return '<div style="white-space:pre-wrap;line-height:1.55;">'+String(t).replace(/</g,'&lt;')+'</div><div style="text-align:center;margin-top:12px;"><button class="btn" onclick="generateMiPlan()">🔄 Regenerar plan</button></div>'; }
 function planDataLine(){ var car=((typeof careerById==='function'&&profile.career&&careerById(profile.career))?careerById(profile.career).name:(profile.career||'general')); return 'Nivel '+curLevel+' · Objetivo: '+(profile.goal?goalLabel(profile.goal):'—')+' · Profesión: '+car+' · '+((profile&&profile.minutes)||10)+' min/día'; }
 function openMiPlan(){ ensureMiPlan(); var saved=store.get('miPlan',null); var b=document.getElementById('planBody'); document.getElementById('planOv').style.display='flex';
-  if(saved&&saved.text){ b.innerHTML=planHTML(saved.text); }
+  var bad = saved && saved.text && (saved.text.trim().charAt(0)==='{' || saved.text.indexOf('"tasks"')>=0 || saved.text.indexOf('"plan"')>=0);
+  if(saved&&saved.text&&!bad){ b.innerHTML=planHTML(saved.text); }
   else { b.innerHTML='<p class="note">Milo armará tu plan según:<br><b>'+planDataLine()+'</b></p><button class="btn primary" onclick="generateMiPlan()">✨ Generar mi plan</button>'; } }
 function miPlanFallback(lvl,goal,car,mins){
   return 'Tu meta a 3 meses: avanzar con seguridad desde '+lvl+' hacia el siguiente nivel, enfocándote en '+goal+'.\n\n'
