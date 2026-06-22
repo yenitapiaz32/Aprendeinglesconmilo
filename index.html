@@ -119,6 +119,9 @@
   .gate-btn{width:100%;padding:13px;font-size:1.02rem;margin-top:2px;}
   .gate-note{color:#8493ad;font-size:.82rem;margin:14px 0 0;}
   body.gated{overflow:hidden;}
+  /* Focus Mode: durante una lección se ocultan distracciones */
+  body.focus #mainNav{display:none !important;}
+  body.focus header{display:none !important;}
   .auth-gate{align-items:flex-start;}
   .land{max-width:980px;width:100%;margin:0 auto;}
   .land-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap;background:rgba(13,31,77,.72);backdrop-filter:blur(8px);border-radius:0 0 18px 18px;}
@@ -346,7 +349,7 @@
 <section class="tab" id="tab-accent"><div class="card"><h2>Tips para sonar más americano</h2><p class="lead">Ritmo, reducción y musicalidad: lo que más rápido te hace sonar nativa.</p><div id="accentContent"></div></div></section>
 <section class="tab" id="tab-extras"><div class="card"><h2>🌟 Extras</h2><p class="lead">Lo que casi ningún curso enseña: tus errores típicos, inglés real de calle y los sonidos que confunden a los hispanohablantes.</p><div class="subnav" id="extrasNav"></div><div id="extrasContent"></div></div></section>
 </main>
-<footer>Hecho para Yenifer · Tu progreso se guarda automáticamente 💾<br>Contenido basado en CEFR / Cambridge, "El curso más completo de inglés" (O. A. Caldela) e "Inglés Básico" (sistema de C. K. Ogden).</footer>
+<footer>Tu progreso se guarda automáticamente 💾<br>Contenido basado en CEFR / Cambridge, "El curso más completo de inglés" (O. A. Caldela) e "Inglés Básico" (sistema de C. K. Ogden).</footer>
 
 <script>
 /* ===== STORAGE ===== */
@@ -596,11 +599,13 @@ function ensureGate(){
     +'</div></div>';
   /* HERO */
   h+='<div class="land-hero"><div>'
-    +'<div class="land-badges"><span class="land-badge">A1 → C1</span><span class="land-badge">🇺🇸 Inglés americano</span><span class="land-badge">Hecho para hispanohablantes</span></div>'
-    +'<h1>Aprende inglés <span class="hl">hablando</span> desde el primer día.</h1>'
-    +'<p class="sub">Con Milo 🐙, tu tutor con IA: conversa, mejora tu pronunciación y aprende el inglés de tu profesión. Todo en español y a tu ritmo.</p>'
-    +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secAuth\')">🚀 Crear cuenta gratis</button>'
+    +'<div class="land-badges"><span class="land-badge">🗣️ Pronunciación real</span><span class="land-badge">💬 IA conversacional</span><span class="land-badge">💼 Por profesión</span></div>'
+    +'<h1>Pierde el <span class="hl">miedo a hablar</span> inglés en tu primera sesión.</h1>'
+    +'<p class="sub">Milo 🐙 te entrena la pronunciación real y te hace conversar desde el día uno. Sin pena, sin teoría aburrida, a tu ritmo. (También español, portugués y francés.)</p>'
+    +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secDemo\')">🎤 Probar gratis ahora</button>'
     +'</div><div style="text-align:center;"><div class="land-milo">🐙</div><div style="color:#dde6ff;font-weight:700;font-size:.85rem;margin-top:4px;">Milo, tu pulpo políglota</div></div></div>';
+  /* DEMO SIN FRICCIÓN (sin registro, no usa base de datos) */
+  h+='<div class="land-sec" id="secDemo" style="text-align:center;"><h2>🎤 Pruébalo en 20 segundos</h2><p class="lead">Sin registro. Mira lo fácil que se siente aprender con Milo.</p><div id="demoHost"></div></div>';
   /* 3 BENEFICIOS */
   h+='<div class="land-sec" id="secFeatures"><h2>¿Por qué Milo? 🐙</h2><div class="feat-grid">'
     +feat('💬','IA conversacional','Practica conversaciones reales (entrevista, viajes, tu profesión) y Milo te responde y corrige.')
@@ -646,6 +651,31 @@ function ensureGate(){
   h+='</div>';
   d.innerHTML=h;
   document.body.appendChild(d);
+  try{renderLandingDemo();}catch(e){}
+}
+/* ===== DEMO SIN FRICCIÓN (no usa login ni base de datos) ===== */
+var demoState=null;
+function demoPool(){ try{ if(DATA&&DATA.A1&&DATA.A1.vocab&&DATA.A1.vocab.length) return DATA.A1.vocab.map(function(v){return [enOnly(v.w), v.es];}).filter(function(p){return p[0]&&p[1];}); }catch(e){} return [['water','agua'],['house','casa'],['friend','amigo/a'],['happy','feliz'],['food','comida'],['work','trabajo']]; }
+function renderLandingDemo(){
+  var host=document.getElementById('demoHost'); if(!host)return;
+  var pool=demoPool(); if(pool.length<4){host.innerHTML='';return;}
+  if(!demoState){ demoState={i:0,score:0,items:shuffle(pool.slice()).slice(0,3).map(function(p){ var others=shuffle(pool.filter(function(x){return x[0]!==p[0];})); return {q:p[1],a:p[0],opts:shuffle([p[0]].concat(others.slice(0,3).map(function(x){return x[0];})))}; })}; }
+  if(demoState.i>=demoState.items.length){
+    host.innerHTML='<div style="background:#fff;border-radius:16px;padding:22px;max-width:460px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.08);"><div style="font-size:2.4rem;">🎉</div><h3 style="color:#16357f;margin:6px 0;">¡Lo hiciste increíble!</h3><p class="lead" style="margin:0 0 12px;">Así de fácil aprende Milo: escuchas, eliges y celebras al instante. Crea tu cuenta gratis para guardar tu progreso y empezar tu plan. <b>Toma 10 segundos.</b></p><button class="btn primary" style="font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secAuth\',\'up\')">🚀 Crear mi cuenta gratis</button><div style="margin-top:8px;"><button class="btn" style="font-size:.85rem;" onclick="demoState=null;renderLandingDemo();">🔄 Probar otra vez</button></div></div>'; return;
+  }
+  var it=demoState.items[demoState.i];
+  host.innerHTML='<div style="background:#fff;border-radius:16px;padding:20px;max-width:460px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.08);">'
+    +'<p class="note" style="margin:0 0 6px;">Pregunta '+(demoState.i+1)+' de '+demoState.items.length+'</p>'
+    +'<p style="font-size:1.15rem;font-weight:800;color:#16357f;margin:0 0 12px;">¿Cómo se dice <span style="color:#2456d6;">'+it.q+'</span> en inglés?</p>'
+    +'<div>'+it.opts.map(function(o){return '<button class="btn" style="margin:4px;min-width:90px;" onclick="demoAnswer(this,\''+o.replace(/'/g,"\\'")+'\',\''+it.a.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div>'
+    +'<div id="demoFb" style="min-height:24px;margin-top:10px;font-weight:800;"></div></div>';
+}
+function demoAnswer(btn,choice,ans){
+  var fb=document.getElementById('demoFb'); var good=choice===ans;
+  try{document.querySelectorAll('#demoHost button').forEach(function(b){b.disabled=true;});}catch(e){}
+  if(good){ demoState.score++; try{beep('good');}catch(e){} try{speak(ans);}catch(e){} if(fb){fb.textContent='✓ ¡Correcto! 🎉';fb.style.color='#0f9d58';} }
+  else{ try{beep('bad');}catch(e){} if(fb){fb.innerHTML='✗ Era: <b>'+ans+'</b>';fb.style.color='#e11d48';} }
+  setTimeout(function(){ demoState.i++; renderLandingDemo(); }, 1100);
 }
 function feat(ic,t,p){return '<div class="feat"><div class="fi">'+ic+'</div><h3>'+t+'</h3><p>'+p+'</p></div>';}
 function testi(q,who){return '<div class="testi"><div class="stars">★★★★★</div><p>“'+q+'”</p><div class="who">'+who+'</div></div>';}
@@ -2726,7 +2756,7 @@ let curSub='units';
 const SUBS=[['units','🗺️ Unidades'],['tenses','⏳ Tiempos verbales'],['grammar','📖 Gramática'],['vocab','💡 Vocabulario'],['dialog','🗨️ Diálogos'],['pro','🦷 Pro (odontología)'],['idioms','💬 Modismos'],['skills','🎯 Habilidades'],['quiz','📝 Quiz'],['fill','✏️ Rellenar'],['flash','🃏 Flashcards'],['test','🔓 Examen de nivel']];
 
 /* ===== NAV ===== */
-function goTab(id){document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
+function goTab(id){try{exitFocus();}catch(e){}document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
   try{ if(id==='practicar')renderPracticar(); else if(id==='progreso')renderProgreso(); else if(id==='explorar')renderExplorar(); else if(id==='perfil')renderPerfil(); }catch(e){}
   window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('#mainNav button').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.tab)));
@@ -2785,8 +2815,9 @@ function openUnit(L,i){
   h+=careerSpotlightHTML();
   h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><div id="quizHost"></div><button class="btn primary" onclick="startUnitQuiz(\''+L+'\','+i+')">Empezar práctica</button></div>';
   h+= isUnitDone(L,i)?'<p style="text-align:center;color:var(--green);font-weight:800;">✓ Unidad completada</p>':'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">✓ Completar unidad '+L+'.'+(i+1)+'</button>';
-  el.innerHTML=h; window.scrollTo({top:0,behavior:'smooth'});
+  el.innerHTML=h; document.body.classList.add('focus'); window.scrollTo({top:0,behavior:'smooth'});
 }
+function exitFocus(){ document.body.classList.remove('focus'); }
 function startUnitQuiz(L,i){
   const items=shuffle(DATA[L].quiz.slice()).slice(0,3).map(function(q){return {type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))])};});
   qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'quiz'}; renderQ();
@@ -2797,6 +2828,7 @@ function completeUnit(L,i){
 }
 
 function renderContent(){
+  try{exitFocus();}catch(e){}
   const L=curLevel,d=DATA[L],el=document.getElementById('levelContent');
   const pc=levelPct(L);
   let h='<div class="badge b-'+L+'">'+L+' · '+meta[L].n+'</div> <span style="font-size:.8rem;color:var(--muted)">'+pc+'% del nivel</span>';
@@ -3410,6 +3442,7 @@ function renderDentalBar(){
 }
 /* ===== JUEGO DE VOCABULARIO (palabra/imagen ↔ significado) ===== */
 var vgState=null;
+function vgSlug(w){ try{w=String(w).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}catch(e){w=String(w).toLowerCase();} return w.replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
 function collectPairs(modules){
   var out=[]; (modules||[]).forEach(function(m){ (m.items||[]).forEach(function(it){ if(it&&it[0]&&it[1] && String(it[0]).length<=22) out.push([it[0],it[1]]); }); });
   return out;
@@ -3420,13 +3453,20 @@ function startVocabGame(pairs,title){
   if(!canPractice())return;
   var items=shuffle(pairs.slice()).slice(0,10).map(function(p){
     var others=shuffle(pairs.filter(function(x){return x[0]!==p[0];}));
-    if(Math.random()<0.5){
+    var t=Math.floor(Math.random()*3);
+    if(t===0){
       var opts=shuffle([p[0]].concat(others.slice(0,3).map(function(x){return x[0];})));
       return {q:'¿Cómo se dice <b>'+p[1]+'</b> en inglés?',a:p[0],opts:opts,audio:p[0]};
-    } else {
+    } else if(t===1){
       var ic=(typeof iconHTML==='function')?iconHTML(p[0]+' '+p[1],'2.4rem'):'';
       var opts2=shuffle([p[1]].concat(others.slice(0,3).map(function(x){return x[1];})));
       return {q:(ic?('<div style="font-size:2.2rem;text-align:center;margin-bottom:4px;">'+ic+'</div>'):'')+'¿Qué significa <b>'+p[0]+'</b>?',a:p[1],opts:opts2,audio:p[0]};
+    } else {
+      /* tipo IMAGEN: muestra img/<palabra>.png si existe; si no, el emoji */
+      var slug=vgSlug(p[0]); var ic2=(typeof iconHTML==='function')?iconHTML(p[0]+' '+p[1],'3.4rem'):'🐙';
+      var imgBlock='<div style="text-align:center;margin-bottom:8px;"><img src="img/'+slug+'.png" alt="" style="max-width:170px;max-height:160px;border-radius:14px;" onerror="this.style.display=\'none\';var f=this.nextSibling;if(f)f.style.display=\'block\';"><div style="display:none;font-size:3.4rem;">'+ic2+'</div></div>';
+      var opts3=shuffle([p[0]].concat(others.slice(0,3).map(function(x){return x[0];})));
+      return {q:imgBlock+'¿Qué palabra en inglés es esta?',a:p[0],opts:opts3,audio:p[0]};
     }
   });
   vgState={items:items,i:0,score:0,title:title||'Juego de vocabulario'};
