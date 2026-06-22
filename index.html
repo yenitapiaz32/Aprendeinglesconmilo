@@ -307,8 +307,8 @@
 </head>
 <body>
 <header style="position:relative;">
-  <h1>🐙 Milo · Languages Trainer</h1>
-  <p>A1 → C1 · Tu academia de idiomas (inglés · español · portugués · francés)</p>
+  <h1 id="appTitle">🐙 Milo · Languages Trainer</h1>
+  <p id="appSub">A1 → C1 · Tu academia de idiomas</p>
   <button class="soundbtn" id="soundBtn" onclick="toggleSound()" title="Sonidos">🔔</button>
   <button class="toggle-dark" id="darkBtn" onclick="toggleDark()" title="Modo oscuro">🌙</button>
 </header>
@@ -2756,6 +2756,22 @@ let curSub='units';
 const SUBS=[['units','🗺️ Unidades'],['tenses','⏳ Tiempos verbales'],['grammar','📖 Gramática'],['vocab','💡 Vocabulario'],['dialog','🗨️ Diálogos'],['pro','🦷 Pro (odontología)'],['idioms','💬 Modismos'],['skills','🎯 Habilidades'],['quiz','📝 Quiz'],['fill','✏️ Rellenar'],['flash','🃏 Flashcards'],['test','🔓 Examen de nivel']];
 
 /* ===== NAV ===== */
+/* ===== INTERFAZ EN EL IDIOMA NATIVO (encabezado + menú) ===== */
+var UI_LANG={
+  es:{trainer:'Milo · Entrenador de idiomas', sub:'A1 → C1 · Tu academia de idiomas', home:'🏠 Inicio',learn:'📚 Aprender',practice:'🎯 Practicar',prof:'💼 Profesión',progress:'📊 Progreso',explore:'🌎 Explorar',profile:'👤 Perfil'},
+  en:{trainer:'Milo · Languages Trainer', sub:'A1 → C1 · Your language academy', home:'🏠 Home',learn:'📚 Learn',practice:'🎯 Practice',prof:'💼 Career',progress:'📊 Progress',explore:'🌎 Explore',profile:'👤 Profile'},
+  pt:{trainer:'Milo · Treinador de idiomas', sub:'A1 → C1 · Sua academia de idiomas', home:'🏠 Início',learn:'📚 Aprender',practice:'🎯 Praticar',prof:'💼 Profissão',progress:'📊 Progresso',explore:'🌎 Explorar',profile:'👤 Perfil'},
+  fr:{trainer:'Milo · Coach de langues', sub:'A1 → C1 · Ton académie de langues', home:'🏠 Accueil',learn:'📚 Apprendre',practice:'🎯 Pratiquer',prof:'💼 Métier',progress:'📊 Progrès',explore:'🌎 Explorer',profile:'👤 Profil'}
+};
+function applyUILang(){
+  var L=(profile&&profile.native&&UI_LANG[profile.native])?profile.native:'es';
+  var t=UI_LANG[L];
+  var el;
+  if((el=document.getElementById('appTitle'))) el.textContent='🐙 '+t.trainer;
+  if((el=document.getElementById('appSub'))) el.textContent=t.sub;
+  var map={home:t.home,levels:t.learn,practicar:t.practice,dental:t.prof,progreso:t.progress,explorar:t.explore,perfil:t.profile};
+  document.querySelectorAll('#mainNav button').forEach(function(b){ if(map[b.dataset.tab]) b.textContent=map[b.dataset.tab]; });
+}
 function goTab(id){try{exitFocus();}catch(e){}document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
   try{ if(id==='practicar')renderPracticar(); else if(id==='progreso')renderProgreso(); else if(id==='explorar')renderExplorar(); else if(id==='perfil')renderPerfil(); }catch(e){}
   window.scrollTo({top:0,behavior:'smooth'});}
@@ -4567,7 +4583,7 @@ function hubItem(ico,title,desc,btn,action){
     +'<button class="btn primary" style="flex:0 0 auto;padding:8px 14px;" onclick="'+action+'">'+btn+'</button></div>';
 }
 function saveName(){const v=document.getElementById('nameIn').value.trim();if(!v)return;profile.name=v;store.set('profile',profile);tickStreak();renderHome();}
-function chooseNative(code){profile.native=code;store.set('profile',profile);beep('good');renderHome();}
+function chooseNative(code){profile.native=code;store.set('profile',profile);beep('good');try{applyUILang();}catch(e){}renderHome();}
 function setMinutes(m){profile.minutes=m;store.set('profile',profile);beep('good');toast('⏰ Meta diaria: '+dailyGoalXP()+' XP');renderHome();}
 function chooseLangOnboard(code){profile.lang=code;store.set('profile',profile);applyTarget(code);}
 function chooseCareerOnboard(id){profile.career=id;if(id==='dentistry')curDental=0;store.set('profile',profile);beep('good');confetti();renderDentalBar();renderDental();renderHome();}
@@ -4604,6 +4620,8 @@ if(profile.name && !profile.onboarded && (countDone()>0 || unlocked.length>1)){p
 checkDailyReset();tickStreak();
 renderLevelBar();renderSub();renderContent();renderPron();renderAccent();renderHome();renderDentalBar();renderDental();renderSpeak();renderChallenge();renderExtrasNav();renderExtras();renderGames();renderCollections();
 if(curTarget && curTarget!=='en'){applyTarget(curTarget);}
+/* Interfaz en el idioma nativo del usuario */
+try{ applyUILang(); }catch(e){}
 /* Mostrar la pantalla de acceso de inmediato (oculta el contenido hasta iniciar sesión) */
 try{ ensureGate(); renderGate(); }catch(e){}
 /* Iniciar sesión de Supabase (login + progreso en la nube) */
