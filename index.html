@@ -3661,6 +3661,9 @@ function renderSpeak(){
     +'<button class="btn" style="margin-top:8px;" onclick="speakIdx++;renderSpeak();">Siguiente frase →</button>'
     +'</div>';
   h+='<p class="note">💡 Consejo de Milo: exagera un poco el sonido. Apunta a la R fuerte y la flap T (water → "warer").</p>';
+  h+='<div class="card" style="text-align:center;background:var(--card2);"><p style="margin:0 0 8px;font-weight:700;">¿Listo con tu práctica de hoy? 🐙</p>'
+    +'<button class="cta" style="max-width:280px;margin:0 auto 8px;" onclick="goTab(\'home\')">▶ Continuar con mi plan</button>'
+    +'<div><button class="btn" style="margin:3px;" onclick="goTab(\'challenge\')">🔥 Reto diario</button><button class="btn" style="margin:3px;" onclick="openMiloChat()">💬 Conversar con Milo</button></div></div>';
   el.innerHTML=h;
 }
 function startListen(target){
