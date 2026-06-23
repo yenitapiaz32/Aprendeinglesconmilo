@@ -2859,7 +2859,19 @@ function openUnit(L,i){
   t.ex.forEach(function(e){h+=exLi(e);}); h+='</ul></div>';
   h+=careerSpotlightHTML();
   h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><p class="note" style="margin:0 0 8px;">Ejercicios sobre <b>este tema</b>: '+(u.kind==='tense'?t.n:t.t)+'.</p><div id="quizHost"></div><button class="btn primary" onclick="startUnitPractice(\''+L+'\','+i+')">Empezar práctica</button></div>';
-  h+= isUnitDone(L,i)?'<p style="text-align:center;color:var(--green);font-weight:800;">✓ Unidad completada</p>':'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">✓ Completar unidad '+L+'.'+(i+1)+'</button>';
+  var us=levelUnits(L), total=us.length, doneN=0; us.forEach(function(_,k){if(isUnitDone(L,k))doneN++;});
+  if(isUnitDone(L,i)){
+    var rest=total-doneN;
+    h+='<div style="text-align:center;margin-top:8px;">'
+      +'<p style="color:var(--green);font-weight:800;margin:0 0 4px;">✓ Tema completado ('+L+'.'+(i+1)+' de '+total+')</p>'
+      +'<p class="note" style="margin:0 0 10px;">'+(rest>0?('Te faltan <b>'+rest+'</b> tema(s) para terminar el nivel '+L+'.'):('🎉 ¡Completaste TODOS los temas del nivel '+L+'! Ya puedes hacer el examen del nivel.'))+'</p>';
+    if(i+1<total && isUnitUnlocked(L,i+1)) h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="openUnit(\''+L+'\','+(i+1)+')">Siguiente tema: '+L+'.'+(i+2)+' →</button>';
+    else h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="curSub=\'units\';renderSub();renderContent();">Ver todos los temas del nivel →</button>';
+    h+='</div>';
+  } else {
+    h+='<p class="note" style="text-align:center;margin:8px 0 4px;">Este es el tema '+(i+1)+' de '+total+' del nivel '+L+'.</p>'
+      +'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">✓ Marcar este tema como aprendido</button>';
+  }
   el.innerHTML=h; document.body.classList.add('focus'); window.scrollTo({top:0,behavior:'smooth'});
 }
 function exitFocus(){ document.body.classList.remove('focus'); }
@@ -2889,8 +2901,18 @@ function startUnitQuiz(L,i){
   }catch(e){ host.innerHTML='<p class="note">No se pudo iniciar la práctica. Intenta de nuevo.</p>'; }
 }
 function completeUnit(L,i){
-  const map=uDone(); if(!map[L+'.'+i]){map[L+'.'+i]=true;store.set('unitDone',map);addXP(12);confetti();beep('win');toast('🎉 ¡Unidad '+L+'.'+(i+1)+' completada! +12 XP');}
-  openUnit(L,i); renderHome();
+  const map=uDone(); if(!map[L+'.'+i]){map[L+'.'+i]=true;store.set('unitDone',map);addXP(12);confetti();beep('win');}
+  renderHome();
+  var us=levelUnits(L), total=us.length;
+  if(i+1<total){
+    /* avanza automáticamente al siguiente tema para que la persona no se quede perdida */
+    toast('🎉 ¡Tema '+L+'.'+(i+1)+' aprendido! Vamos al siguiente →');
+    setTimeout(function(){ openUnit(L,i+1); },700);
+  } else {
+    /* era el último: vuelve a la lista de temas (ahí está el examen del nivel) */
+    toast('🏆 ¡Completaste todos los temas de '+L+'! Ahora haz el examen del nivel.');
+    setTimeout(function(){ try{exitFocus();}catch(e){} curSub='units'; renderSub(); renderContent(); window.scrollTo({top:0,behavior:'smooth'}); },700);
+  }
 }
 
 function renderContent(){
