@@ -19,8 +19,8 @@
 <meta name="apple-mobile-web-app-title" content="Milo English">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
-  :root{--bg:#eef2f9;--card:#fff;--card2:#f8fafd;--ink:#1b2436;--muted:#667085;--line:#e3e8f3;--blue:#2456d6;--blue-d:#16357f;
-    --red:#d92d20;--green:#15a34a;--amber:#d97706;--purple:#7c3aed;--pink:#db2777;--radius:16px;--shadow:0 4px 20px rgba(20,30,60,.08);}
+  :root{--bg:#f4f7fc;--card:#fff;--card2:#f7faff;--ink:#1b2436;--muted:#667085;--line:#e7ecf6;--blue:#2456d6;--blue-d:#16357f;
+    --red:#d92d20;--green:#15a34a;--amber:#d97706;--purple:#7c3aed;--pink:#db2777;--radius:18px;--shadow:0 8px 28px rgba(20,30,60,.06);}
   body.dark{--bg:#0f1626;--card:#1a2236;--card2:#222c44;--ink:#e8edf7;--muted:#9aa6c0;--line:#2c3650;--shadow:0 4px 22px rgba(0,0,0,.35);}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(36,86,214,.15);}
   html{-webkit-text-size-adjust:100%;}
@@ -38,7 +38,7 @@
   main{max-width:880px;margin:0 auto;padding:16px 14px;}
   .tab{display:none;}.tab.active{display:block;animation:fade .25s;}
   @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;}}
-  .card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px;margin-bottom:18px;}
   h2{font-size:1.25rem;margin-bottom:6px;color:var(--blue-d);}
   h3{font-size:1.02rem;margin:14px 0 6px;}
   h4{font-size:.92rem;margin:10px 0 4px;color:var(--blue-d);}
@@ -122,6 +122,7 @@
   /* Focus Mode: durante una lección se ocultan distracciones */
   body.focus #mainNav{display:none !important;}
   body.focus header{display:none !important;}
+  body.gated #reportBtn{display:none !important;}
   .auth-gate{align-items:flex-start;}
   .land{max-width:980px;width:100%;margin:0 auto;}
   .land-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap;background:rgba(13,31,77,.72);backdrop-filter:blur(8px);border-radius:0 0 18px 18px;}
@@ -372,7 +373,7 @@ initSupa();
   if(n<=0){ try{renderAuth();}catch(e){} return; }
   setTimeout(function(){ initSupa(); if(supa){ try{sbInitSession();}catch(e){} } else { try{renderAuth();}catch(e){} waitSupa(n-1); } }, 600);
 })(8);
-const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone'];
+const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone','prog_en','prog_es','prog_pt','prog_fr','dailyXP','activeDays','lives','chatTime','miPlan','miProgram'];
 var cloudTimer=null, cloudReady=false;
 function scheduleCloudSave(){ if(!supa||!sbUser||!cloudReady) return; clearTimeout(cloudTimer); cloudTimer=setTimeout(saveCloud,2500); }
 async function saveCloud(){
@@ -2725,10 +2726,30 @@ function applyTarget(code){
   TTS_LANG = TARGET_TTS[code]||'en';
   const enOnly=['dental','speak','pron','accent','extras'];
   document.querySelectorAll('#mainNav button').forEach(function(b){ if(enOnly.indexOf(b.dataset.tab)>=0) b.style.display=(code==='en'?'':'none'); });
-  curLevel='A1'; store.set('curLevel','A1');
+  if(!unlocked||!unlocked.includes(curLevel)) curLevel='A1';
   renderLevelBar();renderSub();renderContent();renderChallenge();renderHome();
   if(code==='en'){renderDentalBar();renderDental();renderSpeak();renderExtrasNav();renderExtras();renderPron();renderAccent();}
   goTab('home');
+}
+/* ===== PROGRESO SEPARADO POR IDIOMA ===== */
+function snapshotProg(){ return {done:store.get('done',{}),unlocked:store.get('unlocked',['A1']),unitDone:store.get('unitDone',{}),collected:store.get('collected',{}),curLevel:store.get('curLevel','A1'),review:store.get('review',[])}; }
+function loadProg(code){
+  var b=store.get('prog_'+code,null)||{done:{},unlocked:['A1'],unitDone:{},collected:{},curLevel:'A1',review:[]};
+  done=b.done||{}; store.set('done',done);
+  unlocked=b.unlocked||['A1']; store.set('unlocked',unlocked);
+  store.set('unitDone',b.unitDone||{});
+  store.set('collected',b.collected||{});
+  curLevel=b.curLevel||'A1'; store.set('curLevel',curLevel);
+  review=b.review||[]; store.set('review',review);
+}
+function migrateProg(){ try{ if(store.get('prog_'+curTarget,null)===null){ store.set('prog_'+curTarget,snapshotProg()); } }catch(e){} }
+function switchLearningLang(code){
+  if(code===curTarget){ applyTarget(code); return; }
+  try{ store.set('prog_'+curTarget, snapshotProg()); }catch(e){}
+  loadProg(code);
+  if(profile){profile.lang=code;store.set('profile',profile);}
+  applyTarget(code);
+  try{schedulePublish();}catch(e){}
 }
 function showLangSelector(){
   let ov=document.getElementById('langOverlay');
@@ -2736,7 +2757,15 @@ function showLangSelector(){
   ov.innerHTML='<div style="background:var(--card);border-radius:24px;padding:26px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);"><div style="font-size:2rem;font-weight:800;font-family:Poppins,sans-serif;color:var(--blue-d);">\uD83C\uDF0D Milo</div><p class="note">\u00bfQu\u00e9 idioma quieres aprender?</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">'+['en','es','pt','fr'].map(function(c){return '<button class="btn" style="font-size:1rem;padding:14px;" onclick="chooseTarget(\''+c+'\')">'+TARGET_INFO[c].flag+' '+TARGET_INFO[c].name+'</button>';}).join('')+'</div><p class="note" style="margin-top:12px;font-size:.75rem;">El inglés tiene todo (Dental, Speak Now…). Otros idiomas: niveles A1–C1.</p></div>';
   ov.style.display='flex';
 }
-function chooseTarget(code){const ov=document.getElementById('langOverlay');if(ov)ov.style.display='none';applyTarget(code);}
+function chooseTarget(code){const ov=document.getElementById('langOverlay');if(ov)ov.style.display='none';switchLearningLang(code);toast('🌍 Aprendiendo '+(TARGET_INFO[code]?TARGET_INFO[code].name:code)+' · tu progreso de cada idioma se guarda por separado');}
+/* Cambiar idioma NATIVO */
+function showNativeSelector(){
+  let ov=document.getElementById('nativeOverlay');
+  if(!ov){ov=document.createElement('div');ov.id='nativeOverlay';ov.style.cssText='position:fixed;inset:0;background:linear-gradient(135deg,#16357f,#2456d6,#7c3aed);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;';document.body.appendChild(ov);}
+  ov.innerHTML='<div style="background:var(--card);border-radius:24px;padding:26px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);"><div style="font-size:2rem;font-weight:800;font-family:Poppins,sans-serif;color:var(--blue-d);">🗣️ Tu idioma</div><p class="note">¿Cuál es tu idioma? (el que ya hablas)</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">'+[['es','🇪🇸 Español'],['en','🇺🇸 Inglés'],['pt','🇧🇷 Portugués']].map(function(c){return '<button class="btn" style="font-size:1rem;padding:14px;" onclick="setNativeLang(\''+c[0]+'\')">'+c[1]+'</button>';}).join('')+'</div><button class="btn" style="margin-top:12px;" onclick="document.getElementById(\'nativeOverlay\').style.display=\'none\'">Cancelar</button></div>';
+  ov.style.display='flex';
+}
+function setNativeLang(code){ profile.native=code; store.set('profile',profile); var ov=document.getElementById('nativeOverlay'); if(ov)ov.style.display='none'; try{applyUILang();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} toast('✅ Idioma cambiado'); }
 
 
 const LEVELS=['A1','A2','B1','B2','C1'];
@@ -2835,8 +2864,24 @@ function openUnit(L,i){
 }
 function exitFocus(){ document.body.classList.remove('focus'); }
 function startUnitQuiz(L,i){
-  const items=shuffle(DATA[L].quiz.slice()).slice(0,3).map(function(q){return {type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))])};});
-  qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'quiz'}; renderQ();
+  var host=document.getElementById('quizHost'); if(!host){return;}
+  try{
+    var d=DATA[L]||{};
+    var qz=(d.quiz&&d.quiz.length)?shuffle(d.quiz.slice()):[];
+    var items=[];
+    qz.slice(0,3).forEach(function(it){
+      var opts=[it[1]].concat(it[2]||[]);
+      if(opts.length<2){ (d.quiz||[]).forEach(function(o){ if(o[1]!==it[1])opts.push(o[1]); }); }
+      items.push({type:'mc',q:it[0],a:it[1],opts:shuffle([...new Set(opts)]).slice(0,4)});
+    });
+    if(!items.length){
+      var v=(d.vocab&&d.vocab.length)?shuffle(d.vocab.slice()):[];
+      if(v.length>=4){ v.slice(0,4).forEach(function(p){ var others=shuffle(v.filter(function(x){return x!==p;})); items.push({type:'mc',q:'¿Qué significa "'+enOnly(p.w)+'"?',a:p.es,opts:shuffle([p.es].concat(others.slice(0,3).map(function(x){return x.es;})))}); }); }
+    }
+    if(!items.length){ host.innerHTML='<p class="note">Aún no hay práctica para esta unidad. ¡Pronto la agregamos! 🐙</p>'; return; }
+    qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'quiz'}; renderQ();
+    host.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){ host.innerHTML='<p class="note">No se pudo iniciar la práctica. Intenta de nuevo.</p>'; }
 }
 function completeUnit(L,i){
   const map=uDone(); if(!map[L+'.'+i]){map[L+'.'+i]=true;store.set('unitDone',map);addXP(12);confetti();beep('win');toast('🎉 ¡Unidad '+L+'.'+(i+1)+' completada! +12 XP');}
@@ -3076,8 +3121,9 @@ function renderQ(){
   const host=document.getElementById(qState.host);if(!host)return;
   if(qState.i>=qState.items.length){finishQuiz(host);return;}
   const it=qState.items[qState.i];
-  let h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Pregunta '+(qState.i+1)+' de '+qState.items.length+' · Aciertos: '+qState.score+'</div>';
-  if(!it.noicon) h+='<div style="text-align:center;margin-bottom:6px;">'+iconHTML((it.a+' '+it.q).replace('___',it.a),'2.8rem')+'</div>';
+  var isExam=(qState.mode==='test'||qState.mode==='placement');
+  let h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Pregunta '+(qState.i+1)+' de '+qState.items.length+(isExam?'':' · Aciertos: '+qState.score)+'</div>';
+  if(!it.noicon && !isExam) h+='<div style="text-align:center;margin-bottom:6px;">'+iconHTML((it.a+' '+it.q).replace('___',it.a),'2.8rem')+'</div>';
   if(it.audio) h+='<div style="text-align:center;margin-bottom:6px;"><button class="btn primary" onclick="speak(\''+String(it.audio).replace(/'/g,"\\'")+'\')">🔊 Escuchar otra vez</button></div>';
   h+='<div class="q">'+it.q.replace('___','<span style="color:var(--blue)">_____</span>')+'</div>';
   if(it.type==='mc'){h+='<div class="opts">';it.opts.forEach(o=>h+='<button class="opt" onclick="ansQ(this,\''+o.replace(/'/g,"\\'")+'\')">'+o+'</button>');h+='</div>';}
@@ -3088,9 +3134,11 @@ function renderQ(){
 }
 function ansQ(btn,choice){
   const it=qState.items[qState.i];const fb=document.getElementById('fb');
-  document.querySelectorAll('#'+qState.host+' .opt').forEach(b=>{b.disabled=true;if(b.textContent===it.a)b.classList.add('correct');});
+  var isExam=(qState.mode==='test'||qState.mode==='placement');
+  document.querySelectorAll('#'+qState.host+' .opt').forEach(b=>{b.disabled=true;if(!isExam && b.textContent===it.a)b.classList.add('correct');});
   const good=choice===it.a;
-  if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
+  if(isExam){ if(good)qState.score++; try{beep('good');}catch(e){} btn.style.opacity='.6'; fb.innerHTML='<span style="color:var(--muted)">Respuesta registrada ✓</span>'; }
+  else if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
   else{btn.classList.add('wrong');beep('bad');fb.innerHTML='<span style="color:var(--red)">✗ Era: '+it.a+'</span>';}
   if(qState.mode==='placement'&&it.lvl){qState.byLevel[it.lvl].t++;if(good)qState.byLevel[it.lvl].c++;}
   if(qState.mode==='placement'&&it.cat){qState.byCat=qState.byCat||{};qState.byCat[it.cat]=qState.byCat[it.cat]||{c:0,t:0};qState.byCat[it.cat].t++;if(good)qState.byCat[it.cat].c++;}
@@ -3101,7 +3149,9 @@ function ansQ(btn,choice){
 function ansFillQ(){
   const it=qState.items[qState.i];const fb=document.getElementById('fb');const val=norm(document.getElementById('qfill').value);
   const good=val===norm(it.a);
-  if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
+  var isExam=(qState.mode==='test'||qState.mode==='placement');
+  if(isExam){ if(good)qState.score++; try{beep('good');}catch(e){} fb.innerHTML='<span style="color:var(--muted)">Respuesta registrada ✓</span>'; }
+  else if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
   else{beep('bad');fb.innerHTML='<span style="color:var(--red)">✗ Era: '+it.a+'</span>';}
   if(qState.mode==='placement'&&it.lvl){qState.byLevel[it.lvl].t++;if(good)qState.byLevel[it.lvl].c++;}
   setTimeout(()=>{qState.i++;renderQ();},1500);
@@ -4053,10 +4103,46 @@ function programTaskHTML(){
     +'</div>';
 }
 function markProgramDone(){ var pr=store.get('miProgram',null); if(!pr)return; if(pr.lastDay===todayStr()){toast('Ya hiciste tu tarea de hoy 🐙');return;} pr.ptr=(pr.ptr||0)+1; pr.lastDay=todayStr(); store.set('miProgram',pr); try{addXP(10);}catch(e){} confetti(); toast('✅ ¡Tarea del plan completada! +10 XP'); try{renderHome();}catch(e){} }
+/* ===== COMENTARIOS / RESEÑAS (en la página, vía Supabase) ===== */
+var cmtRating=5;
+function starPicker(){ var h=''; for(var i=1;i<=5;i++){h+='<span onclick="cmtSetStars('+i+')" style="cursor:pointer;font-size:1.7rem;">'+(i<=cmtRating?'⭐':'☆')+'</span>';} return h; }
+function cmtSetStars(n){ cmtRating=n; var s=document.getElementById('cmtStars'); if(s)s.innerHTML=starPicker(); }
+function ensureComments(){ if(document.getElementById('cmtOv'))return; var d=document.createElement('div'); d.id='cmtOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>💬 Comentarios</h3><button class="legal-x" onclick="document.getElementById(\'cmtOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="cmtBody"></div></div>'; document.body.appendChild(d); }
+function openComments(){ ensureComments(); document.getElementById('cmtOv').style.display='flex'; renderComments(); }
+async function renderComments(){
+  var b=document.getElementById('cmtBody'); if(!b)return;
+  var form='<div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:12px;">'
+    +'<p class="note" style="margin:0 0 6px;">¿Qué te parece Milo? Deja tu reseña 🐙</p>'
+    +'<div id="cmtStars" style="margin-bottom:6px;">'+starPicker()+'</div>'
+    +'<textarea id="cmtText" placeholder="Escribe tu comentario..." style="width:100%;min-height:70px;"></textarea>'
+    +'<button class="btn primary" style="margin-top:6px;" onclick="submitComment()">Publicar</button></div>';
+  b.innerHTML=form+'<p class="note">Cargando comentarios...</p>';
+  if(!supa){ b.innerHTML=form+'<p class="note">Inicia sesión para ver y publicar comentarios.</p>'; return; }
+  try{
+    var r=await supa.from('comments').select('*').order('created_at',{ascending:false}).limit(50); var rows=r.data||[];
+    var list=rows.map(function(c){ var st=''; for(var i=0;i<(c.rating||0);i++)st+='⭐'; return '<div style="border-bottom:1px solid #eef1f8;padding:9px 0;"><div style="font-weight:700;color:var(--blue);">'+(c.name||'Estudiante')+' <span style="font-size:.8rem;">'+st+'</span></div><div>'+String(c.text||'').replace(/</g,'&lt;')+'</div></div>'; }).join('');
+    b.innerHTML=form+(list||'<p class="note">Aún no hay comentarios. ¡Sé el primero! 🐙</p>');
+  }catch(e){ b.innerHTML=form+'<p class="note">No se pudieron cargar (¿ya creaste la tabla <b>comments</b> en Supabase?).</p>'; }
+}
+async function submitComment(){
+  if(!supa||!sbUser){ alert('Inicia sesión para comentar.'); return; }
+  var t=((document.getElementById('cmtText')||{}).value||'').trim(); if(!t){toast('Escribe tu comentario 🐙');return;}
+  try{ await supa.from('comments').insert({user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', rating:cmtRating, text:t}); toast('✅ ¡Gracias por tu comentario!'); cmtRating=5; renderComments(); }
+  catch(e){ alert('No se pudo publicar. Intenta de nuevo.'); }
+}
+/* ===== REPORTAR UN PROBLEMA (botón flotante) ===== */
+function currentSection(){ try{ var b=document.querySelector('#mainNav button.active'); return b?b.textContent.replace(/[^\wáéíóúñ ]/gi,'').trim():'general'; }catch(e){ return 'general'; } }
+async function reportProblem(){
+  var t=prompt('🐞 ¿Qué no funciona o se ve mal? Cuéntanos para arreglarlo:'); if(t===null)return; t=t.trim(); if(!t)return;
+  var ctx=currentSection();
+  if(supa && sbUser){ try{ await supa.from('reports').insert({user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', section:ctx, text:t}); toast('✅ ¡Gracias! Reporte enviado 🐙'); return; }catch(e){} }
+  try{ window.open(waLink('🐞 Reporte en Milo ('+ctx+'): '+t),'_blank'); }catch(e){}
+}
+function ensureReportBtn(){ if(document.getElementById('reportBtn'))return; var b=document.createElement('button'); b.id='reportBtn'; b.innerHTML='🐞'; b.title='Reportar un problema'; b.setAttribute('onclick','reportProblem()'); b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:500;width:46px;height:46px;border-radius:50%;border:none;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:1.3rem;cursor:pointer;'; document.body.appendChild(b); }
 function askFeedback(){
   if(store.get('fbAsked',false))return; store.set('fbAsked',true);
-  if(confirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejarnos un comentario? Nos ayuda muchísimo a mejorar (y puede salir como testimonio).')){
-    try{ window.open(waLink('Hola Milo 🐙, mi comentario sobre la plataforma: '),'_blank'); }catch(e){}
+  if(confirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejar un comentario? Nos ayuda muchísimo (y puede salir como reseña).')){
+    try{ openComments(); }catch(e){}
   }
 }
 var lbTab='global';
@@ -4534,6 +4620,11 @@ function renderPerfil(){
     +infoRow('Tiempo diario',(profile.minutes||10)+' min')
     +'<button class="btn" style="margin-top:10px;margin-right:6px;" onclick="editName()">✏️ Editar nombre</button>'
     +'<button class="btn" style="margin-top:10px;" onclick="setNick()">🏷️ '+(profile.nick?'Cambiar nickname':'Crear nickname')+'</button></div>';
+  /* Idiomas: cambiar nativo y cambiar/agregar idioma a aprender (progreso separado) */
+  h+='<div class="card"><h2>🌍 Idiomas</h2>'
+    +'<p class="note" style="margin:0 0 8px;">Puedes aprender varios idiomas a la vez: el progreso de cada uno se guarda por separado. 🐙</p>'
+    +'<button class="btn primary" style="margin:3px;" onclick="showLangSelector()">📚 Cambiar / agregar idioma a aprender</button>'
+    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">🗣️ Cambiar mi idioma nativo</button></div>';
   /* Suscripción */
   h+='<div class="card"><h2>💳 Mi suscripción</h2>'
     +'<p style="margin:0 0 8px;">Plan actual: <b>'+planTxt+'</b></p>';
@@ -4563,6 +4654,7 @@ function renderExplorar(){
   var el=document.getElementById('explorarContent'); if(!el)return;
   var h='<div class="card"><h2>🌎 Explorar</h2><p class="lead">Curiosidades, cultura y ajustes.</p></div>';
   h+=wordOfDayHTML();
+  h+=hubItem('💬','Comentarios','Lee y deja reseñas de la comunidad Milo.','Ver',"openComments()");
   h+=hubItem('🌟','Extras','Errores típicos, inglés coloquial y sonidos difíciles.','Ver',"goTab('extras')");
   h+=hubItem('🇺🇸','Sonar americano','Ritmo, reducciones y musicalidad del inglés de EE.UU.','Ver',"goTab('accent')");
   h+='<div class="card"><h2>⚙️ Ajustes</h2>'
@@ -4619,9 +4711,11 @@ document.getElementById('soundBtn').textContent=soundOn?'🔔':'🔕';
 if(profile.name && !profile.onboarded && (countDone()>0 || unlocked.length>1)){profile.onboarded=true;store.set('profile',profile);}
 checkDailyReset();tickStreak();
 renderLevelBar();renderSub();renderContent();renderPron();renderAccent();renderHome();renderDentalBar();renderDental();renderSpeak();renderChallenge();renderExtrasNav();renderExtras();renderGames();renderCollections();
+try{ migrateProg(); }catch(e){}
 if(curTarget && curTarget!=='en'){applyTarget(curTarget);}
 /* Interfaz en el idioma nativo del usuario */
 try{ applyUILang(); }catch(e){}
+try{ ensureReportBtn(); }catch(e){}
 /* Mostrar la pantalla de acceso de inmediato (oculta el contenido hasta iniciar sesión) */
 try{ ensureGate(); renderGate(); }catch(e){}
 /* Iniciar sesión de Supabase (login + progreso en la nube) */
