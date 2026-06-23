@@ -2858,11 +2858,16 @@ function openUnit(L,i){
   h+='<p><b>Forma:</b> '+t.form+((u.kind==='tense'&&t.use)?'<br><b>Uso:</b> '+t.use:'')+'</p><ul>';
   t.ex.forEach(function(e){h+=exLi(e);}); h+='</ul></div>';
   h+=careerSpotlightHTML();
-  h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><div id="quizHost"></div><button class="btn primary" onclick="startUnitQuiz(\''+L+'\','+i+')">Empezar práctica</button></div>';
+  h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><p class="note" style="margin:0 0 8px;">Ejercicios sobre <b>este tema</b>: '+(u.kind==='tense'?t.n:t.t)+'.</p><div id="quizHost"></div><button class="btn primary" onclick="startUnitPractice(\''+L+'\','+i+')">Empezar práctica</button></div>';
   h+= isUnitDone(L,i)?'<p style="text-align:center;color:var(--green);font-weight:800;">✓ Unidad completada</p>':'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">✓ Completar unidad '+L+'.'+(i+1)+'</button>';
   el.innerHTML=h; document.body.classList.add('focus'); window.scrollTo({top:0,behavior:'smooth'});
 }
 function exitFocus(){ document.body.classList.remove('focus'); }
+function startUnitPractice(L,i){
+  /* práctica SOBRE EL TEMA de la unidad (usa los ejemplos del propio tiempo/gramática) */
+  var d=DATA[L]||{}; var nt=(d.tenses||[]).length;
+  if(i<nt){ practiceTopic('tenses', i); } else { practiceTopic('grammar', i-nt); }
+}
 function startUnitQuiz(L,i){
   var host=document.getElementById('quizHost'); if(!host){return;}
   try{
@@ -4541,6 +4546,7 @@ function renderHome(){
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">🔁 Repasar lo que fallé ('+review.length+')</button>'; }
   h+=programTaskHTML();
   h+=miPlanCardHTML();
+  h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">🏆 Ranking y amigos</h2><p style="margin:0 0 8px;color:#eafff3;">Compite por XP con tus amigos y con toda la comunidad Milo. ¡Agrega amigos y sube en la tabla!</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">👥 Ver ranking de amigos</button></div>';
   /* logro reciente, pequeño */
   if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">🏆 Logro: '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
   /* nota gratis/premium, discreta */
