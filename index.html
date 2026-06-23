@@ -2984,14 +2984,26 @@ var tpState=null;
 function tpWords(en){return String(en).replace(/[.,!?¡¿]/g,'').split(/\s+/).filter(Boolean);}
 function tpNorm(s){return String(s).toLowerCase().replace(/[.,!?¡¿]/g,'').replace(/\s+/g,' ').trim();}
 function tpKeyIndex(words){var bi=1,bl=0;words.forEach(function(w,i){if(i>0&&w.length>bl){bl=w.length;bi=i;}});return bi;}
-function tpListenDistractors(es){var d=DATA[curLevel]||DATA.A1;var pool=[];(d.vocab||[]).forEach(function(v){if(v.es&&v.es!==es)pool.push(v.es);});pool=shuffle(pool).slice(0,2);while(pool.length<2)pool.push('—');return pool.slice(0,2);}
+function tpListenDistractors(es,exs){
+  /* distractores del MISMO formato que la respuesta (frases completas, no palabras sueltas) */
+  var pool=[];
+  (exs||[]).forEach(function(o){var sp=(String(o).split('|')[1]||'').trim();if(sp&&sp!==es&&pool.indexOf(sp)<0)pool.push(sp);});
+  if(pool.length<2){
+    var d=DATA[curLevel]||DATA.A1, all=[];
+    (d.tenses||[]).concat(d.grammar||[]).forEach(function(tp){(tp.ex||[]).forEach(function(o){var sp=(String(o).split('|')[1]||'').trim();if(sp&&sp!==es)all.push(sp);});});
+    shuffle(all).forEach(function(sp){if(pool.indexOf(sp)<0)pool.push(sp);});
+  }
+  pool=shuffle(pool).slice(0,2);
+  while(pool.length<2)pool.push('—');
+  return pool.slice(0,2);
+}
 function makeTpItem(en,es,words,exs){
   var types=['order','choose','fill','tf','listen'];
   var t=types[Math.floor(Math.random()*types.length)];
   if(words.length>9 && t==='order') t='choose';
   if(t==='order') return {type:'order',en:en,es:es};
   if(t==='tf'){ var wrong=Math.random()<0.5, shownEs=es; if(wrong){var o=exs[Math.floor(Math.random()*exs.length)];var oe=(String(o).split('|')[1]||'').trim(); if(oe&&oe!==es)shownEs=oe; else wrong=false;} return {type:'tf',en:en,es:shownEs,correct:!wrong}; }
-  if(t==='listen'){ var opts=shuffle([es].concat(tpListenDistractors(es))); return {type:'listen',en:en,es:es,opts:opts}; }
+  if(t==='listen'){ var opts=shuffle([es].concat(tpListenDistractors(es,exs))); return {type:'listen',en:en,es:es,opts:opts}; }
   var ki=tpKeyIndex(words), ans=words[ki]; var bl=words.slice(); bl[ki]='___'; var sent=bl.join(' ');
   if(t==='fill') return {type:'fill',sent:sent,ans:ans,es:es};
   var pool=[]; exs.forEach(function(x){ tpWords(enOnly(x)).forEach(function(w){ if(w.toLowerCase()!==ans.toLowerCase()&&w.length>2)pool.push(w); }); });
@@ -3083,11 +3095,17 @@ async function checkOwn(L,ti){
   var res=document.getElementById('ownres_'+L+'_'+ti); if(!res)return;
   var filled=arr.filter(function(x){return x;});
   if(!filled.length){ res.innerHTML='<p class="note">Escribe al menos una frase para que Milo la revise. ✍️</p>'; return; }
-  res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos...</p>';
+  res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos a la vez...</p>';
+  /* Revisar TODAS las frases en paralelo (mucho más rápido que una por una) */
+  var jobs=[];
+  for(var j2=0;j2<arr.length;j2++){ if(!arr[j2]){jobs.push(null);continue;}
+    jobs.push(gradeSentence(name,arr[j2]).then(function(r){return r;}).catch(function(){return null;}));
+  }
+  var results=await Promise.all(jobs.map(function(p){return p||Promise.resolve(undefined);}));
   var out='';
-  for(var j2=0;j2<arr.length;j2++){ if(!arr[j2])continue;
-    var fb=await gradeSentence(name,arr[j2]); if(!fb) fb=heurCheck(name,arr[j2]);
-    out+='<div style="border-bottom:1px solid #eef1f8;padding:7px 0;"><div style="font-weight:700;">'+(j2+1)+'. '+arr[j2]+'</div><div class="note" style="margin:3px 0 0;">'+fb+'</div></div>';
+  for(var k=0;k<arr.length;k++){ if(!arr[k])continue;
+    var fb=results[k]; if(!fb) fb=heurCheck(name,arr[k]);
+    out+='<div style="border-bottom:1px solid #eef1f8;padding:7px 0;"><div style="font-weight:700;">'+(k+1)+'. '+arr[k]+'</div><div class="note" style="margin:3px 0 0;">'+fb+'</div></div>';
   }
   out+='<p class="note" style="margin-top:8px;color:var(--green);font-weight:700;">💾 Guardado. ¡Buen trabajo escribiendo tus propias frases! +5 XP</p>';
   res.innerHTML=out;
