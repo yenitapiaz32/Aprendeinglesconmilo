@@ -3165,7 +3165,7 @@ function finishQuiz(host){
   if(qState.mode==='placement'){return finishPlacement(host);}
   if(qState.mode==='dentalquiz'){
     addXP(qState.score*5);confetti();beep('win');
-    let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, doctora! +'+(qState.score*5)+' XP</p>';
+    let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, '+gword('doctora','doctor','doctor@')+'! +'+(qState.score*5)+' XP</p>';
     h+='<div style="text-align:center;"><button class="btn primary" onclick="renderDental()">Volver al módulo</button></div>';
     host.innerHTML=h;return;
   }
@@ -3199,7 +3199,7 @@ function reQuiz(){startQuiz('quizHost',DATA[curLevel].quiz.map(q=>({type:'mc',q:
 function renderPlacement(){
   const el=document.getElementById('homeContent');
   el.innerHTML='<button class="backbtn" onclick="renderHome()">← Volver</button>'
-    +'<div class="card"><h2>📊 Examen de nivelación</h2><p class="note">20 preguntas de dificultad creciente (A1 → C1) que miden gramática, vocabulario y listening. Al terminar te diremos tu nivel, tus fortalezas y qué reforzar. Si no sabes una, elige tu mejor opción.</p><div id="quizHost"></div></div>';
+    +'<div class="card"><h2>📊 Examen de nivelación</h2><p class="note">30 preguntas de dificultad creciente (A1 → C1) que miden gramática, vocabulario y listening, más una breve parte de <b>speaking</b> al final. Al terminar te diremos tu nivel, tus fortalezas y qué reforzar. Si no sabes una, elige tu mejor opción.</p><div id="quizHost"></div></div>';
   startPlacement();
 }
 function vocabDistractors(L,correctEs){
@@ -3210,36 +3210,82 @@ function startPlacement(){
   let items=[];
   LEVELS.forEach(function(L){
     var d=DATA[L]||DATA.A1;
-    /* 2 de gramática */
-    shuffle((d.quiz||[]).slice()).slice(0,2).forEach(function(q){items.push({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))]),lvl:L,cat:'Gramática'});});
-    /* 1 de vocabulario (inglés → significado) */
+    /* 3 de gramática */
+    shuffle((d.quiz||[]).slice()).slice(0,3).forEach(function(q){items.push({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))]),lvl:L,cat:'Gramática'});});
+    /* 2 de vocabulario (inglés → significado) */
     var vs=shuffle((d.vocab||[]).slice());
-    if(vs[0]){var v=vs[0];items.push({type:'mc',q:'¿Qué significa <b>'+v.w+'</b>?',a:v.es,opts:shuffle([v.es].concat(vocabDistractors(L,v.es))),lvl:L,cat:'Vocabulario',noicon:true});}
+    [vs[0],vs[1]].forEach(function(v){if(v){items.push({type:'mc',q:'¿Qué significa <b>'+v.w+'</b>?',a:v.es,opts:shuffle([v.es].concat(vocabDistractors(L,v.es))),lvl:L,cat:'Vocabulario',noicon:true});}});
     /* 1 de listening (escucha la palabra → significado) */
-    if(vs[1]){var v2=vs[1];items.push({type:'mc',q:'🎧 Escucha la palabra y elige su significado.',a:v2.es,opts:shuffle([v2.es].concat(vocabDistractors(L,v2.es))),lvl:L,cat:'Listening',noicon:true,audio:v2.w});}
+    if(vs[2]){var v2=vs[2];items.push({type:'mc',q:'🎧 Escucha la palabra y elige su significado.',a:v2.es,opts:shuffle([v2.es].concat(vocabDistractors(L,v2.es))),lvl:L,cat:'Listening',noicon:true,audio:v2.w});}
   });
-  qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'placement',byLevel:{},byCat:{}};
+  qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'placement',byLevel:{},byCat:{},speakScore:null};
   LEVELS.forEach(L=>qState.byLevel[L]={c:0,t:0});
   renderQ();
 }
-function finishPlacement(host){
-  let rec='A1';
-  for(const L of LEVELS){const b=qState.byLevel[L];if(b.t>0 && b.c/b.t>=0.6){rec=L;}else break;}
-  const idx=LEVELS.indexOf(rec);
-  for(let i=0;i<=idx;i++){if(!unlocked.includes(LEVELS[i]))unlocked.push(LEVELS[i]);}
+/* Al terminar las preguntas escritas, pasamos al paso de speaking (opcional) */
+function finishPlacement(host){ qState.placeHost=host; placementSpeakStep(); }
+function placementSpeakStep(){
+  var host=qState.placeHost; if(!host)return;
+  var phr=(SPEAK_PHRASES.A2&&SPEAK_PHRASES.A2[0])||'I like to learn something new every day.';
+  qState.speakPhrase=phr;
+  var h='<div class="skillbox" style="text-align:center;">'
+   +'<h4>🎤 Última parte: Speaking</h4>'
+   +'<p class="note" style="margin:4px 0 10px;">Lee la frase en voz alta. Milo evalúa tu pronunciación para afinar tu nivel. Es opcional.</p>'
+   +'<p style="font-size:1.2rem;font-weight:800;font-family:\'Poppins\',sans-serif;margin:8px 0;">"'+phr+'"</p>'
+   +'<button class="btn" onclick="speak(\''+phr.replace(/'/g,"\\'")+'\')">🔊 Escuchar</button> '
+   +'<button class="btn primary" id="plMic" onclick="placementListen()">🎤 Hablar</button>'
+   +'<div id="plFb" style="margin-top:12px;font-weight:700;min-height:22px;"></div>'
+   +'<div style="margin-top:12px;"><button class="btn green" onclick="placementFinish()">Ver mi resultado →</button> '
+   +'<button class="btn" onclick="qState.speakScore=null;placementFinish()">Omitir</button></div>'
+   +'</div>';
+  host.innerHTML=h;
+}
+function placementListen(){
+  var fb=document.getElementById('plFb'), btn=document.getElementById('plMic');
+  if(!speakSupported()){if(fb)fb.innerHTML='<span style="color:var(--muted)">Tu navegador no soporta micrófono. Pulsa "Omitir".</span>';return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var r=new SR(); r.lang=((typeof TTS_LANG!=='undefined'&&TTS_LANG)||'en-US'); r.interimResults=false; r.maxAlternatives=3;
+  fb.innerHTML='🎙️ Escuchando… di la frase.'; btn.textContent='● Grabando…';
+  r.onresult=function(e){var best=0,said='';for(var i=0;i<e.results[0].length;i++){var sc=scoreSpeech(qState.speakPhrase,e.results[0][i].transcript);if(sc>=best){best=sc;said=e.results[0][i].transcript;}}btn.textContent='🎤 Hablar';qState.speakScore=best;var em=best>=85?'🏆':best>=60?'👍':'💪';fb.innerHTML='<div style="font-size:1.3rem;">'+em+' '+best+'%</div><div style="font-weight:400;color:var(--muted);font-size:.85rem;">Escuché: "'+said+'"</div><div style="margin-top:4px;font-weight:400;">Pulsa "Ver mi resultado".</div>';try{beep(best>=60?'good':'bad');}catch(_){}};
+  r.onerror=function(){btn.textContent='🎤 Hablar';if(fb)fb.innerHTML='<span style="color:var(--muted)">No se pudo escuchar. Revisa el permiso del micrófono o pulsa "Omitir".</span>';};
+  r.onend=function(){if(btn.textContent==='● Grabando…')btn.textContent='🎤 Hablar';};
+  try{r.start();}catch(e){}
+}
+function placementFinish(){
+  var host=qState.placeHost; if(!host)return;
+  /* ---- Puntuación: acumulada + nivel propio (no se corta al primer fallo) ---- */
+  var rec='A1', cumC=0, cumT=0;
+  for(var i=0;i<LEVELS.length;i++){
+    var L=LEVELS[i]; var b=qState.byLevel[L]||{c:0,t:0};
+    cumC+=b.c; cumT+=b.t;
+    var cumR=cumT?cumC/cumT:0;            /* desempeño global hasta este nivel */
+    var lvlR=b.t?b.c/b.t:0;               /* desempeño en este nivel */
+    if(cumR>=0.6 && lvlR>=0.5){ rec=L; }  /* sólido en general Y maneja el nivel */
+  }
+  /* Ajuste por speaking: solo SUBE (nunca penaliza, el micrófono no es 100% fiable) */
+  var sp=qState.speakScore;
+  var ri=LEVELS.indexOf(rec);
+  if(sp!=null && sp>=85 && ri<LEVELS.length-1){
+    var top=qState.byLevel[rec]; if(top&&top.t&&top.c/top.t>=0.75){ ri++; }
+  }
+  rec=LEVELS[ri];
+  /* desbloquear y guardar */
+  for(var j=0;j<=ri;j++){if(!unlocked.includes(LEVELS[j]))unlocked.push(LEVELS[j]);}
   store.set('unlocked',unlocked);curLevel=rec;store.set('curLevel',rec);
   if(profile){profile.level=rec;store.set('profile',profile);}
   confetti();beep('win');renderLevelBar();
-  /* fortalezas y debilidades por categoría */
-  var cats=qState.byCat||{}; var arr=Object.keys(cats).map(function(k){return {k:k,p:cats[k].t?cats[k].c/cats[k].t:0,c:cats[k].c,t:cats[k].t};});
+  /* fortalezas y debilidades por categoría (incluye Speaking si habló) */
+  var cats=qState.byCat||{};
+  var arr=Object.keys(cats).map(function(k){return {k:k,p:cats[k].t?cats[k].c/cats[k].t:0,lbl:cats[k].c+'/'+cats[k].t};});
+  if(sp!=null){ arr.push({k:'Speaking',p:sp/100,lbl:sp+'%'}); }
   arr.sort(function(a,b){return b.p-a.p;});
   var fort=arr.length?arr[0].k:'—', debil=arr.length>1?arr[arr.length-1].k:'—';
   let h='<div class="scorebig">🎯 Tu nivel: '+rec+' · '+meta[rec].n+'</div>';
   h+='<div class="skillbox" style="text-align:center;"><p style="margin:0 0 6px;">🐙 Milo analizó tus respuestas:</p>'
     +'<p style="margin:0;"><b style="color:var(--green)">💪 Fortaleza:</b> '+fort+'</p>'
     +'<p style="margin:0;"><b style="color:var(--amber)">📈 A reforzar:</b> '+debil+'</p></div>';
-  h+='<p class="note" style="text-align:center;">Por categoría: '+arr.map(function(a){return a.k+' '+a.c+'/'+a.t;}).join(' · ')+'</p>';
-  h+='<p style="text-align:center;">Desbloqueamos desde <b>A1</b> hasta <b>'+rec+'</b>. Empieza donde te sientas cómoda.</p>';
+  h+='<p class="note" style="text-align:center;">Por categoría: '+arr.map(function(a){return a.k+' '+a.lbl;}).join(' · ')+'</p>';
+  h+='<p style="text-align:center;">Desbloqueamos desde <b>A1</b> hasta <b>'+rec+'</b>. Empieza donde te sientas '+gword('cómoda','cómodo','cómod@')+'.</p>';
   h+='<button class="cta" style="max-width:260px;margin:12px auto 0;" onclick="openLevel(\''+rec+'\')">Empezar en '+rec+' →</button>';
   host.innerHTML=h;
 }
@@ -4486,6 +4532,14 @@ function renderHome(){
       +'</div></div>';
     el.innerHTML=h; return;
   }
+  /* Paso 1.7: ¿cómo te identificas? (para hablarte bien en español) */
+  if(!profile.gender){
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¿Cómo te identificas?</h2><p>Así Milo te habla correctamente (lista/listo). Puedes cambiarlo después.</p></div></div></div>';
+    h+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+      +[['f','👩 Femenino'],['m','👨 Masculino'],['n','🧑 Prefiero neutro'],['n2','🤐 Prefiero no decir']].map(function(c){return '<button class="btn" style="padding:16px;font-size:1rem;" onclick="chooseGender(\''+(c[0]==='n2'?'n':c[0])+'\')">'+c[1]+'</button>';}).join('')
+      +'</div></div>';
+    el.innerHTML=h; return;
+  }
   /* Paso 2: idioma a aprender */
   if(!profile.lang){
     let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¡Perfecto, '+profile.name+'! 👋</h2><p>Ahora, ¿qué idioma quieres aprender?</p></div></div></div>';
@@ -4633,7 +4687,8 @@ function renderPerfil(){
   h+='<div class="card"><h2>🌍 Idiomas</h2>'
     +'<p class="note" style="margin:0 0 8px;">Puedes aprender varios idiomas a la vez: el progreso de cada uno se guarda por separado. 🐙</p>'
     +'<button class="btn primary" style="margin:3px;" onclick="showLangSelector()">📚 Cambiar / agregar idioma a aprender</button>'
-    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">🗣️ Cambiar mi idioma nativo</button></div>';
+    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">🗣️ Cambiar mi idioma nativo</button>'
+    +'<button class="btn" style="margin:3px;" onclick="showGenderSelector()">🧑 Cómo me identifico</button></div>';
   /* Suscripción */
   h+='<div class="card"><h2>💳 Mi suscripción</h2>'
     +'<p style="margin:0 0 8px;">Plan actual: <b>'+planTxt+'</b></p>';
@@ -4685,6 +4740,10 @@ function hubItem(ico,title,desc,btn,action){
 }
 function saveName(){const v=document.getElementById('nameIn').value.trim();if(!v)return;profile.name=v;store.set('profile',profile);tickStreak();renderHome();}
 function chooseNative(code){profile.native=code;store.set('profile',profile);beep('good');try{applyUILang();}catch(e){}renderHome();}
+function chooseGender(g){profile.gender=g;store.set('profile',profile);beep('good');renderHome();}
+function showGenderSelector(){var g=(profile&&profile.gender)||'n';var opts=[['f','👩 Femenino'],['m','👨 Masculino'],['n','🧑 Neutro / Prefiero no decir']];var msg='¿Cómo te identificas? Así Milo te habla bien (lista/listo).\\n\\n1) Femenino\\n2) Masculino\\n3) Neutro';var r=prompt(msg+'\\n\\nEscribe 1, 2 o 3:',(g==='f'?'1':g==='m'?'2':'3'));if(!r)return;r=r.trim();var map={'1':'f','2':'m','3':'n'};if(map[r]){chooseGender(map[r]);toast('✓ Actualizado');}}
+/* devuelve la forma según género: g('lista','listo','list@') */
+function gword(f,m,n){ var x=(profile&&profile.gender)||'n'; return x==='f'?f:(x==='m'?m:(n||f)); }
 function setMinutes(m){profile.minutes=m;store.set('profile',profile);beep('good');toast('⏰ Meta diaria: '+dailyGoalXP()+' XP');renderHome();}
 function chooseLangOnboard(code){profile.lang=code;store.set('profile',profile);applyTarget(code);}
 function chooseCareerOnboard(id){profile.career=id;if(id==='dentistry')curDental=0;store.set('profile',profile);beep('good');confetti();renderDentalBar();renderDental();renderHome();}
