@@ -407,7 +407,7 @@ async function sbInitSession(){
   if(!supa||sbInited) return; sbInited=true;
   try{
     var s=await supa.auth.getSession();
-    if(s&&s.data&&s.data.session){ sbUser=s.data.session.user; await loadCloud(); try{publishStats();}catch(e){} try{resolveFriendParam();}catch(e){} }
+    if(s&&s.data&&s.data.session){ sbUser=s.data.session.user; await loadCloud(); try{publishStats();}catch(e){} try{resolveFriendParam();}catch(e){} try{setTimeout(checkNudges,1500);}catch(e){} }
     supa.auth.onAuthStateChange(function(_e,session){ sbUser=session?session.user:null; renderGate(); renderAuth(); if(sbUser){try{publishStats();}catch(e){}} });
   }catch(e){}
   renderGate(); renderAuth();
@@ -4402,6 +4402,47 @@ async function resolveFriendParam(){
     try{history.replaceState({},'',location.pathname);}catch(e){}
   }catch(e){}
 }
+/* ===== EMPUJONES: mensajes de ánimo a amigos (Supabase tabla 'nudges') ===== */
+var NUDGES=[
+ '👋 ¡Hola! No rompas tu racha, te espero en Milo 🐙',
+ '💪 ¡Vamos! 10 minutos de práctica hoy y subes de nivel.',
+ '🔥 Te voy a alcanzar en el ranking... ¡ponte a practicar! 😜',
+ '🌟 ¡Tú puedes! Una lección más y sigues avanzando.',
+ '🐙 Milo te extraña. ¡Vuelve a practicar tu inglés!',
+ '🏆 ¡Reto! A ver quién gana más XP esta semana.',
+ '📚 Recuerda tu meta: un poquito cada día suma muchísimo.',
+ '❤️ ¡Orgulloso/a de tu esfuerzo! Sigue así, vas genial.'
+];
+function ensureNudge(){ if(document.getElementById('nudgeOv'))return; var d=document.createElement('div'); d.id='nudgeOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>👋 Animar a tu amigo</h3><button class="legal-x" onclick="document.getElementById(\'nudgeOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="nudgeBody"></div></div>'; document.body.appendChild(d); }
+function openNudge(fid,fname){
+  if(!supa||!sbUser){alert('Inicia sesión primero.');return;}
+  try{ if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); } }catch(e){}
+  ensureNudge(); var b=document.getElementById('nudgeBody'); document.getElementById('nudgeOv').style.display='flex';
+  b.innerHTML='<p class="note" style="margin-top:0;">Envía un mensaje de ánimo a <b>'+(fname||'tu amigo')+'</b>. Le llegará como notificación cuando entre a Milo. 🐙</p>'
+   +NUDGES.map(function(m,i){return '<button class="btn" style="display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal;" onclick="sendNudge(\''+fid+'\',\''+String(fname||'amigo').replace(/[\\\'"<>]/g,"")+'\','+i+')">'+m+'</button>';}).join('');
+}
+async function sendNudge(fid,fname,idx){
+  var text=NUDGES[idx]||NUDGES[0];
+  try{
+    await supa.from('nudges').insert({to_id:fid, from_id:sbUser.id, from_name:(profile&&profile.name)||'Un amigo', text:text});
+    toast('✅ ¡Mensaje enviado a '+(fname||'tu amigo')+'!'); var o=document.getElementById('nudgeOv'); if(o)o.style.display='none';
+  }catch(e){ alert('No se pudo enviar. ¿Ya creaste la tabla "nudges" en Supabase? (revisa la guía).'); }
+}
+async function checkNudges(){
+  if(!supa||!sbUser)return;
+  try{
+    var r=await supa.from('nudges').select('*').eq('to_id',sbUser.id).eq('seen',false).order('created_at',{ascending:true}).limit(10);
+    var rows=(r&&r.data)||[]; if(!rows.length)return;
+    var ids=rows.map(function(x){return x.id;});
+    rows.forEach(function(n,i){ setTimeout(function(){ showNudgeNotif(n); }, 800+i*1500); });
+    try{ await supa.from('nudges').update({seen:true}).in('id',ids); }catch(e){}
+  }catch(e){}
+}
+function showNudgeNotif(n){
+  try{ toast('👋 '+(n.from_name||'Un amigo')+': '+n.text); }catch(e){}
+  try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('🐙 Milo · '+(n.from_name||'Un amigo')+' te anima', {body:n.text, icon:'icon.png'}); } }catch(e){}
+  try{ confetti(); }catch(e){}
+}
 async function renderLeaderboard(){
   var host=document.getElementById('lbHost'); if(!host)return;
   var tabs='<div class="gate-tabs" style="margin-bottom:10px;"><button class="'+(lbTab==='global'?'active':'')+'" onclick="lbTab=\'global\';renderLeaderboard();">🌍 Global</button><button class="'+(lbTab==='week'?'active':'')+'" onclick="lbTab=\'week\';renderLeaderboard();">🔥 Semanal</button><button class="'+(lbTab==='friends'?'active':'')+'" onclick="lbTab=\'friends\';renderLeaderboard();">👥 Amigos</button></div>';
@@ -4416,7 +4457,8 @@ async function renderLeaderboard(){
       var rr=await supa.from('leaderboard').select('*').order(key,{ascending:false}).limit(30); rows=rr.data||[];
     }
     var list=rows.map(function(p,i){ var me=(sbUser&&p.user_id===sbUser.id); var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div><div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:74px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div></div>'; }).join('');
+      var nudgeBtn=(!me && lbTab==='friends')?'<button class="btn" title="Enviar ánimo" style="padding:4px 9px;font-size:.95rem;" onclick="openNudge(\''+p.user_id+'\',\''+String(p.name||'amigo').replace(/[\\\'"<>]/g,"")+'\')">👋</button>':'';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div><div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:60px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div>'+nudgeBtn+'</div>'; }).join('');
     host.innerHTML=tabs+(lbTab==='friends'?friendsPanel():'')+(list||'<p class="note">Aún no hay datos. ¡Gana XP para aparecer! 🐙</p>');
     if(lbTab==='friends') setTimeout(drawFriendQR,50);
   }catch(e){ host.innerHTML=tabs+'<p class="note">No se pudo cargar (¿ya creaste la tabla <b>leaderboard</b> en Supabase?).</p>'; }
