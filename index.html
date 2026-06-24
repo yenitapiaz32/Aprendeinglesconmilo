@@ -2775,14 +2775,53 @@ const meta={A1:{n:'Explorer',s:'A1',e:'🌱'},A2:{n:'Traveler',s:'A2',e:'🚲'},
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function norm(s){return String(s).toLowerCase().replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim();}
 function enOnly(e){return String(e).split('|')[0].trim();}
-function buildTest(L){const d=DATA[L];let items=[];d.quiz.forEach(q=>items.push({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))])}));d.fill.forEach(f=>items.push({type:'fill',q:f[0],a:f[1]}));return shuffle(items).slice(0,8);}
+function testListenItems(L,n){
+  var d=DATA[L]||DATA.A1, items=[]; var vs=shuffle((d.vocab||[]).slice());
+  vs.slice(0,n).forEach(function(v){ items.push({type:'mc',q:'🎧 Escucha y elige el significado.',a:v.es,opts:shuffle([v.es].concat(vocabDistractors(L,v.es))),audio:enOnly(v.w),noicon:true,cat:'Listening'}); });
+  return items;
+}
+function testReadingItems(L,n){
+  var d=DATA[L]||DATA.A1, r=d.reading; if(!r||!r.text)return [];
+  var passage=Array.isArray(r.text)?r.text.join(' '):r.text;
+  var sents=(passage.match(/[^.!?]+[.!?]+/g)||[passage]).map(function(s){return s.trim();}).filter(function(s){return tpWords(s).length>=4;});
+  var pool=tpWords(passage), items=[];
+  shuffle(sents).slice(0,n).forEach(function(s){
+    var shown=s, correct='Verdadero';
+    if(Math.random()<0.5){
+      var w=tpWords(s), ki=tpKeyIndex(w);
+      var repl=shuffle(pool.filter(function(x){return x.toLowerCase()!==w[ki].toLowerCase()&&x.length>2;}))[0];
+      if(repl){ var arr=s.split(/\s+/); for(var j=0;j<arr.length;j++){ if(arr[j].replace(/[.,!?¡¿]/g,'').toLowerCase()===w[ki].toLowerCase()){ arr[j]=arr[j].replace(w[ki],repl); break; } } shown=arr.join(' '); correct='Falso'; }
+    }
+    items.push({type:'mc',q:'Según el texto, ¿esta frase es correcta?<br><i>"'+shown+'"</i>',a:correct,opts:['Verdadero','Falso'],passage:passage,cat:'Reading',noicon:true});
+  });
+  return items;
+}
+function buildTest(L){
+  var d=DATA[L]||DATA.A1, items=[];
+  /* Gramática + tiempos: TODO el banco de quiz */
+  (d.quiz||[]).forEach(function(q){items.push({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))]),cat:'Gramática'});});
+  /* Rellenar: TODO */
+  (d.fill||[]).forEach(function(f){items.push({type:'fill',q:f[0],a:f[1],cat:'Gramática'});});
+  /* Vocabulario */
+  shuffle((d.vocab||[]).slice()).slice(0,6).forEach(function(v){items.push({type:'mc',q:'¿Qué significa <b>'+enOnly(v.w)+'</b>?',a:v.es,opts:shuffle([v.es].concat(vocabDistractors(L,v.es))),noicon:true,cat:'Vocabulario'});});
+  /* Un ejercicio de CADA tiempo y CADA tema de gramática (asegura cobertura completa) */
+  (d.tenses||[]).concat(d.grammar||[]).forEach(function(tp){
+    var ex=(tp.ex||[]).filter(Boolean); if(!ex.length)return;
+    var e=ex[Math.floor(Math.random()*ex.length)], en=enOnly(e), w=tpWords(en);
+    if(w.length>=3){ var ki=tpKeyIndex(w), ans=w[ki], bl=w.slice(); bl[ki]='___'; items.push({type:'fill',q:bl.join(' '),a:ans,cat:(tp.n?'Tiempos':'Gramática')}); }
+  });
+  /* Listening */
+  items=items.concat(testListenItems(L,4));
+  /* Reading al final (con el pasaje visible) */
+  return shuffle(items).concat(testReadingItems(L,3));
+}
 
 /* ===== ESTADO ===== */
 let unlocked=store.get('unlocked',['A1']);
 let curLevel=store.get('curLevel','A1');
 if(!unlocked.includes(curLevel)) curLevel='A1';
 let curSub='units';
-const SUBS=[['units','🗺️ Unidades'],['tenses','⏳ Tiempos verbales'],['grammar','📖 Gramática'],['vocab','💡 Vocabulario'],['dialog','🗨️ Diálogos'],['pro','🦷 Pro (odontología)'],['idioms','💬 Modismos'],['skills','🎯 Habilidades'],['quiz','📝 Quiz'],['fill','✏️ Rellenar'],['flash','🃏 Flashcards'],['test','🔓 Examen de nivel']];
+const SUBS=[['units','🗺️ Unidades'],['vocab','💡 Vocabulario'],['dialog','🗨️ Diálogos'],['pro','🦷 Pro (odontología)'],['idioms','💬 Modismos'],['skills','🎯 Habilidades'],['quiz','📝 Quiz'],['fill','✏️ Rellenar'],['flash','🃏 Flashcards'],['test','🔓 Examen de nivel']];
 
 /* ===== NAV ===== */
 /* ===== INTERFAZ EN EL IDIOMA NATIVO (encabezado + menú) ===== */
@@ -2839,10 +2878,13 @@ function renderUnitsHTML(L){
   const us=levelUnits(L); let done=0; us.forEach(function(_,i){if(isUnitDone(L,i))done++;});
   let h='<p class="note"><b>'+us.length+' unidades</b> · completa cada una para desbloquear la siguiente ('+done+'/'+us.length+')</p>';
   h+='<div class="progwrap"><div class="progfill" style="width:'+(us.length?Math.round(done/us.length*100):0)+'%"></div></div>';
+  var shownTense=false, shownGram=false;
   us.forEach(function(u,i){
     const dn=isUnitDone(L,i), un=isUnitUnlocked(L,i);
     const title=u.kind==='tense'?u.topic.n:u.topic.t;
     const ico=u.kind==='tense'?'⏳':'📖';
+    if(u.kind==='tense' && !shownTense){ shownTense=true; h+='<h3 style="margin:14px 0 6px;font-family:\'Poppins\',sans-serif;">⏳ Tiempos verbales</h3>'; }
+    if(u.kind==='grammar' && !shownGram){ shownGram=true; h+='<h3 style="margin:18px 0 6px;font-family:\'Poppins\',sans-serif;">📖 Gramática y más</h3>'; }
     h+='<div class="lesson-card'+(dn?' done':'')+'" onclick="'+(un?'openUnit(\''+L+'\','+i+')':'toast(\'🔒 Completa la unidad anterior primero\')')+'" style="'+(un?'':'opacity:.55;')+'">'
       +'<div class="lesson-ico">'+(un?ico:'🔒')+'</div>'
       +'<div class="lesson-meta"><div class="t">'+L+'.'+(i+1)+' · '+title+'</div><div class="d">'+(dn?'✓ Completada':(un?'Disponible':'Bloqueada'))+'</div></div>'
@@ -2861,6 +2903,10 @@ function openUnit(L,i){
   t.ex.forEach(function(e){h+=exLi(e);}); h+='</ul></div>';
   h+=careerSpotlightHTML();
   h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><p class="note" style="margin:0 0 8px;">Ejercicios sobre <b>este tema</b>: '+(u.kind==='tense'?t.n:t.t)+'.</p><div id="quizHost"></div><button class="btn primary" onclick="startUnitPractice(\''+L+'\','+i+')">Empezar práctica</button></div>';
+  /* Escribe tus 5 ejemplos (mismo módulo que en tiempos verbales; comparte progreso) */
+  var ntx=(DATA[L]&&DATA[L].tenses?DATA[L].tenses.length:0);
+  var ownKey=(i<ntx)? String(i) : ('g'+(i-ntx));
+  h+=ownBoxHTML(L, ownKey, (u.kind==='tense'?t.n:t.t));
   var us=levelUnits(L), total=us.length, doneN=0; us.forEach(function(_,k){if(isUnitDone(L,k))doneN++;});
   if(isUnitDone(L,i)){
     var rest=total-doneN;
@@ -2928,7 +2974,7 @@ function renderContent(){
   if(curSub==='units'){ h+=renderUnitsHTML(L); }
   else if(curSub==='tenses'){
     h+='<p class="note">Tiempos verbales de tu nivel (según Cambridge). Forma, uso y 5 ejemplos con traducción.</p>';
-    d.tenses.forEach((t,ti)=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div><p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'tenses\','+ti+')">🎮 Practicar este tiempo</button>'+ownBoxHTML(L,ti)+'</div>';});
+    d.tenses.forEach((t,ti)=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div><p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'tenses\','+ti+')">🎮 Practicar este tiempo</button>'+ownBoxHTML(L,ti,t.n)+'</div>';});
   } else if(curSub==='grammar'){
     h+='<p class="note">Gramática clave del nivel. Cada tema con su forma y 5 ejemplos con traducción.</p>';
     d.grammar.forEach((g,gi)=>{h+='<div class="skillbox"><h4>'+g.t+'</h4><p><b>Forma:</b> '+g.form+'</p><ul>';g.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'grammar\','+gi+')">🎮 Practicar este tema</button></div>';});
@@ -3029,10 +3075,10 @@ function makeTpItem(en,es,words,exs){
   if(t==='tf'){ var wrong=Math.random()<0.5, shownEs=es; if(wrong){var o=exs[Math.floor(Math.random()*exs.length)];var oe=(String(o).split('|')[1]||'').trim(); if(oe&&oe!==es)shownEs=oe; else wrong=false;} return {type:'tf',en:en,es:shownEs,correct:!wrong}; }
   if(t==='listen'){ var opts=shuffle([es].concat(tpListenDistractors(es,exs))); return {type:'listen',en:en,es:es,opts:opts}; }
   var ki=tpKeyIndex(words), ans=words[ki]; var bl=words.slice(); bl[ki]='___'; var sent=bl.join(' ');
-  if(t==='fill') return {type:'fill',sent:sent,ans:ans,es:es};
+  if(t==='fill') return {type:'fill',sent:sent,ans:ans,es:es,en:en};
   var pool=[]; exs.forEach(function(x){ tpWords(enOnly(x)).forEach(function(w){ if(w.toLowerCase()!==ans.toLowerCase()&&w.length>2)pool.push(w); }); });
   pool=shuffle([...new Set(pool)]).slice(0,2); while(pool.length<2)pool.push(ans+'s');
-  return {type:'choose',sent:sent,ans:ans,opts:shuffle([ans].concat(pool)),es:es};
+  return {type:'choose',sent:sent,ans:ans,opts:shuffle([ans].concat(pool)),es:es,en:en};
 }
 function practiceTopic(kind,idx){
   if(!canPractice())return;
@@ -3051,6 +3097,7 @@ function renderTP(){
   if(tpState.i>=tpState.items.length){ finishTP(b); return; }
   var it=tpState.items[tpState.i];
   var h=livesBarHTML()+'<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">'+tpState.topic+' · '+(tpState.i+1)+'/'+tpState.items.length+' · Aciertos: '+tpState.score+'</div>';
+  if(it.en && it.type!=='listen'){ h+='<div style="margin:0 0 10px;"><button class="btn" onclick="speak(\''+String(it.en).replace(/'/g,"\\'")+'\')">🔊 Escuchar</button> <span class="note" style="font-size:.75rem;color:var(--muted);">pronunciación</span></div>'; }
   if(it.type==='order'){
     tpState.cur=[]; var scr=shuffle(tpWords(it.en).slice());
     h+='<p class="q">🔀 Ordena la oración en inglés:</p><p class="note" style="margin-top:0;">Significado: '+it.es+'</p>';
@@ -3069,7 +3116,8 @@ function renderTP(){
   }
   b.innerHTML=h;
   startLifeClock();
-  if(it.type==='listen'){ setTimeout(function(){try{speak(it.en);}catch(e){}},300); }
+  /* audio automático al aparecer: en tipos que no revelan la respuesta */
+  if((it.type==='listen'||it.type==='tf') && it.en){ setTimeout(function(){try{speak(it.en);}catch(e){}},300); }
 }
 function tpPick(i){ var btn=document.getElementById('tpc'+i); if(!btn||btn.disabled)return; tpState.cur=tpState.cur||[]; tpState.cur.push(btn.textContent); btn.disabled=true; btn.style.opacity=.35; document.getElementById('tpAns').textContent=tpState.cur.join(' '); }
 function tpCheckOrder(){ var it=tpState.items[tpState.i]; var good=tpNorm((tpState.cur||[]).join(' '))===tpNorm(it.en); tpFeedback(good,it.en); }
@@ -3077,21 +3125,25 @@ function tpChoose(btn,choice,ans){ document.querySelectorAll('#tpBody .opt').for
 function tpFillCheck(ans){ var v=tpNorm((document.getElementById('tpFill')||{}).value||''); tpFeedback(v===tpNorm(ans),ans); }
 function tpTF(choice,correct){ tpFeedback(choice===correct, correct?'Sí era correcta':'No, estaba mal'); }
 function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} loseLife(); if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';}
+  /* tras responder, reproduce la frase completa en inglés (refuerza pronunciación, sin adelantar la respuesta) */
+  var _cur=tpState.items[tpState.i]; if(_cur&&_cur.en&&_cur.type!=='listen'){ setTimeout(function(){try{speak(_cur.en);}catch(e){}},250); }
   if(livesEnabled() && livesLeft()<=0){ setTimeout(function(){ var b=document.getElementById('tpBody'); if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Te quedaste sin vidas</h3><p class="note">Se recargan en <b>'+fmtMs(refillMsLeft())+'</b>. ¿Quieres vidas ilimitadas?</p><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>'; },1200); return; }
   setTimeout(function(){tpState.i++;renderTP();},1350); }
 function finishTP(b){ var pct=Math.round(tpState.score/tpState.items.length*100); try{addXP(tpState.score*3);confetti();beep('win');}catch(e){} b.innerHTML='<div style="text-align:center;"><div class="scorebig">'+tpState.score+' / '+tpState.items.length+'</div><p>'+(pct>=70?'🏆 ¡Muy bien!':'💪 ¡Sigue practicando!')+'</p><p class="note">+'+(tpState.score*3)+' XP 🐙</p><button class="btn primary" onclick="closeTP()">Listo</button></div>'; }
 
 /* ===== ESCRIBE TUS PROPIOS EJEMPLOS (aprendizaje activo) ===== */
-function ownBoxHTML(L,ti){
-  var saved=store.get('own_'+L+'_'+ti,['','','','','']);
+var OWN_NAMES={};
+function ownBoxHTML(L,key,name){
+  key=String(key); OWN_NAMES[L+'_'+key]=name||'';
+  var saved=store.get('own_'+L+'_'+key,['','','','','']);
   var ins='';
-  for(var j=0;j<5;j++){ var v=saved[j]?String(saved[j]).replace(/"/g,'&quot;'):''; ins+='<input class="fill" id="own_'+L+'_'+ti+'_'+j+'" style="width:100%;margin-bottom:6px;" placeholder="Tu ejemplo '+(j+1)+'..." value="'+v+'">'; }
+  for(var j=0;j<5;j++){ var v=saved[j]?String(saved[j]).replace(/"/g,'&quot;'):''; ins+='<input class="fill" id="own_'+L+'_'+key+'_'+j+'" style="width:100%;margin-bottom:6px;" placeholder="Tu ejemplo '+(j+1)+'..." value="'+v+'">'; }
   return '<div class="skillbox" style="background:var(--card2);border:1px dashed var(--blue);margin-top:10px;">'
     +'<h4>✍️ Tu turno: escribe 5 ejemplos tuyos</h4>'
-    +'<p class="note" style="margin:0 0 8px;">Crea frases <b>de tu vida diaria</b> usando este tiempo. Escribir tú mismo fija el aprendizaje. Milo las revisa. 🐙</p>'
+    +'<p class="note" style="margin:0 0 8px;">Crea frases <b>de tu vida diaria</b> usando este tema. Escribir tú mismo fija el aprendizaje. Milo las revisa. 🐙</p>'
     +ins
-    +'<button class="btn primary" onclick="checkOwn(\''+L+'\','+ti+')">✅ Revisar mis ejemplos</button>'
-    +'<div id="ownres_'+L+'_'+ti+'" style="margin-top:8px;"></div></div>';
+    +'<button class="btn primary" onclick="checkOwn(\''+L+'\',\''+key+'\')">✅ Revisar mis ejemplos</button>'
+    +'<div id="ownres_'+L+'_'+key+'" style="margin-top:8px;"></div></div>';
 }
 async function gradeSentence(tense, sentence){
   if(!CHAT_ENDPOINT) return null;
@@ -3112,11 +3164,13 @@ function heurCheck(name,s){
   else { tag='📝 Revisión básica hecha: verifica que coincida con la estructura del tiempo.'; }
   return tag+' <span style="color:var(--muted)">(Revisión básica. La corrección detallada con IA se activa en la guía.)</span>';
 }
-async function checkOwn(L,ti){
-  var t=(DATA[L]&&DATA[L].tenses&&DATA[L].tenses[ti])?DATA[L].tenses[ti]:null; var name=t?t.n:'';
-  var arr=[]; for(var j=0;j<5;j++){var el=document.getElementById('own_'+L+'_'+ti+'_'+j); arr.push(el?el.value.trim():'');}
-  store.set('own_'+L+'_'+ti,arr);
-  var res=document.getElementById('ownres_'+L+'_'+ti); if(!res)return;
+async function checkOwn(L,key){
+  key=String(key);
+  var name=OWN_NAMES[L+'_'+key]||'';
+  if(!name){ var t=(DATA[L]&&DATA[L].tenses&&DATA[L].tenses[key])?DATA[L].tenses[key]:null; name=t?t.n:''; }
+  var arr=[]; for(var j=0;j<5;j++){var el=document.getElementById('own_'+L+'_'+key+'_'+j); arr.push(el?el.value.trim():'');}
+  store.set('own_'+L+'_'+key,arr);
+  var res=document.getElementById('ownres_'+L+'_'+key); if(!res)return;
   var filled=arr.filter(function(x){return x;});
   if(!filled.length){ res.innerHTML='<p class="note">Escribe al menos una frase para que Milo la revise. ✍️</p>'; return; }
   res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos a la vez...</p>';
@@ -3172,6 +3226,7 @@ function renderQ(){
   let h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Pregunta '+(qState.i+1)+' de '+qState.items.length+(isExam?'':' · Aciertos: '+qState.score)+'</div>';
   if(!it.noicon && !isExam) h+='<div style="text-align:center;margin-bottom:6px;">'+iconHTML((it.a+' '+it.q).replace('___',it.a),'2.8rem')+'</div>';
   if(it.audio) h+='<div style="text-align:center;margin-bottom:6px;"><button class="btn primary" onclick="speak(\''+String(it.audio).replace(/'/g,"\\'")+'\')">🔊 Escuchar otra vez</button></div>';
+  if(it.passage) h+='<div class="skillbox" style="text-align:left;max-height:170px;overflow:auto;font-size:.9rem;line-height:1.5;margin-bottom:8px;">📖 '+it.passage+'</div>';
   h+='<div class="q">'+it.q.replace('___','<span style="color:var(--blue)">_____</span>')+'</div>';
   if(it.type==='mc'){h+='<div class="opts">';it.opts.forEach(o=>h+='<button class="opt" onclick="ansQ(this,\''+o.replace(/'/g,"\\'")+'\')">'+o+'</button>');h+='</div>';}
   else{h+='<input class="fill" id="qfill" autocomplete="off" style="width:200px;"> <button class="btn primary" onclick="ansFillQ()">OK</button>';}
@@ -3205,6 +3260,7 @@ function ansFillQ(){
 }
 function finishQuiz(host){
   if(qState.mode==='placement'){return finishPlacement(host);}
+  if(qState.mode==='test'){return finishTest(host);}
   if(qState.mode==='dentalquiz'){
     addXP(qState.score*5);confetti();beep('win');
     let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, '+gword('doctora','doctor','doctor@')+'! +'+(qState.score*5)+' XP</p>';
@@ -3236,6 +3292,51 @@ function finishQuiz(host){
   host.innerHTML=h;
 }
 function reQuiz(){startQuiz('quizHost',DATA[curLevel].quiz.map(q=>({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))])})),false);}
+/* ===== EXAMEN DE NIVEL (robusto: escrito + listening + reading + speaking) ===== */
+function finishTest(host){ qState.testHost=host; qState.writtenScore=qState.score; qState.writtenTotal=qState.items.length; qState.tSpeak=null; testSpeakStep(); }
+function testSpeakStep(){
+  var host=qState.testHost; if(!host)return;
+  var L=curLevel; var phr=(SPEAK_PHRASES[L]&&SPEAK_PHRASES[L][0])||'I can speak a little English.';
+  qState.tSpeakPhrase=phr;
+  var h='<div class="skillbox" style="text-align:center;"><h4>🎤 Parte de Speaking</h4>'
+   +'<p class="note" style="margin:4px 0 10px;">Última parte del examen: lee la frase en voz alta. Cuenta para tu nota final. (Opcional)</p>'
+   +'<p style="font-size:1.2rem;font-weight:800;font-family:\'Poppins\',sans-serif;margin:8px 0;">"'+phr+'"</p>'
+   +'<button class="btn" onclick="speak(\''+phr.replace(/'/g,"\\'")+'\')">🔊 Escuchar</button> '
+   +'<button class="btn primary" id="tMic" onclick="testListen()">🎤 Hablar</button>'
+   +'<div id="tFb" style="margin-top:12px;font-weight:700;min-height:22px;"></div>'
+   +'<div style="margin-top:12px;"><button class="btn green" onclick="testFinalize()">Ver mi resultado →</button> '
+   +'<button class="btn" onclick="qState.tSpeak=null;testFinalize()">Omitir</button></div></div>';
+  host.innerHTML=h;
+}
+function testListen(){
+  var fb=document.getElementById('tFb'), btn=document.getElementById('tMic');
+  if(!speakSupported()){if(fb)fb.innerHTML='<span style="color:var(--muted)">Tu navegador no soporta micrófono. Pulsa "Omitir".</span>';return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var r=new SR(); r.lang=((typeof TTS_LANG!=='undefined'&&TTS_LANG)||'en-US'); r.interimResults=false; r.maxAlternatives=3;
+  fb.innerHTML='🎙️ Escuchando… di la frase.'; btn.textContent='● Grabando…';
+  r.onresult=function(e){var best=0,said='';for(var i=0;i<e.results[0].length;i++){var sc=scoreSpeech(qState.tSpeakPhrase,e.results[0][i].transcript);if(sc>=best){best=sc;said=e.results[0][i].transcript;}}btn.textContent='🎤 Hablar';qState.tSpeak=best;var em=best>=85?'🏆':best>=60?'👍':'💪';fb.innerHTML='<div style="font-size:1.3rem;">'+em+' '+best+'%</div><div style="font-weight:400;color:var(--muted);font-size:.85rem;">Escuché: "'+said+'"</div><div style="margin-top:4px;font-weight:400;">Pulsa "Ver mi resultado".</div>';try{beep(best>=60?'good':'bad');}catch(_){}};
+  r.onerror=function(){btn.textContent='🎤 Hablar';if(fb)fb.innerHTML='<span style="color:var(--muted)">No se pudo escuchar. Pulsa "Omitir".</span>';};
+  r.onend=function(){if(btn.textContent==='● Grabando…')btn.textContent='🎤 Hablar';};
+  try{r.start();}catch(e){}
+}
+function testFinalize(){
+  var host=qState.testHost; if(!host)return;
+  var score=qState.writtenScore, total=qState.writtenTotal, sp=qState.tSpeak;
+  if(sp!=null){ total+=1; if(sp>=60)score+=1; }  /* speaking vale 1 punto */
+  var pct=Math.round(score/total*100);
+  var h='<div class="scorebig">'+score+' / '+total+' ('+pct+'%)</div>';
+  if(pct>=80){
+    markDone(curLevel,'test');confetti();beep('win');
+    var idx=LEVELS.indexOf(curLevel), next=LEVELS[idx+1];
+    if(next && !unlocked.includes(next)){unlocked.push(next);store.set('unlocked',unlocked);renderLevelBar();}
+    h+='<p style="text-align:center;color:var(--green);font-weight:700;">🎉 ¡Aprobaste el examen completo de '+curLevel+'! '+(next?('Nivel '+next+' desbloqueado.'):'¡Completaste todos los niveles!')+'</p>';
+  } else {
+    h+='<p style="text-align:center;color:var(--red);font-weight:700;">Necesitas 80% para aprobar el nivel. Repasa los temas y vuelve a intentarlo 💪</p>';
+  }
+  h+='<p class="note" style="text-align:center;">Este examen cubrió gramática, tiempos verbales, vocabulario, listening, reading'+(sp!=null?' y speaking':'')+'.</p>';
+  h+='<div style="text-align:center;"><button class="btn primary" onclick="startTest(\''+curLevel+'\')">Reintentar examen</button> <button class="btn" onclick="curSub=\'units\';renderSub();renderContent();">Volver a Unidades</button></div>';
+  host.innerHTML=h;
+}
 
 /* ===== EXAMEN DE NIVELACIÓN ===== */
 function renderPlacement(){
@@ -3336,8 +3437,8 @@ function placementFinish(){
 function renderTestIntro(L){
   const idx=LEVELS.indexOf(L);const next=LEVELS[idx+1];
   let h='<div class="skillbox"><h4>🔓 Examen de nivel '+L+'</h4>';
-  h+='<p>Junta TODO lo aprendido en este nivel: tiempos verbales, gramática, vocabulario y rellenar. Son 8 preguntas mezcladas.</p>';
-  h+='<p><b>Necesitas 80% (mín. 7/8)</b> para '+(next?('desbloquear el nivel '+next):'completar el curso')+'.</p>';
+  h+='<p>Examen completo del nivel: cubre <b>todos</b> los temas — tiempos verbales, gramática, vocabulario, <b>listening</b>, <b>reading</b> y una parte de <b>speaking</b> al final.</p>';
+  h+='<p><b>Necesitas 80%</b> para '+(next?('desbloquear el nivel '+next):'completar el curso')+'. Tómate tu tiempo. 🐙</p>';
   if(next && unlocked.includes(next)) h+='<p style="color:var(--green);font-weight:700;">✓ Ya desbloqueaste el nivel '+next+'. Puedes repetirlo para practicar.</p>';
   h+='<button class="btn green" onclick="startTest(\''+L+'\')">Empezar examen</button></div>';
   h+='<div id="quizHost" style="margin-top:8px;"></div>';
