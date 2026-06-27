@@ -2821,7 +2821,7 @@ let unlocked=store.get('unlocked',['A1']);
 let curLevel=store.get('curLevel','A1');
 if(!unlocked.includes(curLevel)) curLevel='A1';
 let curSub='units';
-const SUBS=[['units','🗺️ Unidades'],['vocab','💡 Vocabulario'],['dialog','🗨️ Diálogos'],['pro','🦷 Pro (odontología)'],['idioms','💬 Modismos'],['skills','🎯 Habilidades'],['quiz','📝 Quiz'],['fill','✏️ Rellenar'],['flash','🃏 Flashcards'],['test','🔓 Examen de nivel']];
+const SUBS=[['units','subUnits'],['vocab','subVocab'],['dialog','subDialog'],['pro','subPro'],['idioms','subIdioms'],['skills','subSkills'],['quiz','subQuiz'],['fill','subFill'],['flash','subFlash'],['test','subTest']];
 
 /* ===== NAV ===== */
 /* ===== INTERFAZ EN EL IDIOMA NATIVO (encabezado + menú) ===== */
@@ -2831,6 +2831,66 @@ var UI_LANG={
   pt:{trainer:'Milo · Treinador de idiomas', sub:'A1 → C1 · Sua academia de idiomas', home:'🏠 Início',learn:'📚 Aprender',practice:'🎯 Praticar',prof:'💼 Profissão',progress:'📊 Progresso',explore:'🌎 Explorar',profile:'👤 Perfil'},
   fr:{trainer:'Milo · Coach de langues', sub:'A1 → C1 · Ton académie de langues', home:'🏠 Accueil',learn:'📚 Apprendre',practice:'🎯 Pratiquer',prof:'💼 Métier',progress:'📊 Progrès',explore:'🌎 Explorer',profile:'👤 Profil'}
 };
+/* ===== Traducción de la INTERFAZ al idioma nativo (los ejercicios quedan en el idioma que se aprende) ===== */
+var TT={
+ es:{ subUnits:'🗺️ Unidades',subVocab:'💡 Vocabulario',subDialog:'🗨️ Diálogos',subPro:'🦷 Pro (profesión)',subIdioms:'💬 Modismos',subSkills:'🎯 Habilidades',subQuiz:'📝 Quiz',subFill:'✏️ Rellenar',subFlash:'🃏 Flashcards',subTest:'🔓 Examen de nivel',
+   ofLevel:'del nivel',goal:'Meta',unitsCount:'unidades · completa cada una para desbloquear la siguiente',hTenses:'⏳ Tiempos verbales',hGrammar:'📖 Gramática y más',
+   stDone:'✓ Completada',stAvail:'Disponible',stLocked:'Bloqueada',lockPrev:'🔒 Completa la unidad anterior primero',
+   form:'Forma',useWhen:'Cuándo se usa',practiceTitle:'📝 Practica lo aprendido',practiceAbout:'Ejercicios sobre <b>este tema</b>:',startPractice:'Empezar práctica',
+   yourTurn:'✍️ Tu turno: escribe 5 ejemplos tuyos',yourTurnNote:'Crea frases <b>de tu vida diaria</b> usando este tema. Escribir tú mismo fija el aprendizaje. Milo las revisa. 🐙',reviewMine:'✅ Revisar mis ejemplos',
+   topicDone:'✓ Tema completado',missing:'Te faltan',toFinish:'tema(s) para terminar el nivel',allDoneLevel:'🎉 ¡Completaste TODOS los temas del nivel! Ya puedes hacer el examen.',nextTopic:'Siguiente tema',seeAll:'Ver todos los temas del nivel →',thisIsTopic:'Este es el tema',ofN:'de',markLearned:'✓ Marcar este tema como aprendido',backUnits:'← Unidades',listen:'🔊 Escuchar' },
+ en:{ subUnits:'🗺️ Units',subVocab:'💡 Vocabulary',subDialog:'🗨️ Dialogues',subPro:'🦷 Pro (career)',subIdioms:'💬 Idioms',subSkills:'🎯 Skills',subQuiz:'📝 Quiz',subFill:'✏️ Fill in',subFlash:'🃏 Flashcards',subTest:'🔓 Level test',
+   ofLevel:'of the level',goal:'Goal',unitsCount:'units · finish each one to unlock the next',hTenses:'⏳ Verb tenses',hGrammar:'📖 Grammar & more',
+   stDone:'✓ Completed',stAvail:'Available',stLocked:'Locked',lockPrev:'🔒 Finish the previous unit first',
+   form:'Form',useWhen:'When to use it',practiceTitle:'📝 Practice what you learned',practiceAbout:'Exercises on <b>this topic</b>:',startPractice:'Start practice',
+   yourTurn:'✍️ Your turn: write 5 of your own examples',yourTurnNote:'Write sentences <b>from your daily life</b> using this topic. Writing it yourself locks in the learning. Milo reviews them. 🐙',reviewMine:'✅ Check my examples',
+   topicDone:'✓ Topic completed',missing:'You have',toFinish:'topic(s) left to finish the level',allDoneLevel:'🎉 You completed ALL topics in this level! You can take the exam now.',nextTopic:'Next topic',seeAll:'See all topics in the level →',thisIsTopic:'This is topic',ofN:'of',markLearned:'✓ Mark this topic as learned',backUnits:'← Units',listen:'🔊 Listen' },
+ pt:{ subUnits:'🗺️ Unidades',subVocab:'💡 Vocabulário',subDialog:'🗨️ Diálogos',subPro:'🦷 Pro (profissão)',subIdioms:'💬 Gírias',subSkills:'🎯 Habilidades',subQuiz:'📝 Quiz',subFill:'✏️ Completar',subFlash:'🃏 Flashcards',subTest:'🔓 Exame do nível',
+   ofLevel:'do nível',goal:'Meta',unitsCount:'unidades · complete cada uma para desbloquear a próxima',hTenses:'⏳ Tempos verbais',hGrammar:'📖 Gramática e mais',
+   stDone:'✓ Concluída',stAvail:'Disponível',stLocked:'Bloqueada',lockPrev:'🔒 Conclua a unidade anterior primeiro',
+   form:'Forma',useWhen:'Quando usar',practiceTitle:'📝 Pratique o que aprendeu',practiceAbout:'Exercícios sobre <b>este tema</b>:',startPractice:'Começar prática',
+   yourTurn:'✍️ Sua vez: escreva 5 exemplos seus',yourTurnNote:'Crie frases <b>do seu dia a dia</b> usando este tema. Escrever você mesmo fixa o aprendizado. Milo revisa. 🐙',reviewMine:'✅ Revisar meus exemplos',
+   topicDone:'✓ Tema concluído',missing:'Faltam',toFinish:'tema(s) para terminar o nível',allDoneLevel:'🎉 Você concluiu TODOS os temas do nível! Já pode fazer o exame.',nextTopic:'Próximo tema',seeAll:'Ver todos os temas do nível →',thisIsTopic:'Este é o tema',ofN:'de',markLearned:'✓ Marcar este tema como aprendido',backUnits:'← Unidades',listen:'🔊 Ouvir' },
+ fr:{ subUnits:'🗺️ Unités',subVocab:'💡 Vocabulaire',subDialog:'🗨️ Dialogues',subPro:'🦷 Pro (métier)',subIdioms:'💬 Expressions',subSkills:'🎯 Compétences',subQuiz:'📝 Quiz',subFill:'✏️ À compléter',subFlash:'🃏 Cartes',subTest:'🔓 Examen du niveau',
+   ofLevel:'du niveau',goal:'Objectif',unitsCount:'unités · termine chacune pour débloquer la suivante',hTenses:'⏳ Temps verbaux',hGrammar:'📖 Grammaire et plus',
+   stDone:'✓ Terminée',stAvail:'Disponible',stLocked:'Verrouillée',lockPrev:'🔒 Termine d\'abord l\'unité précédente',
+   form:'Forme',useWhen:'Quand l\'utiliser',practiceTitle:'📝 Pratique ce que tu as appris',practiceAbout:'Exercices sur <b>ce thème</b> :',startPractice:'Commencer',
+   yourTurn:'✍️ À toi : écris 5 exemples',yourTurnNote:'Écris des phrases <b>de ta vie quotidienne</b> avec ce thème. Écrire toi-même ancre l\'apprentissage. Milo les corrige. 🐙',reviewMine:'✅ Vérifier mes exemples',
+   topicDone:'✓ Thème terminé',missing:'Il te reste',toFinish:'thème(s) pour terminer le niveau',allDoneLevel:'🎉 Tu as terminé TOUS les thèmes du niveau ! Tu peux passer l\'examen.',nextTopic:'Thème suivant',seeAll:'Voir tous les thèmes du niveau →',thisIsTopic:'C\'est le thème',ofN:'sur',markLearned:'✓ Marquer ce thème comme appris',backUnits:'← Unités',listen:'🔊 Écouter' }
+};
+/* Claves de Inicio, Practicar y tarjetas del dashboard */
+Object.assign(TT.es,{ greetM:'Buenos días',greetA:'Buenas tardes',greetE:'Buenas noches',ofGoal:'de tu meta',yourObjective:'Tu objetivo',levelW:'Nivel',dayU:'día',dayP:'días',cont:'▶ CONTINUAR',challDone:'✓ Reto diario completado hoy',challDo:'🔥 Reto diario · 3 minutos',reviewFailed:'🔁 Repasar lo que fallé',rankTitle:'🏆 Ranking y amigos',rankDesc:'Compite por XP con tus amigos y con toda la comunidad Milo. ¡Agrega amigos y sube en la tabla!',rankBtn:'👥 Ver ranking de amigos',achiev:'🏆 Logro',freeNote:'🎉 Gratis por lanzamiento · ',premiumSoon:'Premium pronto',
+  goalTodayT:'🎯 Meta de hoy',goalDone:'¡Meta cumplida! 🐙 Eres imparable.',goalHave:'Llevas',goalOf:'de',goalXpToday:'XP hoy.',weekT:'📅 Tu semana',streakNow:'Constancia actual:',dontBreak:'¡No la rompas!',planTodayT:'📅 Hoy en tu plan',planDay:'Día',planOf:'de',planMilo:'Milo organizó esto para ti:',planDoneToday:'✓ ¡Tarea de hoy completada! Vuelve mañana 🐙',planDoNow:'▶ Hacer ahora',planDid:'✓ Ya lo hice',
+  pracT:'🎯 Practicar',pracLead:'Refuerza lo aprendido. Elige cómo quieres practicar hoy.',pChall:'Reto diario',pChallD:'3 minutos para mantener tu constancia.',pStart:'Empezar',pDoneToday:'✓ Hecho hoy',pSpeak:'Speak Now',pSpeakD:'Habla y Milo evalúa tu pronunciación.',pPractice:'Practicar',pChat:'Conversar con Milo (IA)',pChatD:'Diálogos reales: entrevista, consulta, viajes…',pChatBtn:'Conversar',pPron:'Pronunciación',pPronD:'Los sonidos que te hacen sonar nativo/a.',pView:'Ver',pGames:'Juegos',pGamesD:'Aprende jugando y gana XP.',pPlay:'Jugar',pReview:'Repaso inteligente',pReviewD:'Repasa lo que fallaste',pReviewBtn:'Repasar' });
+Object.assign(TT.en,{ greetM:'Good morning',greetA:'Good afternoon',greetE:'Good evening',ofGoal:'of your goal',yourObjective:'Your goal',levelW:'Level',dayU:'day',dayP:'days',cont:'▶ CONTINUE',challDone:'✓ Daily challenge done today',challDo:'🔥 Daily challenge · 3 minutes',reviewFailed:'🔁 Review what I missed',rankTitle:'🏆 Ranking & friends',rankDesc:'Compete for XP with your friends and the whole Milo community. Add friends and climb the board!',rankBtn:'👥 See friends ranking',achiev:'🏆 Achievement',freeNote:'🎉 Free at launch · ',premiumSoon:'Premium soon',
+  goalTodayT:'🎯 Today\'s goal',goalDone:'Goal reached! 🐙 You\'re unstoppable.',goalHave:'You have',goalOf:'of',goalXpToday:'XP today.',weekT:'📅 Your week',streakNow:'Current streak:',dontBreak:'Don\'t break it!',planTodayT:'📅 Today in your plan',planDay:'Day',planOf:'of',planMilo:'Milo set this up for you:',planDoneToday:'✓ Today\'s task done! Come back tomorrow 🐙',planDoNow:'▶ Do it now',planDid:'✓ I did it',
+  pracT:'🎯 Practice',pracLead:'Reinforce what you learned. Choose how to practice today.',pChall:'Daily challenge',pChallD:'3 minutes to keep your streak.',pStart:'Start',pDoneToday:'✓ Done today',pSpeak:'Speak Now',pSpeakD:'Speak and Milo grades your pronunciation.',pPractice:'Practice',pChat:'Chat with Milo (AI)',pChatD:'Real dialogues: interview, appointment, travel…',pChatBtn:'Chat',pPron:'Pronunciation',pPronD:'The sounds that make you sound native.',pView:'View',pGames:'Games',pGamesD:'Learn by playing and earn XP.',pPlay:'Play',pReview:'Smart review',pReviewD:'Review what you missed',pReviewBtn:'Review' });
+Object.assign(TT.pt,{ greetM:'Bom dia',greetA:'Boa tarde',greetE:'Boa noite',ofGoal:'da sua meta',yourObjective:'Seu objetivo',levelW:'Nível',dayU:'dia',dayP:'dias',cont:'▶ CONTINUAR',challDone:'✓ Desafio diário feito hoje',challDo:'🔥 Desafio diário · 3 minutos',reviewFailed:'🔁 Revisar o que errei',rankTitle:'🏆 Ranking e amigos',rankDesc:'Compita por XP com seus amigos e toda a comunidade Milo. Adicione amigos e suba na tabela!',rankBtn:'👥 Ver ranking de amigos',achiev:'🏆 Conquista',freeNote:'🎉 Grátis no lançamento · ',premiumSoon:'Premium em breve',
+  goalTodayT:'🎯 Meta de hoje',goalDone:'Meta cumprida! 🐙 Você é imparável.',goalHave:'Você tem',goalOf:'de',goalXpToday:'XP hoje.',weekT:'📅 Sua semana',streakNow:'Sequência atual:',dontBreak:'Não quebre!',planTodayT:'📅 Hoje no seu plano',planDay:'Dia',planOf:'de',planMilo:'Milo organizou isto para você:',planDoneToday:'✓ Tarefa de hoje concluída! Volte amanhã 🐙',planDoNow:'▶ Fazer agora',planDid:'✓ Já fiz',
+  pracT:'🎯 Praticar',pracLead:'Reforce o que aprendeu. Escolha como praticar hoje.',pChall:'Desafio diário',pChallD:'3 minutos para manter sua sequência.',pStart:'Começar',pDoneToday:'✓ Feito hoje',pSpeak:'Speak Now',pSpeakD:'Fale e Milo avalia sua pronúncia.',pPractice:'Praticar',pChat:'Conversar com Milo (IA)',pChatD:'Diálogos reais: entrevista, consulta, viagens…',pChatBtn:'Conversar',pPron:'Pronúncia',pPronD:'Os sons que fazem você soar nativo.',pView:'Ver',pGames:'Jogos',pGamesD:'Aprenda jogando e ganhe XP.',pPlay:'Jogar',pReview:'Revisão inteligente',pReviewD:'Revise o que errou',pReviewBtn:'Revisar' });
+Object.assign(TT.fr,{ greetM:'Bonjour',greetA:'Bon après-midi',greetE:'Bonsoir',ofGoal:'de ton objectif',yourObjective:'Ton objectif',levelW:'Niveau',dayU:'jour',dayP:'jours',cont:'▶ CONTINUER',challDone:'✓ Défi du jour fait',challDo:'🔥 Défi du jour · 3 minutes',reviewFailed:'🔁 Réviser mes erreurs',rankTitle:'🏆 Classement et amis',rankDesc:'Gagne des XP face à tes amis et à toute la communauté Milo. Ajoute des amis et grimpe au classement !',rankBtn:'👥 Voir le classement des amis',achiev:'🏆 Réussite',freeNote:'🎉 Gratuit au lancement · ',premiumSoon:'Premium bientôt',
+  goalTodayT:'🎯 Objectif du jour',goalDone:'Objectif atteint ! 🐙 Tu es imparable.',goalHave:'Tu as',goalOf:'sur',goalXpToday:'XP aujourd\'hui.',weekT:'📅 Ta semaine',streakNow:'Série actuelle :',dontBreak:'Ne la casse pas !',planTodayT:'📅 Aujourd\'hui dans ton plan',planDay:'Jour',planOf:'sur',planMilo:'Milo a préparé ceci pour toi :',planDoneToday:'✓ Tâche du jour faite ! Reviens demain 🐙',planDoNow:'▶ Faire maintenant',planDid:'✓ C\'est fait',
+  pracT:'🎯 Pratiquer',pracLead:'Renforce ce que tu as appris. Choisis comment pratiquer aujourd\'hui.',pChall:'Défi du jour',pChallD:'3 minutes pour garder ta série.',pStart:'Commencer',pDoneToday:'✓ Fait',pSpeak:'Speak Now',pSpeakD:'Parle et Milo évalue ta prononciation.',pPractice:'Pratiquer',pChat:'Parler avec Milo (IA)',pChatD:'Dialogues réels : entretien, consultation, voyages…',pChatBtn:'Parler',pPron:'Prononciation',pPronD:'Les sons qui te font sonner natif.',pView:'Voir',pGames:'Jeux',pGamesD:'Apprends en jouant et gagne des XP.',pPlay:'Jouer',pReview:'Révision intelligente',pReviewD:'Révise tes erreurs',pReviewBtn:'Réviser' });
+/* Claves de Progreso y Perfil */
+Object.assign(TT.es,{ prT:'📊 Tu progreso',prStreak:'constancia',prLevel:'nivel',prLevels:'niveles',prAch:'🏆 Logros',prRank:'🏆 Ranking',prRankD:'Compite por XP con todos y con tus amigos. ¡Gana XP para subir!',prColl:'Colecciones',prCollD:'Tu álbum de tarjetas de vocabulario.',prView:'Ver',
+  pfInfo:'📋 Información personal',pfName:'Nombre',pfNick:'Nickname',pfEmail:'Correo',pfNative:'Idioma nativo',pfLearning:'Aprendiendo',pfCurLevel:'Nivel actual',pfGoal:'Objetivo',pfCareer:'Profesión',pfDaily:'Tiempo diario',pfEditName:'✏️ Editar nombre',pfCreateNick:'Crear nickname',pfChangeNick:'Cambiar nickname',pfLangs:'🌍 Idiomas',pfLangsNote:'Puedes aprender varios idiomas a la vez: el progreso de cada uno se guarda por separado. 🐙',pfChangeLang:'📚 Cambiar / agregar idioma a aprender',pfChangeNative:'🗣️ Cambiar mi idioma nativo',pfGender:'🧑 Cómo me identifico',pfSub:'💳 Mi suscripción',pfPlanNow:'Plan actual',pfFreeNote:'Disfruta todo gratis por lanzamiento. Pronto llegará Milo Premium con IA, profesión completa y más.',pfNotifyPrem:'🔔 Avísame del Premium',pfHelp:'❓ Ayuda y soporte',pfHelpNote:'¿Tienes dudas? Estamos para ayudarte.',pfContact:'💬 Contáctanos / Soporte',pfTerms:'📄 Términos',pfPrivacy:'🔒 Privacidad',pfCancel:'↩️ Cancelación',pfAccount:'👤 Cuenta',min:'min' });
+Object.assign(TT.en,{ prT:'📊 Your progress',prStreak:'streak',prLevel:'level',prLevels:'levels',prAch:'🏆 Achievements',prRank:'🏆 Ranking',prRankD:'Compete for XP with everyone and your friends. Earn XP to climb!',prColl:'Collections',prCollD:'Your vocabulary card album.',prView:'View',
+  pfInfo:'📋 Personal info',pfName:'Name',pfNick:'Nickname',pfEmail:'Email',pfNative:'Native language',pfLearning:'Learning',pfCurLevel:'Current level',pfGoal:'Goal',pfCareer:'Career',pfDaily:'Daily time',pfEditName:'✏️ Edit name',pfCreateNick:'Create nickname',pfChangeNick:'Change nickname',pfLangs:'🌍 Languages',pfLangsNote:'You can learn several languages at once: each one\'s progress is saved separately. 🐙',pfChangeLang:'📚 Change / add a language to learn',pfChangeNative:'🗣️ Change my native language',pfGender:'🧑 How I identify',pfSub:'💳 My subscription',pfPlanNow:'Current plan',pfFreeNote:'Enjoy everything free at launch. Milo Premium is coming soon with AI, full career content and more.',pfNotifyPrem:'🔔 Notify me about Premium',pfHelp:'❓ Help & support',pfHelpNote:'Got questions? We\'re here to help.',pfContact:'💬 Contact / Support',pfTerms:'📄 Terms',pfPrivacy:'🔒 Privacy',pfCancel:'↩️ Cancellation',pfAccount:'👤 Account',min:'min' });
+Object.assign(TT.pt,{ prT:'📊 Seu progresso',prStreak:'sequência',prLevel:'nível',prLevels:'níveis',prAch:'🏆 Conquistas',prRank:'🏆 Ranking',prRankD:'Compita por XP com todos e com seus amigos. Ganhe XP para subir!',prColl:'Coleções',prCollD:'Seu álbum de cartas de vocabulário.',prView:'Ver',
+  pfInfo:'📋 Informações pessoais',pfName:'Nome',pfNick:'Nickname',pfEmail:'E-mail',pfNative:'Idioma nativo',pfLearning:'Aprendendo',pfCurLevel:'Nível atual',pfGoal:'Objetivo',pfCareer:'Profissão',pfDaily:'Tempo diário',pfEditName:'✏️ Editar nome',pfCreateNick:'Criar nickname',pfChangeNick:'Mudar nickname',pfLangs:'🌍 Idiomas',pfLangsNote:'Você pode aprender vários idiomas ao mesmo tempo: o progresso de cada um é salvo separadamente. 🐙',pfChangeLang:'📚 Mudar / adicionar idioma para aprender',pfChangeNative:'🗣️ Mudar meu idioma nativo',pfGender:'🧑 Como me identifico',pfSub:'💳 Minha assinatura',pfPlanNow:'Plano atual',pfFreeNote:'Aproveite tudo grátis no lançamento. Em breve o Milo Premium com IA, profissão completa e mais.',pfNotifyPrem:'🔔 Avise-me do Premium',pfHelp:'❓ Ajuda e suporte',pfHelpNote:'Tem dúvidas? Estamos aqui para ajudar.',pfContact:'💬 Fale conosco / Suporte',pfTerms:'📄 Termos',pfPrivacy:'🔒 Privacidade',pfCancel:'↩️ Cancelamento',pfAccount:'👤 Conta',min:'min' });
+Object.assign(TT.fr,{ prT:'📊 Tes progrès',prStreak:'série',prLevel:'niveau',prLevels:'niveaux',prAch:'🏆 Réussites',prRank:'🏆 Classement',prRankD:'Gagne des XP face à tous et à tes amis. Gagne des XP pour monter !',prColl:'Collections',prCollD:'Ton album de cartes de vocabulaire.',prView:'Voir',
+  pfInfo:'📋 Infos personnelles',pfName:'Nom',pfNick:'Pseudo',pfEmail:'E-mail',pfNative:'Langue maternelle',pfLearning:'Apprentissage',pfCurLevel:'Niveau actuel',pfGoal:'Objectif',pfCareer:'Métier',pfDaily:'Temps quotidien',pfEditName:'✏️ Modifier le nom',pfCreateNick:'Créer un pseudo',pfChangeNick:'Changer de pseudo',pfLangs:'🌍 Langues',pfLangsNote:'Tu peux apprendre plusieurs langues à la fois : la progression de chacune est enregistrée séparément. 🐙',pfChangeLang:'📚 Changer / ajouter une langue',pfChangeNative:'🗣️ Changer ma langue maternelle',pfGender:'🧑 Comment je m\'identifie',pfSub:'💳 Mon abonnement',pfPlanNow:'Forfait actuel',pfFreeNote:'Profite de tout gratuitement au lancement. Milo Premium arrive bientôt avec l\'IA, le métier complet et plus.',pfNotifyPrem:'🔔 Préviens-moi du Premium',pfHelp:'❓ Aide et support',pfHelpNote:'Des questions ? Nous sommes là pour t\'aider.',pfContact:'💬 Contact / Support',pfTerms:'📄 Conditions',pfPrivacy:'🔒 Confidentialité',pfCancel:'↩️ Annulation',pfAccount:'👤 Compte',min:'min' });
+/* Claves de Explorar y onboarding */
+Object.assign(TT.es,{ exT:'🌎 Explorar',exLead:'Curiosidades, cultura y ajustes.',exComments:'Comentarios',exCommentsD:'Lee y deja reseñas de la comunidad Milo.',exExtras:'Extras',exExtrasD:'Errores típicos, lenguaje coloquial y sonidos difíciles.',exAccent:'Sonar nativo',exAccentD:'Ritmo, reducciones y musicalidad del idioma.',exSettings:'⚙️ Ajustes',exLangBtn:'🌍 Idioma:',exTour:'❓ Cómo usar la app (tour)',exTestAudio:'🔊 Probar sonido',exTheme:'🎨 Tema de color:',exView:'Ver',
+  obGenderT:'¿Cómo te identificas?',obGenderD:'Así Milo te habla correctamente. Puedes cambiarlo después.',obGF:'👩 Femenino',obGM:'👨 Masculino',obGN:'🧑 Prefiero neutro',obGX:'🤐 Prefiero no decir',obLangT:'¿Qué idioma quieres aprender?',obWhyT:'¿Por qué quieres aprender',obWhyD:'Milo personalizará tu motivación.',obCareerT:'¿Cuál es tu carrera o profesión?',obCareerD:'Te mostraremos vocabulario de tu campo dentro de las lecciones.',obOther:'Otra carrera',obWhich:'¿Cuál? Escríbela',obSave:'Guardar',obCareerNote:'Si no ves la tuya, escríbela en "Otra carrera" y la agregaremos pronto. 🙌',obTimeT:'¿Cuánto tiempo al día? ⏰',obTimeD:'Milo ajustará tu meta diaria a tu ritmo. Lo importante es la constancia.',obStartT:'¿Por dónde quieres empezar?',obBeginner:'Soy principiante',obBeginnerD:'Empieza desde A1, paso a paso.',obKnow:'Ya sé algo',obKnowD:'Haz el examen de nivelación y empieza en tu nivel.',obPerfect:'¡Perfecto' });
+Object.assign(TT.en,{ exT:'🌎 Explore',exLead:'Curiosities, culture and settings.',exComments:'Comments',exCommentsD:'Read and leave reviews from the Milo community.',exExtras:'Extras',exExtrasD:'Common mistakes, slang and tricky sounds.',exAccent:'Sound native',exAccentD:'Rhythm, reductions and the music of the language.',exSettings:'⚙️ Settings',exLangBtn:'🌍 Language:',exTour:'❓ How to use the app (tour)',exTestAudio:'🔊 Test sound',exTheme:'🎨 Color theme:',exView:'View',
+  obGenderT:'How do you identify?',obGenderD:'So Milo speaks to you correctly. You can change it later.',obGF:'👩 Female',obGM:'👨 Male',obGN:'🧑 Prefer neutral',obGX:'🤐 Prefer not to say',obLangT:'Which language do you want to learn?',obWhyT:'Why do you want to learn',obWhyD:'Milo will personalize your motivation.',obCareerT:'What is your career or profession?',obCareerD:'We\'ll show vocabulary from your field inside the lessons.',obOther:'Other career',obWhich:'Which one? Type it',obSave:'Save',obCareerNote:'If you don\'t see yours, type it in "Other career" and we\'ll add it soon. 🙌',obTimeT:'How much time per day? ⏰',obTimeD:'Milo will adjust your daily goal to your pace. Consistency is what matters.',obStartT:'Where do you want to start?',obBeginner:'I\'m a beginner',obBeginnerD:'Start from A1, step by step.',obKnow:'I know some',obKnowD:'Take the placement test and start at your level.',obPerfect:'Perfect' });
+Object.assign(TT.pt,{ exT:'🌎 Explorar',exLead:'Curiosidades, cultura e ajustes.',exComments:'Comentários',exCommentsD:'Leia e deixe avaliações da comunidade Milo.',exExtras:'Extras',exExtrasD:'Erros comuns, gírias e sons difíceis.',exAccent:'Soar nativo',exAccentD:'Ritmo, reduções e musicalidade do idioma.',exSettings:'⚙️ Ajustes',exLangBtn:'🌍 Idioma:',exTour:'❓ Como usar o app (tour)',exTestAudio:'🔊 Testar som',exTheme:'🎨 Tema de cor:',exView:'Ver',
+  obGenderT:'Como você se identifica?',obGenderD:'Assim o Milo fala com você corretamente. Pode mudar depois.',obGF:'👩 Feminino',obGM:'👨 Masculino',obGN:'🧑 Prefiro neutro',obGX:'🤐 Prefiro não dizer',obLangT:'Qual idioma você quer aprender?',obWhyT:'Por que você quer aprender',obWhyD:'Milo vai personalizar sua motivação.',obCareerT:'Qual é a sua carreira ou profissão?',obCareerD:'Mostraremos vocabulário da sua área nas lições.',obOther:'Outra carreira',obWhich:'Qual? Escreva',obSave:'Salvar',obCareerNote:'Se não vê a sua, escreva em "Outra carreira" e adicionaremos em breve. 🙌',obTimeT:'Quanto tempo por dia? ⏰',obTimeD:'Milo vai ajustar sua meta diária ao seu ritmo. O importante é a constância.',obStartT:'Por onde você quer começar?',obBeginner:'Sou iniciante',obBeginnerD:'Comece do A1, passo a passo.',obKnow:'Já sei um pouco',obKnowD:'Faça o teste de nível e comece no seu nível.',obPerfect:'Perfeito' });
+Object.assign(TT.fr,{ exT:'🌎 Explorer',exLead:'Curiosités, culture et réglages.',exComments:'Commentaires',exCommentsD:'Lis et laisse des avis de la communauté Milo.',exExtras:'Extras',exExtrasD:'Erreurs fréquentes, argot et sons difficiles.',exAccent:'Sonner natif',exAccentD:'Rythme, réductions et musicalité de la langue.',exSettings:'⚙️ Réglages',exLangBtn:'🌍 Langue :',exTour:'❓ Comment utiliser l\'app (visite)',exTestAudio:'🔊 Tester le son',exTheme:'🎨 Thème de couleur :',exView:'Voir',
+  obGenderT:'Comment t\'identifies-tu ?',obGenderD:'Ainsi Milo te parle correctement. Tu peux changer plus tard.',obGF:'👩 Féminin',obGM:'👨 Masculin',obGN:'🧑 Plutôt neutre',obGX:'🤐 Je préfère ne pas dire',obLangT:'Quelle langue veux-tu apprendre ?',obWhyT:'Pourquoi veux-tu apprendre',obWhyD:'Milo personnalisera ta motivation.',obCareerT:'Quel est ton métier ou ta profession ?',obCareerD:'Nous montrerons le vocabulaire de ton domaine dans les leçons.',obOther:'Autre métier',obWhich:'Lequel ? Écris-le',obSave:'Enregistrer',obCareerNote:'Si tu ne vois pas le tien, écris-le dans "Autre métier" et on l\'ajoutera bientôt. 🙌',obTimeT:'Combien de temps par jour ? ⏰',obTimeD:'Milo ajustera ton objectif quotidien à ton rythme. La régularité, c\'est l\'essentiel.',obStartT:'Par où veux-tu commencer ?',obBeginner:'Je suis débutant',obBeginnerD:'Commence à A1, étape par étape.',obKnow:'Je connais déjà un peu',obKnowD:'Passe le test de niveau et commence à ton niveau.',obPerfect:'Parfait' });
+function nlang(){ return (profile&&profile.native&&TT[profile.native])?profile.native:'es'; }
+function T(k){ var d=TT[nlang()]||TT.es; return (d[k]!=null)?d[k]:(TT.es[k]!=null?TT.es[k]:k); }
 function applyUILang(){
   var L=(profile&&profile.native&&UI_LANG[profile.native])?profile.native:'es';
   var t=UI_LANG[L];
@@ -2858,7 +2918,7 @@ function renderLevelBar(){
 }
 function renderSub(){
   const sn=document.getElementById('subNav');sn.innerHTML='';
-  SUBS.forEach(function(it){const k=it[0],label=it[1];
+  SUBS.forEach(function(it){const k=it[0],label=T(it[1]);
     if(k==='dialog' && !((DATA[curLevel].dialog||[]).length)) return;
     if(k==='pro' && !DATA[curLevel].pro) return;
     const dn=isDone(curLevel,k);const btn=document.createElement('button');btn.className=(k===curSub?'active':'')+(dn?' done':'');btn.textContent=(dn?'✓ ':'')+label;btn.onclick=()=>{curSub=k;renderSub();renderContent();};sn.appendChild(btn);});
@@ -2876,33 +2936,33 @@ function isUnitDone(L,i){return !!uDone()[L+'.'+i];}
 function isUnitUnlocked(L,i){return i===0||isUnitDone(L,i-1);}
 function renderUnitsHTML(L){
   const us=levelUnits(L); let done=0; us.forEach(function(_,i){if(isUnitDone(L,i))done++;});
-  let h='<p class="note"><b>'+us.length+' unidades</b> · completa cada una para desbloquear la siguiente ('+done+'/'+us.length+')</p>';
+  let h='<p class="note"><b>'+us.length+'</b> '+T('unitsCount')+' ('+done+'/'+us.length+')</p>';
   h+='<div class="progwrap"><div class="progfill" style="width:'+(us.length?Math.round(done/us.length*100):0)+'%"></div></div>';
   var shownTense=false, shownGram=false;
   us.forEach(function(u,i){
     const dn=isUnitDone(L,i), un=isUnitUnlocked(L,i);
     const title=u.kind==='tense'?u.topic.n:u.topic.t;
     const ico=u.kind==='tense'?'⏳':'📖';
-    if(u.kind==='tense' && !shownTense){ shownTense=true; h+='<h3 style="margin:14px 0 6px;font-family:\'Poppins\',sans-serif;">⏳ Tiempos verbales</h3>'; }
-    if(u.kind==='grammar' && !shownGram){ shownGram=true; h+='<h3 style="margin:18px 0 6px;font-family:\'Poppins\',sans-serif;">📖 Gramática y más</h3>'; }
-    h+='<div class="lesson-card'+(dn?' done':'')+'" onclick="'+(un?'openUnit(\''+L+'\','+i+')':'toast(\'🔒 Completa la unidad anterior primero\')')+'" style="'+(un?'':'opacity:.55;')+'">'
+    if(u.kind==='tense' && !shownTense){ shownTense=true; h+='<h3 style="margin:14px 0 6px;font-family:\'Poppins\',sans-serif;">'+T('hTenses')+'</h3>'; }
+    if(u.kind==='grammar' && !shownGram){ shownGram=true; h+='<h3 style="margin:18px 0 6px;font-family:\'Poppins\',sans-serif;">'+T('hGrammar')+'</h3>'; }
+    h+='<div class="lesson-card'+(dn?' done':'')+'" onclick="'+(un?'openUnit(\''+L+'\','+i+')':'toast(\''+T('lockPrev')+'\')')+'" style="'+(un?'':'opacity:.55;')+'">'
       +'<div class="lesson-ico">'+(un?ico:'🔒')+'</div>'
-      +'<div class="lesson-meta"><div class="t">'+L+'.'+(i+1)+' · '+title+'</div><div class="d">'+(dn?'✓ Completada':(un?'Disponible':'Bloqueada'))+'</div></div>'
+      +'<div class="lesson-meta"><div class="t">'+L+'.'+(i+1)+' · '+title+'</div><div class="d">'+(dn?T('stDone'):(un?T('stAvail'):T('stLocked')))+'</div></div>'
       +'<div class="lesson-check '+(dn?'':'todo')+'">'+(dn?'✓':'›')+'</div></div>';
   });
   return h;
 }
 function openUnit(L,i){
   const u=levelUnits(L)[i]; if(!u)return; const t=u.topic; const el=document.getElementById('levelContent');
-  let h='<button class="backbtn" onclick="curSub=\'units\';renderSub();renderContent();">← Unidades</button>';
+  let h='<button class="backbtn" onclick="curSub=\'units\';renderSub();renderContent();">'+T('backUnits')+'</button>';
   h+='<div class="badge b-'+L+'">'+L+'.'+(i+1)+'</div>';
   h+='<div class="skillbox"><div class="vhead"><span class="vico">'+(u.kind==='tense'?'⏳':'📖')+'</span><span class="vt">'+(u.kind==='tense'?t.n:t.t)+'</span></div>';
-  h+='<p><b>Forma:</b> '+t.form+(t.use?'<br><b>Cuándo se usa:</b> '+t.use:'')+'</p>';
+  h+='<p><b>'+T('form')+':</b> '+t.form+(t.use?'<br><b>'+T('useWhen')+':</b> '+t.use:'')+'</p>';
   if(t.tip) h+='<div class="tip" style="margin:6px 0;background:#fff8e6;border-left:4px solid var(--amber);">💡 '+t.tip+'</div>';
   h+='<ul>';
   t.ex.forEach(function(e){h+=exLi(e);}); h+='</ul></div>';
   h+=careerSpotlightHTML();
-  h+='<div class="skillbox"><h4>📝 Practica lo aprendido</h4><p class="note" style="margin:0 0 8px;">Ejercicios sobre <b>este tema</b>: '+(u.kind==='tense'?t.n:t.t)+'.</p><div id="quizHost"></div><button class="btn primary" onclick="startUnitPractice(\''+L+'\','+i+')">Empezar práctica</button></div>';
+  h+='<div class="skillbox"><h4>'+T('practiceTitle')+'</h4><p class="note" style="margin:0 0 8px;">'+T('practiceAbout')+' '+(u.kind==='tense'?t.n:t.t)+'.</p><div id="quizHost"></div><button class="btn primary" onclick="startUnitPractice(\''+L+'\','+i+')">'+T('startPractice')+'</button></div>';
   /* Escribe tus 5 ejemplos (mismo módulo que en tiempos verbales; comparte progreso) */
   var ntx=(DATA[L]&&DATA[L].tenses?DATA[L].tenses.length:0);
   var ownKey=(i<ntx)? String(i) : ('g'+(i-ntx));
@@ -2911,14 +2971,14 @@ function openUnit(L,i){
   if(isUnitDone(L,i)){
     var rest=total-doneN;
     h+='<div style="text-align:center;margin-top:8px;">'
-      +'<p style="color:var(--green);font-weight:800;margin:0 0 4px;">✓ Tema completado ('+L+'.'+(i+1)+' de '+total+')</p>'
-      +'<p class="note" style="margin:0 0 10px;">'+(rest>0?('Te faltan <b>'+rest+'</b> tema(s) para terminar el nivel '+L+'.'):('🎉 ¡Completaste TODOS los temas del nivel '+L+'! Ya puedes hacer el examen del nivel.'))+'</p>';
-    if(i+1<total && isUnitUnlocked(L,i+1)) h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="openUnit(\''+L+'\','+(i+1)+')">Siguiente tema: '+L+'.'+(i+2)+' →</button>';
-    else h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="curSub=\'units\';renderSub();renderContent();">Ver todos los temas del nivel →</button>';
+      +'<p style="color:var(--green);font-weight:800;margin:0 0 4px;">'+T('topicDone')+' ('+L+'.'+(i+1)+' '+T('ofN')+' '+total+')</p>'
+      +'<p class="note" style="margin:0 0 10px;">'+(rest>0?(T('missing')+' <b>'+rest+'</b> '+T('toFinish')+' '+L+'.'):T('allDoneLevel'))+'</p>';
+    if(i+1<total && isUnitUnlocked(L,i+1)) h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="openUnit(\''+L+'\','+(i+1)+')">'+T('nextTopic')+': '+L+'.'+(i+2)+' →</button>';
+    else h+='<button class="cta" style="max-width:280px;margin:0 auto;" onclick="curSub=\'units\';renderSub();renderContent();">'+T('seeAll')+'</button>';
     h+='</div>';
   } else {
-    h+='<p class="note" style="text-align:center;margin:8px 0 4px;">Este es el tema '+(i+1)+' de '+total+' del nivel '+L+'.</p>'
-      +'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">✓ Marcar este tema como aprendido</button>';
+    h+='<p class="note" style="text-align:center;margin:8px 0 4px;">'+T('thisIsTopic')+' '+(i+1)+' '+T('ofN')+' '+total+' · '+L+'.</p>'
+      +'<button class="cta" onclick="completeUnit(\''+L+'\','+i+')">'+T('markLearned')+'</button>';
   }
   el.innerHTML=h; document.body.classList.add('focus'); window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2967,9 +3027,9 @@ function renderContent(){
   try{exitFocus();}catch(e){}
   const L=curLevel,d=DATA[L],el=document.getElementById('levelContent');
   const pc=levelPct(L);
-  let h='<div class="badge b-'+L+'">'+L+' · '+meta[L].n+'</div> <span style="font-size:.8rem;color:var(--muted)">'+pc+'% del nivel</span>';
+  let h='<div class="badge b-'+L+'">'+L+' · '+meta[L].n+'</div> <span style="font-size:.8rem;color:var(--muted)">'+pc+'% '+T('ofLevel')+'</span>';
   h+='<div class="progwrap"><div class="progfill" style="width:'+pc+'%"></div></div>';
-  if(curSub!=='test') h+='<div class="tip">🎯 <b>Meta:</b> '+d.cando+'</div>';
+  if(curSub!=='test') h+='<div class="tip">🎯 <b>'+T('goal')+':</b> '+d.cando+'</div>';
 
   if(curSub==='units'){ h+=renderUnitsHTML(L); }
   else if(curSub==='tenses'){
@@ -3139,10 +3199,10 @@ function ownBoxHTML(L,key,name){
   var ins='';
   for(var j=0;j<5;j++){ var v=saved[j]?String(saved[j]).replace(/"/g,'&quot;'):''; ins+='<input class="fill" id="own_'+L+'_'+key+'_'+j+'" style="width:100%;margin-bottom:6px;" placeholder="Tu ejemplo '+(j+1)+'..." value="'+v+'">'; }
   return '<div class="skillbox" style="background:var(--card2);border:1px dashed var(--blue);margin-top:10px;">'
-    +'<h4>✍️ Tu turno: escribe 5 ejemplos tuyos</h4>'
-    +'<p class="note" style="margin:0 0 8px;">Crea frases <b>de tu vida diaria</b> usando este tema. Escribir tú mismo fija el aprendizaje. Milo las revisa. 🐙</p>'
+    +'<h4>'+T('yourTurn')+'</h4>'
+    +'<p class="note" style="margin:0 0 8px;">'+T('yourTurnNote')+'</p>'
     +ins
-    +'<button class="btn primary" onclick="checkOwn(\''+L+'\',\''+key+'\')">✅ Revisar mis ejemplos</button>'
+    +'<button class="btn primary" onclick="checkOwn(\''+L+'\',\''+key+'\')">'+T('reviewMine')+'</button>'
     +'<div id="ownres_'+L+'_'+key+'" style="margin-top:8px;"></div></div>';
 }
 async function gradeSentence(tense, sentence){
@@ -4291,12 +4351,12 @@ function programTaskHTML(){
   if(pr.ptr>=pr.tasks.length){ return '<div class="card" style="border:2px solid var(--green);"><h2>🎉 ¡Plan completado!</h2><p class="note" style="margin:0 0 8px;">Terminaste tu programa con Milo. ¡Crea uno nuevo para seguir avanzando!</p><button class="btn primary" onclick="openMiPlan()">Crear nuevo plan</button></div>'; }
   var task=pr.tasks[pr.ptr]; var act=PLAN_ACT[task.action]||PLAN_ACT.aprender;
   var doneToday=(pr.lastDay===todayStr());
-  return '<div class="card" style="border:2px solid var(--blue);"><h2>📅 Hoy en tu plan</h2>'
-    +'<p class="note" style="margin:0 0 6px;">Día '+(pr.ptr+1)+' de '+pr.tasks.length+' · Milo organizó esto para ti:</p>'
+  return '<div class="card" style="border:2px solid var(--blue);"><h2>'+T('planTodayT')+'</h2>'
+    +'<p class="note" style="margin:0 0 6px;">'+T('planDay')+' '+(pr.ptr+1)+' '+T('planOf')+' '+pr.tasks.length+' · '+T('planMilo')+'</p>'
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="font-size:1.8rem;">'+act.ico+'</div><div style="font-weight:700;">'+task.label+'</div></div>'
     +(doneToday
-      ? '<p style="color:var(--green);font-weight:700;margin:0;">✓ ¡Tarea de hoy completada! Vuelve mañana 🐙</p>'
-      : '<button class="btn primary" style="margin-right:6px;" onclick="'+act.go+'">▶ Hacer ahora</button><button class="btn" onclick="markProgramDone()">✓ Ya lo hice</button>')
+      ? '<p style="color:var(--green);font-weight:700;margin:0;">'+T('planDoneToday')+'</p>'
+      : '<button class="btn primary" style="margin-right:6px;" onclick="'+act.go+'">'+T('planDoNow')+'</button><button class="btn" onclick="markProgramDone()">'+T('planDid')+'</button>')
     +'</div>';
 }
 function markProgramDone(){ var pr=store.get('miProgram',null); if(!pr)return; if(pr.lastDay===todayStr()){toast('Ya hiciste tu tarea de hoy 🐙');return;} pr.ptr=(pr.ptr||0)+1; pr.lastDay=todayStr(); store.set('miProgram',pr); try{addXP(10);}catch(e){} confetti(); toast('✅ ¡Tarea del plan completada! +10 XP'); try{renderHome();}catch(e){} }
@@ -4475,7 +4535,7 @@ function pick(arr){return (arr&&arr.length)?arr[dseed()%arr.length]:null;}
 function dailyGoalHTML(){
   var g=dailyGoalXP(),cur=todayXP(),p=Math.min(100,Math.round(cur/g*100));
   var done=cur>=g;
-  return '<div class="card"><h2>🎯 Meta de hoy</h2><p class="note" style="margin:0 0 8px;">'+(done?'¡Meta cumplida! 🐙 Eres imparable.':'Llevas '+cur+' de '+g+' XP hoy.')+'</p>'
+  return '<div class="card"><h2>'+T('goalTodayT')+'</h2><p class="note" style="margin:0 0 8px;">'+(done?T('goalDone'):(T('goalHave')+' '+cur+' '+T('goalOf')+' '+g+' '+T('goalXpToday')))+'</p>'
     +'<div style="background:#e8edf7;border-radius:99px;height:14px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2456d6,#34c97e);height:100%;width:'+p+'%;border-radius:99px;transition:width .4s;"></div></div></div>';
 }
 function weekCalHTML(){
@@ -4495,7 +4555,7 @@ function weekCalHTML(){
     cells+='<div style="text-align:center;"><div style="font-size:.72rem;color:#8493ad;margin-bottom:3px;">'+days[i]+'</div>'
       +'<div style="width:34px;height:34px;border-radius:50%;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto;">'+mark+'</div></div>';
   }
-  return '<div class="card"><h2>📅 Tu semana</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">Constancia actual: 🔥 '+streak.count+' días. ¡No la rompas!</p></div>';
+  return '<div class="card"><h2>'+T('weekT')+'</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">'+T('streakNow')+' 🔥 '+streak.count+' '+T('dayP')+'. '+T('dontBreak')+'</p></div>';
 }
 function wordOfDayHTML(){
   var d=DATA[curLevel]||DATA.A1; var v=pick(d.vocab);
@@ -4719,15 +4779,15 @@ function renderHome(){
   }
   /* Paso 1.7: ¿cómo te identificas? (para hablarte bien en español) */
   if(!profile.gender){
-    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¿Cómo te identificas?</h2><p>Así Milo te habla correctamente (lista/listo). Puedes cambiarlo después.</p></div></div></div>';
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>'+T('obGenderT')+'</h2><p>'+T('obGenderD')+'</p></div></div></div>';
     h+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-      +[['f','👩 Femenino'],['m','👨 Masculino'],['n','🧑 Prefiero neutro'],['n2','🤐 Prefiero no decir']].map(function(c){return '<button class="btn" style="padding:16px;font-size:1rem;" onclick="chooseGender(\''+(c[0]==='n2'?'n':c[0])+'\')">'+c[1]+'</button>';}).join('')
+      +[['f',T('obGF')],['m',T('obGM')],['n',T('obGN')],['n2',T('obGX')]].map(function(c){return '<button class="btn" style="padding:16px;font-size:1rem;" onclick="chooseGender(\''+(c[0]==='n2'?'n':c[0])+'\')">'+c[1]+'</button>';}).join('')
       +'</div></div>';
     el.innerHTML=h; return;
   }
   /* Paso 2: idioma a aprender */
   if(!profile.lang){
-    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¡Perfecto, '+profile.name+'! 👋</h2><p>Ahora, ¿qué idioma quieres aprender?</p></div></div></div>';
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>'+T('obPerfect')+', '+profile.name+'! 👋</h2><p>'+T('obLangT')+'</p></div></div></div>';
     h+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       +['en','es','pt','fr'].map(function(c){return '<button class="btn" style="padding:16px;font-size:1rem;" onclick="chooseLangOnboard(\''+c+'\')">'+TARGET_INFO[c].flag+' '+TARGET_INFO[c].name+'</button>';}).join('')
       +'</div></div>';
@@ -4736,21 +4796,21 @@ function renderHome(){
   /* Paso 3: por qué estudias */
   if(!profile.goal){
     const lname=(TARGET_INFO[profile.lang]?TARGET_INFO[profile.lang].name:'el idioma');
-    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¿Por qué quieres aprender '+lname+'?</h2><p>Milo personalizará tu motivación.</p></div></div></div>';
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>'+T('obWhyT')+' '+lname+'?</h2><p>'+T('obWhyD')+'</p></div></div></div>';
     h+='<div class="card"><div class="pill-row">'+GOALS.map(function(g){return '<span style="cursor:pointer;font-size:.95rem;padding:9px 14px;" onclick="setGoal(\''+g[0]+'\')">'+g[1]+' '+g[2]+'</span>';}).join('')+'</div></div>';
     el.innerHTML=h; return;
   }
   /* Paso 4: carrera */
   if(!profile.career){
-    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¿Cuál es tu carrera o profesión?</h2><p>Te mostraremos vocabulario de tu campo dentro de las lecciones.</p></div></div></div>';
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>'+T('obCareerT')+'</h2><p>'+T('obCareerD')+'</p></div></div></div>';
     h+='<div class="card"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">';
     CAREERS.forEach(function(c){h+='<div class="lesson-card" style="cursor:pointer;flex-direction:column;align-items:center;text-align:center;padding:16px 8px;" onclick="chooseCareerOnboard(\''+c.id+'\')"><div style="font-size:2.2rem;">'+c.emoji+'</div><div class="t">'+c.name+'</div></div>';});
-    h+='<div class="lesson-card" style="cursor:default;flex-direction:column;align-items:stretch;padding:16px;"><div style="text-align:center;font-size:2.2rem;">➕</div><div class="t" style="text-align:center;margin-bottom:6px;">Otra carrera</div><input class="fill" id="careerOtherIn" placeholder="¿Cuál? Escríbela" style="width:100%;margin-bottom:6px;"><button class="btn primary" style="width:100%;" onclick="chooseCareerOther()">Guardar</button></div>';
-    h+='</div><p class="note" style="margin-top:8px;">Si no ves la tuya, escríbela en "Otra carrera" y la agregaremos pronto. 🙌</p></div>';
+    h+='<div class="lesson-card" style="cursor:default;flex-direction:column;align-items:stretch;padding:16px;"><div style="text-align:center;font-size:2.2rem;">➕</div><div class="t" style="text-align:center;margin-bottom:6px;">'+T('obOther')+'</div><input class="fill" id="careerOtherIn" placeholder="'+T('obWhich')+'" style="width:100%;margin-bottom:6px;"><button class="btn primary" style="width:100%;" onclick="chooseCareerOther()">'+T('obSave')+'</button></div>';
+    h+='</div><p class="note" style="margin-top:8px;">'+T('obCareerNote')+'</p></div>';
     el.innerHTML=h; return;
   }
   if(!profile.minutes){
-    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>¿Cuánto tiempo al día? ⏰</h2><p>Milo ajustará tu meta diaria a tu ritmo. Lo importante es la constancia.</p></div></div></div>';
+    let h='<div class="hero"><div class="hero-row">'+ILLUS+'<div style="flex:1;min-width:180px;"><h2>'+T('obTimeT')+'</h2><p>'+T('obTimeD')+'</p></div></div></div>';
     h+='<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       +[[5,'🐣 5 min','Relajado'],[10,'🔥 10 min','Recomendado'],[15,'💪 15 min','Serio'],[20,'🚀 20 min','Intenso']].map(function(m){return '<button class="btn" style="padding:16px;font-size:1rem;" onclick="setMinutes('+m[0]+')">'+m[1]+'<br><span class="note">'+m[2]+'</span></button>';}).join('')
       +'</div></div>';
@@ -4758,41 +4818,41 @@ function renderHome(){
   }
   if(!profile.onboarded){
     el.innerHTML='<div class="hero"><div class="hero-row">'+ILLUS
-      +'<div style="flex:1;min-width:180px;"><h2>¡Genial, '+profile.name+'! 🎉</h2><p>¿Por dónde quieres empezar?</p></div></div></div>'
+      +'<div style="flex:1;min-width:180px;"><h2>'+T('obPerfect')+', '+profile.name+'! 🎉</h2><p>'+T('obStartT')+'</p></div></div></div>'
       +'<div class="card"><div class="lesson-card" onclick="choosePrincipiante()"><div class="lesson-ico">🌱</div>'
-      +'<div class="lesson-meta"><div class="t">Soy principiante</div><div class="d">Empieza desde A1, paso a paso.</div></div><div class="lesson-check todo">›</div></div>'
+      +'<div class="lesson-meta"><div class="t">'+T('obBeginner')+'</div><div class="d">'+T('obBeginnerD')+'</div></div><div class="lesson-check todo">›</div></div>'
       +'<div class="lesson-card" onclick="chooseExam()"><div class="lesson-ico">📊</div>'
-      +'<div class="lesson-meta"><div class="t">Ya sé algo de inglés</div><div class="d">Haz el examen de nivelación (20 preguntas) y empieza en tu nivel.</div></div><div class="lesson-check todo">›</div></div>'
+      +'<div class="lesson-meta"><div class="t">'+T('obKnow')+'</div><div class="d">'+T('obKnowD')+'</div></div><div class="lesson-check todo">›</div></div>'
       +'</div>';
     return;
   }
   /* ===== HOME MÍNIMO: una sola acción principal (estilo Duolingo) ===== */
-  const p=totalPct();const hour=new Date().getHours();const greet=hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
+  const p=totalPct();const hour=new Date().getHours();const greet=hour<12?T('greetM'):hour<19?T('greetA'):T('greetE');
   const ul=userLevel();
   const challengeDoneToday=store.get('challengeDate','')===todayStr();
   const unlockedAch=ACHS.filter(a=>a.ok()); const lastAch=unlockedAch.length?unlockedAch[unlockedAch.length-1]:null;
   let h='<div class="hero"><div class="hero-row">'
-    +'<div class="ring" style="--p:'+p+'"><div class="inner"><div><div class="pct">'+p+'%</div><div class="lbl">de tu meta</div></div></div></div>'
+    +'<div class="ring" style="--p:'+p+'"><div class="inner"><div><div class="pct">'+p+'%</div><div class="lbl">'+T('ofGoal')+'</div></div></div></div>'
     +'<div style="flex:1;min-width:160px;">'
       +'<h2>'+greet+', '+profile.name+' 👋</h2>'
-      +'<p style="margin:2px 0;">Tu objetivo: <b>'+curLevel+(profile.goal?(' · '+goalLabel(profile.goal)):'')+'</b></p>'
-      +'<p style="margin:4px 0 0;font-weight:800;">🔥 '+streak.count+' día'+(streak.count===1?'':'s')+' · ⭐ Nivel '+ul.lvl+' · ⚡ '+xp+' XP</p>'
+      +'<p style="margin:2px 0;">'+T('yourObjective')+': <b>'+curLevel+(profile.goal?(' · '+goalLabel(profile.goal)):'')+'</b></p>'
+      +'<p style="margin:4px 0 0;font-weight:800;">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+' · ⭐ '+T('levelW')+' '+ul.lvl+' · ⚡ '+xp+' XP</p>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;"><div class="bubble">'+miloSays()+'</div>'+ILLUS+'</div>'
     +'</div></div>';
   /* ÚNICA acción principal */
-  h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">▶ CONTINUAR</button>';
+  h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">'+T('cont')+'</button>';
   /* acción secundaria: reto diario */
-  h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?'✓ Reto diario completado hoy':'🔥 Reto diario · 3 minutos')+'</button>';
+  h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
   /* repaso solo si hay pendientes */
-  if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">🔁 Repasar lo que fallé ('+review.length+')</button>'; }
+  if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
   h+=programTaskHTML();
   h+=miPlanCardHTML();
-  h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">🏆 Ranking y amigos</h2><p style="margin:0 0 8px;color:#eafff3;">Compite por XP con tus amigos y con toda la comunidad Milo. ¡Agrega amigos y sube en la tabla!</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">👥 Ver ranking de amigos</button></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">'+T('rankTitle')+'</h2><p style="margin:0 0 8px;color:#eafff3;">'+T('rankDesc')+'</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">'+T('rankBtn')+'</button></div>';
   /* logro reciente, pequeño */
-  if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">🏆 Logro: '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
+  if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
   /* nota gratis/premium, discreta */
-  if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">🎉 Gratis por lanzamiento · <a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">Premium pronto</a></p>'; }
+  if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   el.innerHTML=h;
   if(!store.get('tourDone',false)) setTimeout(startTour,500);
 }
@@ -4801,32 +4861,32 @@ function continuarHoy(){ if(typeof openLevel==='function'){ openLevel(curLevel);
 function renderPracticar(){
   var el=document.getElementById('practicarContent'); if(!el)return;
   var challengeDoneToday=store.get('challengeDate','')===todayStr();
-  var h='<div class="card"><h2>🎯 Practicar</h2><p class="lead">Refuerza lo aprendido. Elige cómo quieres practicar hoy.</p></div>';
-  h+=hubItem('🔥','Reto diario','3 minutos para mantener tu constancia.',challengeDoneToday?'✓ Hecho hoy':'Empezar',"goTab('challenge')");
-  h+=hubItem('🎤','Speak Now','Habla y Milo evalúa tu pronunciación.','Practicar',"goTab('speak')");
-  h+=hubItem('💬','Conversar con Milo (IA)','Diálogos reales: entrevista, consulta, viajes…','Conversar','openMiloChat()');
-  h+=hubItem('🗣️','Pronunciación','Los sonidos que te hacen sonar nativa.','Ver',"goTab('pron')");
-  h+=hubItem('🎮','Juegos','Aprende jugando y gana XP.','Jugar',"goTab('games')");
-  if(review.length) h+=hubItem('🔁','Repaso inteligente','Repasa lo que fallaste ('+review.length+').','Repasar','renderRepaso()');
+  var h='<div class="card"><h2>'+T('pracT')+'</h2><p class="lead">'+T('pracLead')+'</p></div>';
+  h+=hubItem('🔥',T('pChall'),T('pChallD'),challengeDoneToday?T('pDoneToday'):T('pStart'),"goTab('challenge')");
+  h+=hubItem('🎤',T('pSpeak'),T('pSpeakD'),T('pPractice'),"goTab('speak')");
+  h+=hubItem('💬',T('pChat'),T('pChatD'),T('pChatBtn'),'openMiloChat()');
+  h+=hubItem('🗣️',T('pPron'),T('pPronD'),T('pView'),"goTab('pron')");
+  h+=hubItem('🎮',T('pGames'),T('pGamesD'),T('pPlay'),"goTab('games')");
+  if(review.length) h+=hubItem('🔁',T('pReview'),T('pReviewD')+' ('+review.length+').',T('pReviewBtn'),'renderRepaso()');
   el.innerHTML=h;
 }
 /* ===== HUB: PROGRESO ===== */
 function renderProgreso(){
   var el=document.getElementById('progresoContent'); if(!el)return;
   var ul=userLevel();
-  var h='<div class="card"><h2>📊 Tu progreso</h2><div class="stats">'
-    +'<div class="stat"><div class="n">🔥 '+streak.count+'</div><div class="l">constancia</div></div>'
-    +'<div class="stat"><div class="n">⭐ '+ul.lvl+'</div><div class="l">nivel</div></div>'
+  var h='<div class="card"><h2>'+T('prT')+'</h2><div class="stats">'
+    +'<div class="stat"><div class="n">🔥 '+streak.count+'</div><div class="l">'+T('prStreak')+'</div></div>'
+    +'<div class="stat"><div class="n">⭐ '+ul.lvl+'</div><div class="l">'+T('prLevel')+'</div></div>'
     +'<div class="stat"><div class="n">⚡ '+xp+'</div><div class="l">XP</div></div>'
-    +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">niveles</div></div>'
+    +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">'+T('prLevels')+'</div></div>'
     +'</div></div>';
   h+=dailyGoalHTML()+weekCalHTML();
-  h+='<div class="card"><h2>🏆 Logros</h2><div class="ach-row">';
+  h+='<div class="card"><h2>'+T('prAch')+'</h2><div class="ach-row">';
   ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
   h+='</div></div>';
   h+=certificatesHTML();
-  h+='<div class="card"><h2>🏆 Ranking</h2><p class="note" style="margin:0 0 8px;">Compite por XP con todos y con tus amigos. ¡Gana XP para subir!</p><div id="lbHost"></div></div>';
-  h+=hubItem('🏅','Colecciones','Tu álbum de tarjetas de vocabulario.','Ver',"goTab('collections')");
+  h+='<div class="card"><h2>'+T('prRank')+'</h2><p class="note" style="margin:0 0 8px;">'+T('prRankD')+'</p><div id="lbHost"></div></div>';
+  h+=hubItem('🏅',T('prColl'),T('prCollD'),T('prView'),"goTab('collections')");
   h+=premiumTeaserHTML();
   el.innerHTML=h;
   try{renderLeaderboard();}catch(e){}
@@ -4856,42 +4916,93 @@ function renderPerfil(){
     +'<button class="btn" style="padding:6px 14px;" onclick="document.getElementById(\'photoIn\').click()">📷 Cambiar foto</button>'
     +'<h2 style="margin:4px 0 0;">'+nm+'</h2><p class="note" style="margin:0;">'+email+'</p></div></div>';
   /* Información personal */
-  h+='<div class="card"><h2>📋 Información personal</h2>'
-    +infoRow('Nombre',nm)
-    +infoRow('Nickname',(profile.nick?('@'+profile.nick):'—'))
-    +infoRow('Correo',(sbUser&&sbUser.email)||'—')
-    +infoRow('Idioma nativo',TL[profile.native]||'—')
-    +infoRow('Aprendiendo',TL[profile.lang]||'Inglés')
-    +infoRow('Nivel actual',curLevel)
-    +infoRow('Objetivo',profile.goal?goalLabel(profile.goal):'—')
-    +infoRow('Profesión',(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
-    +infoRow('Tiempo diario',(profile.minutes||10)+' min')
-    +'<button class="btn" style="margin-top:10px;margin-right:6px;" onclick="editName()">✏️ Editar nombre</button>'
-    +'<button class="btn" style="margin-top:10px;" onclick="setNick()">🏷️ '+(profile.nick?'Cambiar nickname':'Crear nickname')+'</button></div>';
+  h+='<div class="card"><h2>'+T('pfInfo')+'</h2>'
+    +infoRow(T('pfName'),nm)
+    +infoRow(T('pfNick'),(profile.nick?('@'+profile.nick):'—'))
+    +infoRow(T('pfEmail'),(sbUser&&sbUser.email)||'—')
+    +infoRow(T('pfNative'),TL[profile.native]||'—')
+    +infoRow(T('pfLearning'),TL[profile.lang]||'Inglés')
+    +infoRow(T('pfCurLevel'),curLevel)
+    +infoRow(T('pfGoal'),profile.goal?goalLabel(profile.goal):'—')
+    +infoRow(T('pfCareer'),(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
+    +infoRow(T('pfDaily'),(profile.minutes||10)+' '+T('min'))
+    +'<button class="btn" style="margin-top:10px;margin-right:6px;" onclick="editName()">'+T('pfEditName')+'</button>'
+    +'<button class="btn" style="margin-top:10px;" onclick="setNick()">🏷️ '+(profile.nick?T('pfChangeNick'):T('pfCreateNick'))+'</button></div>';
   /* Idiomas: cambiar nativo y cambiar/agregar idioma a aprender (progreso separado) */
-  h+='<div class="card"><h2>🌍 Idiomas</h2>'
-    +'<p class="note" style="margin:0 0 8px;">Puedes aprender varios idiomas a la vez: el progreso de cada uno se guarda por separado. 🐙</p>'
-    +'<button class="btn primary" style="margin:3px;" onclick="showLangSelector()">📚 Cambiar / agregar idioma a aprender</button>'
-    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">🗣️ Cambiar mi idioma nativo</button>'
-    +'<button class="btn" style="margin:3px;" onclick="showGenderSelector()">🧑 Cómo me identifico</button></div>';
+  h+='<div class="card"><h2>'+T('pfLangs')+'</h2>'
+    +'<p class="note" style="margin:0 0 8px;">'+T('pfLangsNote')+'</p>'
+    +'<button class="btn primary" style="margin:3px;" onclick="showLangSelector()">'+T('pfChangeLang')+'</button>'
+    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">'+T('pfChangeNative')+'</button>'
+    +'<button class="btn" style="margin:3px;" onclick="showGenderSelector()">'+T('pfGender')+'</button></div>';
   /* Suscripción */
-  h+='<div class="card"><h2>💳 Mi suscripción</h2>'
-    +'<p style="margin:0 0 8px;">Plan actual: <b>'+planTxt+'</b></p>';
-  if(FREE_MODE){ h+='<p class="note" style="margin:0 0 8px;">Disfruta todo gratis por lanzamiento. Pronto llegará Milo Premium con IA, inglés profesional completo y más.</p><button class="btn primary" onclick="notifyPremium()">🔔 Avísame del Premium</button>'; }
+  h+='<div class="card"><h2>'+T('pfSub')+'</h2>'
+    +'<p style="margin:0 0 8px;">'+T('pfPlanNow')+': <b>'+planTxt+'</b></p>';
+  if(FREE_MODE){ h+='<p class="note" style="margin:0 0 8px;">'+T('pfFreeNote')+'</p><button class="btn primary" onclick="notifyPremium()">'+T('pfNotifyPrem')+'</button>'; }
   else if(pre){ if(!profile.premiumCanceled) h+='<button class="btn" onclick="cancelPremium()">Cancelar suscripción</button>'; }
   else { h+='<button class="btn primary" onclick="goTab(\'progreso\')">Ver planes</button>'; }
   h+='</div>';
   /* Ayuda y soporte */
-  h+='<div class="card"><h2>❓ Ayuda y soporte</h2><p class="note" style="margin:0 0 8px;">¿Tienes dudas? Estamos para ayudarte.</p>'
-    +'<a class="btn primary" style="margin:3px;" href="'+waLink('Hola Milo 🐙, necesito ayuda con la plataforma.')+'" target="_blank">💬 Contáctanos / Soporte</a>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'terms\')">📄 Términos</button>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'privacy\')">🔒 Privacidad</button>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'cancel\')">↩️ Cancelación</button>'
+  h+='<div class="card"><h2>'+T('pfHelp')+'</h2><p class="note" style="margin:0 0 8px;">'+T('pfHelpNote')+'</p>'
+    +'<a class="btn primary" style="margin:3px;" href="'+waLink('Hola Milo 🐙, necesito ayuda con la plataforma.')+'" target="_blank">'+T('pfContact')+'</a>'
+    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'terms\')">'+T('pfTerms')+'</button>'
+    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'privacy\')">'+T('pfPrivacy')+'</button>'
+    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'cancel\')">'+T('pfCancel')+'</button>'
     +'</div>';
+  /* Panel de administrador (SOLO para ti) */
+  if(isAdmin()){
+    h+='<div class="card" style="border:2px solid #1B2436;background:#0f1626;color:#fff;">'
+      +'<h2 style="color:#fff;">🛠️ Panel de administrador</h2>'
+      +'<p class="note" style="color:#aab6d0;margin:0 0 8px;">Solo tú ves esto. Métricas reales de tus usuarios y actividad. 🐙</p>'
+      +'<button class="btn primary" onclick="openAdmin()">Abrir panel</button></div>';
+  }
   /* Cuenta / sesión */
-  h+='<div class="card"><h2>👤 Cuenta</h2><div id="authBox"></div></div>';
+  h+='<div class="card"><h2>'+T('pfAccount')+'</h2><div id="authBox"></div></div>';
   el.innerHTML=h;
   try{renderAuth();}catch(e){}
+}
+/* ===== PANEL DE ADMINISTRADOR (solo para el dueño) ===== */
+var ADMIN_EMAILS=['yeni.tapiaz32@gmail.com'];
+function isAdmin(){ try{ return !!(sbUser&&sbUser.email&&ADMIN_EMAILS.indexOf(String(sbUser.email).toLowerCase())>=0); }catch(e){ return false; } }
+function ensureAdmin(){ if(document.getElementById('admOv'))return; var d=document.createElement('div'); d.id='admOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🛠️ Panel de administrador</h3><button class="legal-x" onclick="document.getElementById(\'admOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="admBody"></div></div>'; document.body.appendChild(d); }
+function openAdmin(){ if(!isAdmin()){alert('Acceso solo para administrador.');return;} ensureAdmin(); document.getElementById('admOv').style.display='flex'; renderAdmin(); }
+function admStat(label,val,color){ return '<div style="flex:1;min-width:120px;background:var(--card2);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.7rem;font-weight:800;color:'+(color||'var(--blue)')+';">'+val+'</div><div class="note" style="margin:0;">'+label+'</div></div>'; }
+async function renderAdmin(){
+  var b=document.getElementById('admBody'); if(!b)return;
+  b.innerHTML='<p class="note">Cargando métricas...</p>';
+  if(!supa||!sbUser){ b.innerHTML='<p class="note">Inicia sesión.</p>'; return; }
+  try{
+    var lb=await supa.from('leaderboard').select('*').order('updated_at',{ascending:false}).limit(500);
+    var rows=(lb&&lb.data)||[];
+    var ws=weekStartStr();
+    var total=rows.length;
+    var activosSem=rows.filter(function(r){return r.week_start===ws && (r.week_xp||0)>0;}).length;
+    var hoy=todayStr();
+    var activosHoy=rows.filter(function(r){return r.updated_at && String(r.updated_at).slice(0,10)===hoy;}).length;
+    var xpTotal=rows.reduce(function(a,r){return a+(r.xp||0);},0);
+    /* comentarios */
+    var nCom=0; try{ var c=await supa.from('comments').select('id',{count:'exact',head:true}); nCom=(c&&c.count)||0; }catch(e){}
+    var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">'
+      +admStat('Usuarios',total)
+      +admStat('Activos hoy',activosHoy,'var(--green)')
+      +admStat('Activos esta semana',activosSem,'var(--amber)')
+      +admStat('Comentarios',nCom)
+      +'</div>';
+    h+='<p class="note">XP total acumulado por todos: <b>'+xpTotal+'</b></p>';
+    /* lista de usuarios recientes */
+    h+='<h4 style="margin:14px 0 6px;">👥 Usuarios (más recientes)</h4>';
+    h+='<div style="max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:10px;">';
+    h+=rows.slice(0,100).map(function(r){
+      var last=r.updated_at?new Date(r.updated_at).toLocaleDateString():'—';
+      return '<div style="display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #f0f3fa;font-size:.86rem;">'
+        +'<div style="flex:1;font-weight:700;">'+(r.name||'—')+(r.nick?(' <span class="note">@'+r.nick+'</span>'):'')+'</div>'
+        +'<div class="note" style="white-space:nowrap;">⭐'+(r.ulevel||1)+' · 🔥'+(r.streak||0)+' · '+(r.xp||0)+'XP</div>'
+        +'<div class="note" style="white-space:nowrap;">'+last+'</div></div>';
+    }).join('');
+    h+='</div>';
+    h+='<p class="note" style="margin-top:10px;">📌 Los correos de registro (privados) están en <b>Supabase → Authentication → Users</b>. Aquí ves la actividad real de aprendizaje.</p>';
+    h+='<div style="text-align:center;margin-top:10px;"><button class="btn" onclick="renderAdmin()">🔄 Actualizar</button></div>';
+    b.innerHTML=h;
+  }catch(e){ b.innerHTML='<p class="note">No se pudieron cargar las métricas. Revisa que las tablas existan en Supabase.</p>'; }
 }
 function editName(){
   var v=prompt('¿Cómo quieres que te llame Milo?',(profile&&profile.name)||'');
@@ -4901,17 +5012,17 @@ function editName(){
 /* ===== HUB: EXPLORAR ===== */
 function renderExplorar(){
   var el=document.getElementById('explorarContent'); if(!el)return;
-  var h='<div class="card"><h2>🌎 Explorar</h2><p class="lead">Curiosidades, cultura y ajustes.</p></div>';
+  var h='<div class="card"><h2>'+T('exT')+'</h2><p class="lead">'+T('exLead')+'</p></div>';
   h+=wordOfDayHTML();
-  h+=hubItem('💬','Comentarios','Lee y deja reseñas de la comunidad Milo.','Ver',"openComments()");
-  h+=hubItem('🌟','Extras','Errores típicos, inglés coloquial y sonidos difíciles.','Ver',"goTab('extras')");
-  h+=hubItem('🇺🇸','Sonar americano','Ritmo, reducciones y musicalidad del inglés de EE.UU.','Ver',"goTab('accent')");
-  h+='<div class="card"><h2>⚙️ Ajustes</h2>'
-    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">🌍 Idioma: '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
-    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="startTour()">❓ Cómo usar la app (tour)</button>'
-    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="testAudio()">🔊 Probar sonido</button>'
+  h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
+  h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
+  h+=hubItem('🇺🇸',T('exAccent'),T('exAccentD'),T('exView'),"goTab('accent')");
+  h+='<div class="card"><h2>'+T('exSettings')+'</h2>'
+    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
+    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="startTour()">'+T('exTour')+'</button>'
+    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="testAudio()">'+T('exTestAudio')+'</button>'
     +'<div id="audioDiag" class="note" style="display:none;background:#0b1f4d;color:#fff;padding:10px;border-radius:10px;margin:6px 0;font-size:13px;"></div>'
-    +'<div style="margin-top:8px;"><p class="note" style="margin:0 0 4px;">🎨 Tema de color:</p><div class="chiprow" id="themeChips"></div><p class="note" id="themeWhy"></p></div>'
+    +'<div style="margin-top:8px;"><p class="note" style="margin:0 0 4px;">'+T('exTheme')+'</p><div class="chiprow" id="themeChips"></div><p class="note" id="themeWhy"></p></div>'
     +'</div>';
   el.innerHTML=h;
   var tc=document.getElementById('themeChips');var cur=store.get('theme','blue');
