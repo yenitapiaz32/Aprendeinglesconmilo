@@ -3208,9 +3208,13 @@ function ownBoxHTML(L,key,name){
 async function gradeSentence(tense, sentence){
   if(!CHAT_ENDPOINT) return null;
   try{
-    var prompt='Eres un profesor de inglés amable. El estudiante practica el tiempo verbal "'+tense+'". Evalúa SOLO esta frase del estudiante: "'+sentence+'". Responde en español y muy breve (máx. 2 frases). Empieza con "✅ Correcta" o "❌ Revisa:". Si hay error, di cuál es y escribe la versión corregida en inglés. Si la frase no usa ese tiempo verbal, indícalo con cariño.';
-    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:[{role:'user',content:prompt}]})});
-    var j=await r.json(); return (j&&(j.reply||j.content))||null;
+    var prompt='Corrige esta frase de un estudiante que practica el tiempo verbal "'+tense+'": "'+sentence+'".\n\nREGLAS ESTRICTAS:\n- NO saludes, NO te presentes, NO digas "Hola" ni "Soy Milo". Empieza DIRECTAMENTE con "✅ Correcta" o "❌ Revisa:".\n- Responde en español, máximo 2 frases.\n- Si hay error, di cuál es y da la versión corregida en inglés.\n- Si la frase no usa ese tiempo verbal, indícalo con cariño.';
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0,messages:[{role:'user',content:prompt}]})});
+    var j=await r.json(); var txt=(j&&(j.reply||j.content))||null;
+    if(txt){ /* red de seguridad: quita el saludo si el modelo igual lo metió */
+      txt=String(txt).replace(/^[\s\S]*?(?=✅|❌)/, '').trim() || txt;
+    }
+    return txt;
   }catch(e){ return null; }
 }
 function heurCheck(name,s){
