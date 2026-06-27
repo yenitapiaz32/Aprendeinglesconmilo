@@ -396,11 +396,12 @@ async function loadCloud(){
       cloudReady=true;
       var applied=false; try{applied=!!sessionStorage.getItem('cloudApplied');}catch(e){}
       if(!applied){ try{sessionStorage.setItem('cloudApplied','1');}catch(e){} location.reload(); return; }
+      try{ checkDailyReset(); tickStreak(); }catch(e){} /* contar racha SOBRE el dato de la nube (no antes) */
       try{renderAll();}catch(e){}
       return;
     }
   }catch(e){}
-  cloudReady=true; saveCloud(); /* primera vez: sube lo que ya tiene local */
+  cloudReady=true; try{ tickStreak(); }catch(e){} saveCloud(); /* primera vez: sube lo que ya tiene local */
 }
 var sbInited=false;
 async function sbInitSession(){
@@ -4213,11 +4214,13 @@ let streak=store.get('streak',{count:0,last:''});
 const LESSONS=[['tenses','⏳','Tiempos verbales'],['grammar','📖','Gramática'],['vocab','💡','Vocabulario'],['dialog','🗨️','Diálogos'],['idioms','💬','Modismos'],['skills','🎯','Habilidades'],['quiz','📝','Quiz'],['fill','✏️','Rellenar'],['flash','🃏','Flashcards'],['test','🔓','Examen de nivel']];
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function tickStreak(){
+  streak=store.get('streak',{count:0,last:''}); /* usa siempre el dato más reciente (p.ej. tras cargar la nube) */
   const t=todayStr();
   if(streak.last===t) return;
   const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
   streak.count=(streak.last===y)?streak.count+1:1;
   streak.last=t;store.set('streak',streak);
+  try{schedulePublish();}catch(e){}
 }
 /* ===== META DIARIA: 1 de cada habilidad por día ===== */
 let daily=store.get('daily',{date:'',reading:false,listening:false,writing:false,speaking:false});
