@@ -301,6 +301,132 @@
   .ico-c{color:#fff;}
   .soundbtn{background:rgba(255,255,255,.18);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;position:absolute;top:14px;right:58px;}
   @media(max-width:560px){.illus{display:block;flex:0 0 92px;}.illus svg{width:92px;height:92px;}}
+
+  /* ============================================================
+     FASE 1 — CAPA VISUAL PREMIUM (solo presentación, no cambia lógica)
+     Sobrescribe estilos existentes para dar un acabado "app de Apple/Duolingo".
+     ============================================================ */
+  :root{
+    --spring:cubic-bezier(.22,1,.36,1);
+    --sh-rest:0 2px 10px rgba(20,30,60,.05);
+    --sh-hover:0 14px 34px rgba(20,30,60,.12);
+    --sh-float:0 24px 60px rgba(20,30,60,.20);
+  }
+  body{ background-image:
+    radial-gradient(circle at 10% 4%,rgba(76,111,255,.10),transparent 40%),
+    radial-gradient(circle at 92% 0%,rgba(124,92,255,.10),transparent 38%),
+    radial-gradient(circle at 50% 120%,rgba(22,163,74,.06),transparent 55%);
+    background-attachment:fixed; }
+
+  /* Navegación: barra flotante con glassmorphism */
+  nav{ background:rgba(255,255,255,.72); backdrop-filter:saturate(180%) blur(18px);
+    -webkit-backdrop-filter:saturate(180%) blur(18px); box-shadow:0 6px 24px rgba(20,30,60,.07);
+    border-bottom:1px solid rgba(255,255,255,.6); }
+  body.dark nav{ background:rgba(22,30,46,.72); border-bottom-color:rgba(255,255,255,.06); }
+  nav button{ transition:transform .18s var(--spring),background .2s,color .2s,box-shadow .2s; }
+  nav button:hover{ transform:translateY(-1px); }
+  nav button.active{ background:linear-gradient(135deg,#4c6fff,#2456d6);
+    box-shadow:0 8px 20px rgba(76,111,255,.38); transform:translateY(-1px); }
+
+  /* Tarjetas: elevación y micro-lift */
+  .card{ border-radius:22px; box-shadow:var(--sh-rest);
+    transition:transform .25s var(--spring),box-shadow .25s var(--spring); }
+  .card:hover{ transform:translateY(-2px); box-shadow:var(--sh-hover); }
+
+  /* Botones premium: relleno, brillo y lift (mantiene el "peso" al pulsar) */
+  .btn{ transition:transform .12s var(--spring),box-shadow .2s,filter .2s; }
+  .btn:hover{ transform:translateY(-1px); box-shadow:var(--sh-hover); }
+  .btn.primary{ background:linear-gradient(135deg,#4c6fff,#2456d6); box-shadow:0 8px 20px rgba(76,111,255,.34); }
+  .btn.green{ background:linear-gradient(135deg,#22c55e,#15a34a); box-shadow:0 8px 20px rgba(21,163,74,.32); }
+  .btn.primary:hover,.btn.green:hover{ filter:brightness(1.04); }
+
+  /* CTA principal: héroe con degradado, brillo animado y sombra de color */
+  .cta{ position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#4c6fff,#2456d6)!important;
+    box-shadow:0 14px 34px rgba(76,111,255,.40)!important;
+    transition:transform .18s var(--spring),box-shadow .25s var(--spring),filter .2s; }
+  .cta:hover{ transform:translateY(-2px); filter:brightness(1.05);
+    box-shadow:0 20px 46px rgba(76,111,255,.52)!important; }
+  .cta:active{ transform:translateY(1px) scale(.995); }
+  .cta:after{ content:''; position:absolute; top:0; left:-120%; width:60%; height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+    transform:skewX(-18deg); animation:ctaShine 4.5s ease-in-out infinite; }
+  @keyframes ctaShine{ 0%,60%{left:-120%;} 85%,100%{left:160%;} }
+
+  /* Tarjetas de lección con hover */
+  .lesson-card{ transition:transform .2s var(--spring),box-shadow .2s var(--spring); }
+  .lesson-card:hover{ transform:translateY(-2px); box-shadow:var(--sh-hover); }
+
+  /* Aparición suave y escalonada de las tarjetas al entrar en una pestaña */
+  .tab.active .card{ animation:riseIn .5s var(--spring) both; }
+  .tab.active .card:nth-child(2){ animation-delay:.05s; }
+  .tab.active .card:nth-child(3){ animation-delay:.10s; }
+  .tab.active .card:nth-child(4){ animation-delay:.15s; }
+  .tab.active .card:nth-child(5){ animation-delay:.20s; }
+  @keyframes riseIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Mascota VIVA: respira/flota y ocasionalmente saluda */
+  .illus{ animation:miloFloat 3.4s ease-in-out infinite; transform-origin:center bottom; }
+  @keyframes miloFloat{ 0%,100%{transform:translateY(0) rotate(0);} 50%{transform:translateY(-7px) rotate(-1.5deg);} }
+  .hero:hover .illus{ animation:miloWave .7s ease; }
+  @keyframes miloWave{ 0%{transform:rotate(0);} 25%{transform:rotate(8deg);} 50%{transform:rotate(-6deg);} 75%{transform:rotate(4deg);} 100%{transform:rotate(0);} }
+  .bubble{ animation:riseIn .5s var(--spring) both; box-shadow:0 8px 22px rgba(20,30,60,.14); }
+
+  /* Anillo de progreso: se rellena al aparecer */
+  .ring .inner .pct{ animation:popIn .5s var(--spring) both; }
+  @keyframes popIn{ from{opacity:0; transform:scale(.6);} to{opacity:1; transform:scale(1);} }
+
+  /* Feedback de acierto/error: pop y shake */
+  .opt.correct{ animation:okPop .35s var(--spring); }
+  @keyframes okPop{ 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
+  .opt.wrong{ animation:noShake .35s; }
+  @keyframes noShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+  /* Toast flotante con glass */
+  .toast{ backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:var(--sh-float)!important; border:1px solid rgba(255,255,255,.18); }
+
+  /* Skeleton / shimmer para estados de carga */
+  .sk{ position:relative; overflow:hidden; background:var(--card2); border-radius:12px; }
+  .sk:after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    transform:translateX(-100%); animation:shimmer 1.3s infinite; }
+  body.dark .sk:after{ background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
+  @keyframes shimmer{ 100%{transform:translateX(100%);} }
+
+  /* Stat pills glass del Home */
+  .statpill{ display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.22);
+    border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    color:#fff; font-weight:800; font-size:.82rem; padding:5px 11px; border-radius:99px; }
+  /* Etiqueta de sección para dar jerarquía al Home */
+  .sec-label{ font-family:'Poppins',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.6px;
+    text-transform:uppercase; color:var(--muted); margin:6px 2px 8px; display:block; }
+
+  /* Perfil premium: cabecera con degradado + lista de ajustes tipo iOS */
+  .pf-hero{ border-radius:24px; padding:26px 20px 20px; text-align:center; color:#fff;
+    background:linear-gradient(140deg,#4c6fff,#2456d6 60%,#7c5cff); box-shadow:0 16px 40px rgba(76,111,255,.35); margin-bottom:16px; position:relative; overflow:hidden; }
+  .pf-hero:before{ content:''; position:absolute; top:-40px; right:-30px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.12); }
+  .pf-ava{ width:92px; height:92px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,.7); background:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:2.4rem; font-weight:800; color:#2456d6; box-shadow:0 8px 20px rgba(0,0,0,.18); }
+  .pf-hero h2{ color:#fff!important; margin:10px 0 2px; font-size:1.4rem; }
+  .pf-hero .pf-mail{ color:rgba(255,255,255,.85); font-size:.85rem; }
+  .pf-hero .statpill{ background:rgba(255,255,255,.2); }
+  .pf-list{ background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--sh-rest); margin-bottom:16px; }
+  .pf-list .pf-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); padding:12px 16px 4px; }
+  .pf-row{ display:flex; align-items:center; gap:12px; padding:13px 16px; border-top:1px solid var(--line); cursor:pointer; transition:background .15s; min-height:52px; }
+  .pf-row:first-of-type{ border-top:none; }
+  .pf-row:hover{ background:var(--card2); }
+  .pf-row .pf-ic{ font-size:1.2rem; width:26px; text-align:center; flex:0 0 auto; }
+  .pf-row .pf-lb{ flex:1; font-weight:600; font-size:.93rem; }
+  .pf-row .pf-vl{ color:var(--muted); font-size:.86rem; text-align:right; }
+  .pf-row .pf-ch{ color:var(--muted); font-size:1.1rem; margin-left:2px; }
+
+  /* Accesibilidad: foco visible elegante */
+  :focus-visible{ outline:3px solid rgba(76,111,255,.45); outline-offset:2px; border-radius:8px; }
+
+  /* Respetar a quien prefiere menos movimiento */
+  @media(prefers-reduced-motion:reduce){
+    *,*:after,*:before{ animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; }
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -373,7 +499,7 @@ initSupa();
   if(n<=0){ try{renderAuth();}catch(e){} return; }
   setTimeout(function(){ initSupa(); if(supa){ try{sbInitSession();}catch(e){} } else { try{renderAuth();}catch(e){} waitSupa(n-1); } }, 600);
 })(8);
-const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone','prog_en','prog_es','prog_pt','prog_fr','dailyXP','activeDays','lives','chatTime','miPlan','miProgram'];
+const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone','prog_en','prog_es','prog_pt','prog_fr','dailyXP','activeDays','lives','chatTime','miPlan','miProgram','mentorLog','unlockedSeen','dentalDone'];
 var cloudTimer=null, cloudReady=false;
 function scheduleCloudSave(){ if(!supa||!sbUser||!cloudReady) return; clearTimeout(cloudTimer); cloudTimer=setTimeout(saveCloud,2500); }
 async function saveCloud(){
@@ -2890,6 +3016,25 @@ Object.assign(TT.pt,{ exT:'🌎 Explorar',exLead:'Curiosidades, cultura e ajuste
   obGenderT:'Como você se identifica?',obGenderD:'Assim o Milo fala com você corretamente. Pode mudar depois.',obGF:'👩 Feminino',obGM:'👨 Masculino',obGN:'🧑 Prefiro neutro',obGX:'🤐 Prefiro não dizer',obLangT:'Qual idioma você quer aprender?',obWhyT:'Por que você quer aprender',obWhyD:'Milo vai personalizar sua motivação.',obCareerT:'Qual é a sua carreira ou profissão?',obCareerD:'Mostraremos vocabulário da sua área nas lições.',obOther:'Outra carreira',obWhich:'Qual? Escreva',obSave:'Salvar',obCareerNote:'Se não vê a sua, escreva em "Outra carreira" e adicionaremos em breve. 🙌',obTimeT:'Quanto tempo por dia? ⏰',obTimeD:'Milo vai ajustar sua meta diária ao seu ritmo. O importante é a constância.',obStartT:'Por onde você quer começar?',obBeginner:'Sou iniciante',obBeginnerD:'Comece do A1, passo a passo.',obKnow:'Já sei um pouco',obKnowD:'Faça o teste de nível e comece no seu nível.',obPerfect:'Perfeito' });
 Object.assign(TT.fr,{ exT:'🌎 Explorer',exLead:'Curiosités, culture et réglages.',exComments:'Commentaires',exCommentsD:'Lis et laisse des avis de la communauté Milo.',exExtras:'Extras',exExtrasD:'Erreurs fréquentes, argot et sons difficiles.',exAccent:'Sonner natif',exAccentD:'Rythme, réductions et musicalité de la langue.',exSettings:'⚙️ Réglages',exLangBtn:'🌍 Langue :',exTour:'❓ Comment utiliser l\'app (visite)',exTestAudio:'🔊 Tester le son',exTheme:'🎨 Thème de couleur :',exView:'Voir',
   obGenderT:'Comment t\'identifies-tu ?',obGenderD:'Ainsi Milo te parle correctement. Tu peux changer plus tard.',obGF:'👩 Féminin',obGM:'👨 Masculin',obGN:'🧑 Plutôt neutre',obGX:'🤐 Je préfère ne pas dire',obLangT:'Quelle langue veux-tu apprendre ?',obWhyT:'Pourquoi veux-tu apprendre',obWhyD:'Milo personnalisera ta motivation.',obCareerT:'Quel est ton métier ou ta profession ?',obCareerD:'Nous montrerons le vocabulaire de ton domaine dans les leçons.',obOther:'Autre métier',obWhich:'Lequel ? Écris-le',obSave:'Enregistrer',obCareerNote:'Si tu ne vois pas le tien, écris-le dans "Autre métier" et on l\'ajoutera bientôt. 🙌',obTimeT:'Combien de temps par jour ? ⏰',obTimeD:'Milo ajustera ton objectif quotidien à ton rythme. La régularité, c\'est l\'essentiel.',obStartT:'Par où veux-tu commencer ?',obBeginner:'Je suis débutant',obBeginnerD:'Commence à A1, étape par étape.',obKnow:'Je connais déjà un peu',obKnowD:'Passe le test de niveau et commence à ton niveau.',obPerfect:'Parfait' });
+Object.assign(TT.es,{ secYourDay:'Tu día',showMyDay:'Ver mi día (plan, mentor, ranking…)',simpleMode:'Modo simple',pfPhoto:'Cambiar foto' });
+Object.assign(TT.en,{ secYourDay:'Your day',showMyDay:'See my day (plan, mentor, ranking…)',simpleMode:'Simple mode',pfPhoto:'Change photo' });
+Object.assign(TT.pt,{ secYourDay:'Seu dia',showMyDay:'Ver meu dia (plano, mentor, ranking…)',simpleMode:'Modo simples',pfPhoto:'Mudar foto' });
+Object.assign(TT.fr,{ secYourDay:'Ta journée',showMyDay:'Voir ma journée (plan, mentor, classement…)',simpleMode:'Mode simple',pfPhoto:'Changer la photo' });
+/* Claves de la Ruta clínica dental */
+Object.assign(TT.es,{ dentT:'Dental English · Ruta clínica',dentLead:'De la recepción a la especialidad. Toca una etapa para estudiarla. 🦷',dentModules:'módulos',dentDone:'✓ completada',dentHere:'aquí estás' });
+Object.assign(TT.en,{ dentT:'Dental English · Clinical path',dentLead:'From front desk to specialty. Tap a stage to study it. 🦷',dentModules:'modules',dentDone:'✓ completed',dentHere:'you are here' });
+Object.assign(TT.pt,{ dentT:'Dental English · Rota clínica',dentLead:'Da recepção à especialidade. Toque numa etapa para estudar. 🦷',dentModules:'módulos',dentDone:'✓ concluída',dentHere:'você está aqui' });
+Object.assign(TT.fr,{ dentT:'Dental English · Parcours clinique',dentLead:'De l\'accueil à la spécialité. Touche une étape pour l\'étudier. 🦷',dentModules:'modules',dentDone:'✓ terminée',dentHere:'tu es ici' });
+/* Claves de la Aventura (desbloqueo progresivo) */
+Object.assign(TT.es,{ advT:'Tu aventura',advUnlocked:'funciones desbloqueadas',advDay:'día',advNext:'Próximo:',advTomorrow:'¡mañana!',advIn:'en',advDays:'días',advAll:'¡Desbloqueaste todo! Eres imparable.' });
+Object.assign(TT.en,{ advT:'Your adventure',advUnlocked:'features unlocked',advDay:'day',advNext:'Next:',advTomorrow:'tomorrow!',advIn:'in',advDays:'days',advAll:'You unlocked everything! Unstoppable.' });
+Object.assign(TT.pt,{ advT:'Sua aventura',advUnlocked:'funções desbloqueadas',advDay:'dia',advNext:'Próximo:',advTomorrow:'amanhã!',advIn:'em',advDays:'dias',advAll:'Você desbloqueou tudo! Imparável.' });
+Object.assign(TT.fr,{ advT:'Ton aventure',advUnlocked:'fonctions débloquées',advDay:'jour',advNext:'Prochain :',advTomorrow:'demain !',advIn:'dans',advDays:'jours',advAll:'Tu as tout débloqué ! Imparable.' });
+/* Claves del Modo Mentor */
+Object.assign(TT.es,{ mentorT:'Milo, tu mentor',mentorWeak1:'Esta semana te costó más',mentorWeak2:'Milo recuerda tus tropiezos para ayudarte a superarlos. 🐙',mentorErrs:'errores',mentorReview:'🎯 Repasar 5 min',mentorSummaryBtn:'📋 Mi resumen semanal',mentorLoading:'Milo está preparando tu resumen...',mentorNoData:'Practica un poco más y Milo te dará un resumen personalizado. 🐙' });
+Object.assign(TT.en,{ mentorT:'Milo, your mentor',mentorWeak1:'This week you struggled most with',mentorWeak2:'Milo remembers your slip-ups to help you master them. 🐙',mentorErrs:'mistakes',mentorReview:'🎯 Review 5 min',mentorSummaryBtn:'📋 My weekly summary',mentorLoading:'Milo is preparing your summary...',mentorNoData:'Practice a bit more and Milo will give you a personalized summary. 🐙' });
+Object.assign(TT.pt,{ mentorT:'Milo, seu mentor',mentorWeak1:'Esta semana você teve mais dificuldade com',mentorWeak2:'Milo lembra dos seus tropeços para ajudar você a superá-los. 🐙',mentorErrs:'erros',mentorReview:'🎯 Revisar 5 min',mentorSummaryBtn:'📋 Meu resumo semanal',mentorLoading:'Milo está preparando seu resumo...',mentorNoData:'Pratique um pouco mais e Milo te dará um resumo personalizado. 🐙' });
+Object.assign(TT.fr,{ mentorT:'Milo, ton mentor',mentorWeak1:'Cette semaine, tu as eu le plus de mal avec',mentorWeak2:'Milo se souvient de tes faux pas pour t\'aider à les surmonter. 🐙',mentorErrs:'erreurs',mentorReview:'🎯 Réviser 5 min',mentorSummaryBtn:'📋 Mon résumé hebdo',mentorLoading:'Milo prépare ton résumé...',mentorNoData:'Pratique encore un peu et Milo te donnera un résumé personnalisé. 🐙' });
 function nlang(){ return (profile&&profile.native&&TT[profile.native])?profile.native:'es'; }
 function T(k){ var d=TT[nlang()]||TT.es; return (d[k]!=null)?d[k]:(TT.es[k]!=null?TT.es[k]:k); }
 function applyUILang(){
@@ -3185,7 +3330,7 @@ function tpCheckOrder(){ var it=tpState.items[tpState.i]; var good=tpNorm((tpSta
 function tpChoose(btn,choice,ans){ document.querySelectorAll('#tpBody .opt').forEach(function(b){b.disabled=true;}); var good=choice===ans; if(!good)btn.classList.add('wrong'); tpFeedback(good,ans); }
 function tpFillCheck(ans){ var v=tpNorm((document.getElementById('tpFill')||{}).value||''); tpFeedback(v===tpNorm(ans),ans); }
 function tpTF(choice,correct){ tpFeedback(choice===correct, correct?'Sí era correcta':'No, estaba mal'); }
-function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} loseLife(); if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';}
+function tpFeedback(good,ans){ var fb=document.getElementById('tpFb'); if(good){tpState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';} else {try{beep('bad');}catch(e){} loseLife(); try{logMistake(tpState&&tpState.topic,(tpState&&tpState.items[tpState.i]&&tpState.items[tpState.i].type)||'');}catch(e){} if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Respuesta: '+ans+'</span>';}
   /* tras responder, reproduce la frase completa en inglés (refuerza pronunciación, sin adelantar la respuesta) */
   var _cur=tpState.items[tpState.i]; if(_cur&&_cur.en&&_cur.type!=='listen'){ setTimeout(function(){try{speak(_cur.en);}catch(e){}},250); }
   if(livesEnabled() && livesLeft()<=0){ setTimeout(function(){ var b=document.getElementById('tpBody'); if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Te quedaste sin vidas</h3><p class="note">Se recargan en <b>'+fmtMs(refillMsLeft())+'</b>. ¿Quieres vidas ilimitadas?</p><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>'; },1200); return; }
@@ -3259,6 +3404,53 @@ async function checkOwn(L,key){
 let qState=null;
 function startQuiz(hostId,items,isTest){qState={host:hostId,items:shuffle(items),i:0,score:0,isTest:isTest,mode:isTest?'test':'quiz'};renderQ();}
 
+/* ===== MODO MENTOR: Milo recuerda tus errores y te ayuda a superarlos ===== */
+let mentorLog=store.get('mentorLog',[]);
+function logMistake(topic,kind){
+  if(!topic)return;
+  mentorLog=store.get('mentorLog',[]); /* usa siempre lo más reciente (tras nube) */
+  mentorLog.push({t:String(topic).slice(0,70),k:kind||'',l:(profile&&profile.lang)||'en',ts:Date.now()});
+  if(mentorLog.length>400)mentorLog=mentorLog.slice(-400);
+  store.set('mentorLog',mentorLog);
+}
+function mentorTopWeak(days){
+  var since=Date.now()-((days||7)*86400000), counts={};
+  (store.get('mentorLog',[])||[]).forEach(function(m){ if(m.ts>=since && (!profile||!profile.lang||m.l===profile.lang)){ counts[m.t]=(counts[m.t]||0)+1; } });
+  var best=null,bn=0; Object.keys(counts).forEach(function(k){ if(counts[k]>bn){bn=counts[k];best=k;} });
+  return (best&&bn>=2)?{topic:best,count:bn}:null; /* solo si hay patrón real (≥2) */
+}
+function mentorPractice(name){
+  var found=null;
+  LEVELS.forEach(function(L){ var d=DATA[L]||{};
+    (d.tenses||[]).forEach(function(t,i){ if(!found&&t.n===name){found={L:L,kind:'tenses',i:i};} });
+    (d.grammar||[]).forEach(function(g,i){ if(!found&&g.t===name){found={L:L,kind:'grammar',i:i};} });
+  });
+  if(found){ curLevel=found.L; store.set('curLevel',curLevel); try{renderLevelBar();}catch(e){} practiceTopic(found.kind,found.i); }
+  else { try{goTab('levels');}catch(e){} }
+}
+function mentorInsightHTML(){
+  var w=mentorTopWeak(7); if(!w) return '';
+  var safe=String(w.topic).replace(/'/g,"\\'").replace(/</g,'&lt;');
+  return '<div class="card" style="border:2px solid var(--purple);background:linear-gradient(135deg,#faf7ff,#ffffff);">'
+    +'<h2 style="color:#6d28d9;">🧠 '+T('mentorT')+'</h2>'
+    +'<p class="note" style="margin:0 0 10px;">'+T('mentorWeak1')+' <b>'+String(w.topic).replace(/</g,'&lt;')+'</b> ('+w.count+' '+T('mentorErrs')+'). '+T('mentorWeak2')+'</p>'
+    +'<button class="btn primary" onclick="mentorPractice(\''+safe+'\')">'+T('mentorReview')+'</button> '
+    +'<button class="btn" onclick="miloWeeklySummary()">'+T('mentorSummaryBtn')+'</button>'
+    +'<div id="mentorSummary" style="margin-top:10px;"></div></div>';
+}
+async function miloWeeklySummary(){
+  var box=document.getElementById('mentorSummary'); if(box)box.innerHTML='<p class="note">🐙 '+T('mentorLoading')+'</p>';
+  var since=Date.now()-7*86400000, counts={};
+  (store.get('mentorLog',[])||[]).forEach(function(m){ if(m.ts>=since){counts[m.t]=(counts[m.t]||0)+1;} });
+  var arr=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];}).slice(0,5).map(function(k){return k+' ('+counts[k]+')';});
+  if(!CHAT_ENDPOINT || !arr.length){ if(box)box.innerHTML='<p class="note">'+T('mentorNoData')+'</p>'; return; }
+  try{
+    var p='Eres Milo, un tutor de idiomas cálido que CONOCE al estudiante. Temas que más falló esta semana: '+arr.join(', ')+'. Nivel: '+curLevel+'. Escribe en español un resumen de mentor de 3-4 frases: reconoce su esfuerzo, señala 1-2 áreas concretas a reforzar y propón un plan corto para la próxima semana. NO saludes con "Hola", ve directo. Tono cercano, como quien lo ha acompañado.';
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0.4,messages:[{role:'user',content:p}]})});
+    var j=await r.json(); var t=(j&&(j.reply||j.content))||'';
+    if(box)box.innerHTML=t?('<div class="skillbox" style="margin:0;background:#faf7ff;border-color:#e9ddff;">🧠 '+String(t).replace(/</g,'&lt;')+'</div>'):'<p class="note">'+T('mentorNoData')+'</p>';
+  }catch(e){ if(box)box.innerHTML='<p class="note">'+T('mentorNoData')+'</p>'; }
+}
 /* ===== REPETICIÓN ESPACIADA ===== */
 let review=store.get('review',[]);
 function pushReview(it){
@@ -3328,6 +3520,8 @@ function finishQuiz(host){
   if(qState.mode==='test'){return finishTest(host);}
   if(qState.mode==='dentalquiz'){
     addXP(qState.score*5);confetti();beep('win');
+    /* marca la etapa clínica como completada si pasó (≥60%) */
+    try{ var pctD=qState.score/qState.items.length; if(pctD>=0.6){ var dcode=(DENTAL_ACADEMY[curDental]||{}).code; if(dcode){ var dd=store.get('dentalDone',{}); dd[dcode]=true; store.set('dentalDone',dd); } } }catch(e){}
     let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, '+gword('doctora','doctor','doctor@')+'! +'+(qState.score*5)+' XP</p>';
     h+='<div style="text-align:center;"><button class="btn primary" onclick="renderDental()">Volver al módulo</button></div>';
     host.innerHTML=h;return;
@@ -3815,6 +4009,24 @@ function vgAns(btn,choice,ans){
   if(livesEnabled()&&livesLeft()<=0){ setTimeout(function(){var b=document.getElementById('tpBody');if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Sin vidas</h3><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>';},1100); return; }
   setTimeout(function(){vgState.i++;renderVG();},1150);
 }
+/* Mapa de la ruta clínica dental (reorganiza la presentación; no cambia el contenido) */
+function dentalRouteHTML(){
+  var done=store.get('dentalDone',{});
+  var total=DENTAL_ACADEMY.length, dn=DENTAL_ACADEMY.filter(function(x){return done[x.code];}).length;
+  var pct=Math.round(dn/total*100);
+  var h='<div class="card" style="border:2px solid #0ea5e9;background:linear-gradient(135deg,#ecfeff,#ffffff);"><h2 style="color:#0369a1;">🦷 '+T('dentT')+'</h2>'
+    +'<p class="note" style="margin:0 0 8px;">'+T('dentLead')+'</p>'
+    +'<div style="background:#e0f2fe;border-radius:99px;height:12px;overflow:hidden;margin-bottom:12px;"><div style="background:linear-gradient(90deg,#0ea5e9,#22c55e);height:100%;width:'+pct+'%;border-radius:99px;transition:width .5s var(--spring);"></div></div>';
+  DENTAL_ACADEMY.forEach(function(dd,i){
+    var cur=i===curDental, isdn=!!done[dd.code];
+    h+='<div onclick="curDental='+i+';store.set(\'curDental\','+i+');renderDentalBar();renderDental();window.scrollTo({top:0,behavior:\'smooth\'});" class="lesson-card'+(isdn?' done':'')+'" style="cursor:pointer;'+(cur?'border:2px solid #0ea5e9;box-shadow:0 8px 20px rgba(14,165,233,.18);':'')+'">'
+      +'<div class="lesson-ico">'+(isdn?'✅':dd.emoji)+'</div>'
+      +'<div class="lesson-meta"><div class="t">'+dd.code+' · '+dd.name+'</div><div class="d">'+dd.modules.length+' '+T('dentModules')+(isdn?(' · '+T('dentDone')):(cur?(' · '+T('dentHere')):''))+'</div></div>'
+      +'<div class="lesson-check '+(isdn?'':'todo')+'">'+(isdn?'✓':'›')+'</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
 function renderDental(){
   const el=document.getElementById('dentalContent');
   /* 1) Sin carrera elegida -> selector llamativo */
@@ -3856,9 +4068,10 @@ function renderDental(){
     h+='<p class="note" style="text-align:center;">Pronto: más módulos, diálogos y práctica para '+c.name+'. 🚀</p>';
     el.innerHTML=h; return;
   }
-  /* 3) Odontología -> academia completa */
+  /* 3) Odontología -> academia completa con RUTA CLÍNICA */
   const d=DENTAL_ACADEMY[curDental];
   let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
+  h+=dentalRouteHTML();
   h+='<div class="badge b-'+d.code.replace('D-','')+'">'+d.code+' · '+d.name+'</div>';
   window.VG_POOL=collectPairs(d.modules);
   h+='<button class="btn primary" style="width:100%;margin:8px 0;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
@@ -4214,12 +4427,14 @@ let streak=store.get('streak',{count:0,last:''});
 const LESSONS=[['tenses','⏳','Tiempos verbales'],['grammar','📖','Gramática'],['vocab','💡','Vocabulario'],['dialog','🗨️','Diálogos'],['idioms','💬','Modismos'],['skills','🎯','Habilidades'],['quiz','📝','Quiz'],['fill','✏️','Rellenar'],['flash','🃏','Flashcards'],['test','🔓','Examen de nivel']];
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function tickStreak(){
-  streak=store.get('streak',{count:0,last:''}); /* usa siempre el dato más reciente (p.ej. tras cargar la nube) */
-  const t=todayStr();
-  if(streak.last===t) return;
-  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
-  streak.count=(streak.last===y)?streak.count+1:1;
-  streak.last=t;store.set('streak',streak);
+  var t=todayStr();
+  /* 1) marca HOY como día activo (esta es la fuente de verdad de tu racha) */
+  try{ var d=store.get('activeDays',[]); if(d.indexOf(t)<0){ d.push(t); if(d.length>400)d=d.slice(-400); store.set('activeDays',d); } }catch(e){}
+  /* 2) recalcula la racha contando días activos CONSECUTIVOS que terminan hoy (se auto-repara) */
+  var days=store.get('activeDays',[]); var set={}; days.forEach(function(x){ set[x]=1; });
+  var count=0, cur=new Date();
+  while(true){ var k=cur.toISOString().slice(0,10); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
+  streak={count:count,last:t}; store.set('streak',streak);
   try{schedulePublish();}catch(e){}
 }
 /* ===== META DIARIA: 1 de cada habilidad por día ===== */
@@ -4246,8 +4461,21 @@ function markDone(L,s){
   if(!isDone(L,s)){done[lessonKey(L,s)]=true;store.set('done',done);tickStreak();addXP(XP_BY[s]||5);confetti();beep('good');toast('✓ ¡Lección completada!');checkAch();}
   renderSub();renderHome();
 }
-function levelPct(L){let c=0;LESSONS.forEach(([s])=>{if(isDone(L,s))c++;});return Math.round(c/LESSONS.length*100);}
-function totalPct(){let c=0,n=0;LEVELS.forEach(L=>{LESSONS.forEach(([s])=>{n++;if(isDone(L,s))c++;});});return Math.round(c/n*100);}
+var PCT_SECTIONS=['vocab','dialog','idioms','skills','quiz','fill','flash','test']; /* tenses/grammar ya están en Unidades */
+function levelPct(L){
+  var c=0,n=0;
+  try{ var us=levelUnits(L); us.forEach(function(_,i){ n++; if(isUnitDone(L,i))c++; }); }catch(e){}
+  PCT_SECTIONS.forEach(function(s){ n++; if(isDone(L,s))c++; });
+  return n?Math.round(c/n*100):0;
+}
+function totalPct(){
+  var c=0,n=0;
+  LEVELS.forEach(function(L){
+    try{ var us=levelUnits(L); us.forEach(function(_,i){ n++; if(isUnitDone(L,i))c++; }); }catch(e){}
+    PCT_SECTIONS.forEach(function(s){ n++; if(isDone(L,s))c++; });
+  });
+  return n?Math.round(c/n*100):0;
+}
 function countDone(){let c=0;LEVELS.forEach(L=>LESSONS.forEach(([s])=>{if(isDone(L,s))c++;}));return c;}
 
 const ACHS=[
@@ -4536,6 +4764,49 @@ function markActiveDay(){var t=todayStr();var d=store.get('activeDays',[]);if(d.
 function addDailyXP(n){var t=todayStr();var dx=store.get('dailyXP',{d:'',n:0});if(dx.d!==t){dx={d:t,n:0};}dx.n+=n;store.set('dailyXP',dx);}
 function todayXP(){var t=todayStr();var dx=store.get('dailyXP',{d:'',n:0});return dx.d===t?dx.n:0;}
 function dailyGoalXP(){var m=(profile&&profile.minutes)||10;return m<=5?20:m<=10?40:m<=15?60:80;}
+/* ===== AVENTURA: desbloqueo progresivo tipo videojuego (celebra hitos, NO bloquea el acceso) =====
+   Todo el contenido sigue accesible; esto solo revela funciones como logros y las celebra. */
+var UNLOCKS=[
+  {day:1, key:'learn', ico:'📚', label:{es:'Aprender',en:'Learn',pt:'Aprender',fr:'Apprendre'}, go:"goTab('levels')"},
+  {day:2, key:'challenge', ico:'🔥', label:{es:'Reto diario',en:'Daily challenge',pt:'Desafio diário',fr:'Défi du jour'}, go:"goTab('challenge')"},
+  {day:3, key:'speak', ico:'🎤', label:{es:'Speak Now',en:'Speak Now',pt:'Speak Now',fr:'Speak Now'}, go:"goTab('speak')"},
+  {day:5, key:'chat', ico:'💬', label:{es:'Conversar con Milo (IA)',en:'Chat with Milo (AI)',pt:'Conversar com Milo (IA)',fr:'Parler avec Milo (IA)'}, go:"openMiloChat()"},
+  {day:7, key:'pron', ico:'🗣️', label:{es:'Pronunciación',en:'Pronunciation',pt:'Pronúncia',fr:'Prononciation'}, go:"goTab('pron')"},
+  {day:10, key:'community', ico:'🏆', label:{es:'Comunidad y ranking',en:'Community & ranking',pt:'Comunidade e ranking',fr:'Communauté et classement'}, go:"goTab('progreso')"},
+  {day:15, key:'career', ico:'💼', label:{es:'Inglés de tu profesión',en:'English for your career',pt:'Inglês da sua profissão',fr:'Anglais de ton métier'}, go:"goTab('dental')"},
+  {day:20, key:'collections', ico:'🃏', label:{es:'Colecciones',en:'Collections',pt:'Coleções',fr:'Collections'}, go:"goTab('collections')"}
+];
+function daysUsing(){ try{ return Math.max(1,(store.get('activeDays',[])||[]).length); }catch(e){ return 1; } }
+function ulabel(u){ return u.label[nlang()]||u.label.es; }
+function nextUnlock(){ var d=daysUsing(); for(var i=0;i<UNLOCKS.length;i++){ if(UNLOCKS[i].day>d) return UNLOCKS[i]; } return null; }
+function checkUnlocks(){
+  var d=daysUsing(); var seen=store.get('unlockedSeen',[]);
+  UNLOCKS.forEach(function(u){
+    if(d>=u.day && seen.indexOf(u.key)<0){
+      seen.push(u.key);
+      /* no celebrar el día 1 (aprender) para no molestar al recién llegado */
+      if(u.day>1){ setTimeout(function(){ try{confetti();beep('win');}catch(e){} try{toast('🔓 ¡Desbloqueaste '+ulabel(u)+'! '+u.ico);}catch(e){} }, 900); }
+    }
+  });
+  store.set('unlockedSeen',seen);
+}
+function adventureHTML(){
+  var d=daysUsing(), nxt=nextUnlock();
+  var unlockedN=UNLOCKS.filter(function(u){return d>=u.day;}).length;
+  var pct=Math.round(unlockedN/UNLOCKS.length*100);
+  var h='<div class="card" style="border:2px solid var(--blue);background:linear-gradient(135deg,#eef3ff,#ffffff);"><h2>🗺️ '+T('advT')+'</h2>'
+    +'<p class="note" style="margin:0 0 8px;">'+unlockedN+'/'+UNLOCKS.length+' '+T('advUnlocked')+' · '+T('advDay')+' '+d+'</p>'
+    +'<div style="background:#e8edf7;border-radius:99px;height:12px;overflow:hidden;margin-bottom:10px;"><div style="background:linear-gradient(90deg,#4c6fff,#22c55e);height:100%;width:'+pct+'%;border-radius:99px;transition:width .5s var(--spring);"></div></div>';
+  /* fila de sellos */
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">'+UNLOCKS.map(function(u){
+      var on=d>=u.day;
+      return '<div title="'+ulabel(u)+'" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.35rem;'+(on?'background:linear-gradient(135deg,#eef3ff,#dbe6ff);box-shadow:var(--sh-rest);':'background:#f1f3f8;filter:grayscale(1);opacity:.55;')+'">'+(on?u.ico:'🔒')+'</div>';
+    }).join('')+'</div>';
+  if(nxt){ var falta=nxt.day-d; h+='<p class="note" style="margin:0;">'+T('advNext')+' <b>'+ulabel(nxt)+'</b> '+nxt.ico+' — '+(falta<=1?T('advTomorrow'):(T('advIn')+' '+falta+' '+T('advDays')))+'</p>'; }
+  else { h+='<p class="note" style="margin:0;color:var(--green);font-weight:700;">🎉 '+T('advAll')+'</p>'; }
+  h+='</div>';
+  return h;
+}
 /* ===== PAQUETE DE ENGANCHE (meta diaria, semana, palabra del día, olvidaste esto, certificados) ===== */
 function dseed(){var n=new Date();return Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/86400000);}
 function pick(arr){return (arr&&arr.length)?arr[dseed()%arr.length]:null;}
@@ -4843,7 +5114,7 @@ function renderHome(){
     +'<div style="flex:1;min-width:160px;">'
       +'<h2>'+greet+', '+profile.name+' 👋</h2>'
       +'<p style="margin:2px 0;">'+T('yourObjective')+': <b>'+curLevel+(profile.goal?(' · '+goalLabel(profile.goal)):'')+'</b></p>'
-      +'<p style="margin:4px 0 0;font-weight:800;">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+' · ⭐ '+T('levelW')+' '+ul.lvl+' · ⚡ '+xp+' XP</p>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span><span class="statpill">⭐ '+T('levelW')+' '+ul.lvl+'</span><span class="statpill">⚡ '+xp+' XP</span></div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;"><div class="bubble">'+miloSays()+'</div>'+ILLUS+'</div>'
     +'</div></div>';
@@ -4853,14 +5124,23 @@ function renderHome(){
   h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
   /* repaso solo si hay pendientes */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
-  h+=programTaskHTML();
-  h+=miPlanCardHTML();
-  h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">'+T('rankTitle')+'</h2><p style="margin:0 0 8px;color:#eafff3;">'+T('rankDesc')+'</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">'+T('rankBtn')+'</button></div>';
-  /* logro reciente, pequeño */
-  if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
-  /* nota gratis/premium, discreta */
-  if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
+  /* Modo Simple: por defecto ON → solo héroe + acción; el resto se despliega */
+  var simple=store.get('homeSimple',true);
+  if(simple){
+    h+='<button class="btn" style="width:100%;margin-top:2px;" onclick="store.set(\'homeSimple\',false);renderHome();">▾ '+T('showMyDay')+'</button>';
+  } else {
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;"><span class="sec-label" style="margin:0;">'+T('secYourDay')+'</span>'
+      +'<button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'homeSimple\',true);renderHome();">'+T('simpleMode')+'</button></div>';
+    h+=programTaskHTML();
+    try{ h+=mentorInsightHTML(); }catch(e){}
+    try{ h+=adventureHTML(); }catch(e){}
+    h+=miPlanCardHTML();
+    h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">'+T('rankTitle')+'</h2><p style="margin:0 0 8px;color:#eafff3;">'+T('rankDesc')+'</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">'+T('rankBtn')+'</button></div>';
+    if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
+    if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
+  }
   el.innerHTML=h;
+  try{ checkUnlocks(); }catch(e){}
   if(!store.get('tourDone',false)) setTimeout(startTour,500);
 }
 function continuarHoy(){ if(typeof openLevel==='function'){ openLevel(curLevel); } else { goTab('levels'); } }
@@ -4914,46 +5194,49 @@ function renderPerfil(){
   var pre=isPremium();
   var planTxt = FREE_MODE ? 'Gratis (lanzamiento) 🎉' : (pre?('Premium'+(profile.plan?(' · '+profile.plan):'')+(profile.premiumUntil?(' · hasta '+new Date(profile.premiumUntil).toLocaleDateString()):'')):'Gratis');
   var TL={es:'Español',en:'Inglés',pt:'Portugués',fr:'Francés'};
-  var photo = (profile&&profile.photo) ? '<img src="'+profile.photo+'" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);">' : '<div style="width:96px;height:96px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:800;">'+(nm.charAt(0).toUpperCase())+'</div>';
+  var ava = (profile&&profile.photo) ? '<img class="pf-ava" src="'+profile.photo+'">' : '<div class="pf-ava">'+(nm.charAt(0).toUpperCase())+'</div>';
+  var ul=(typeof userLevel==='function')?userLevel():{lvl:1};
+  function pfRow(ic,lb,val,onclick){ return '<div class="pf-row" onclick="'+onclick+'"><span class="pf-ic">'+ic+'</span><span class="pf-lb">'+lb+'</span>'+(val?('<span class="pf-vl">'+val+'</span>'):'')+'<span class="pf-ch">›</span></div>'; }
+  function pfInfo(ic,lb,val){ return '<div class="pf-row" style="cursor:default;"><span class="pf-ic">'+ic+'</span><span class="pf-lb">'+lb+'</span><span class="pf-vl">'+(val||'—')+'</span></div>'; }
   var h='';
-  /* Cabecera con foto */
-  h+='<div class="card" style="text-align:center;">'
-    +'<div style="display:flex;flex-direction:column;align-items:center;gap:8px;">'+photo
+  /* Cabecera premium */
+  h+='<div class="pf-hero">'+ava
     +'<input type="file" id="photoIn" accept="image/*" style="display:none;" onchange="onPhotoPick(this)">'
-    +'<button class="btn" style="padding:6px 14px;" onclick="document.getElementById(\'photoIn\').click()">📷 Cambiar foto</button>'
-    +'<h2 style="margin:4px 0 0;">'+nm+'</h2><p class="note" style="margin:0;">'+email+'</p></div></div>';
-  /* Información personal */
-  h+='<div class="card"><h2>'+T('pfInfo')+'</h2>'
-    +infoRow(T('pfName'),nm)
-    +infoRow(T('pfNick'),(profile.nick?('@'+profile.nick):'—'))
-    +infoRow(T('pfEmail'),(sbUser&&sbUser.email)||'—')
-    +infoRow(T('pfNative'),TL[profile.native]||'—')
-    +infoRow(T('pfLearning'),TL[profile.lang]||'Inglés')
-    +infoRow(T('pfCurLevel'),curLevel)
-    +infoRow(T('pfGoal'),profile.goal?goalLabel(profile.goal):'—')
-    +infoRow(T('pfCareer'),(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
-    +infoRow(T('pfDaily'),(profile.minutes||10)+' '+T('min'))
-    +'<button class="btn" style="margin-top:10px;margin-right:6px;" onclick="editName()">'+T('pfEditName')+'</button>'
-    +'<button class="btn" style="margin-top:10px;" onclick="setNick()">🏷️ '+(profile.nick?T('pfChangeNick'):T('pfCreateNick'))+'</button></div>';
-  /* Idiomas: cambiar nativo y cambiar/agregar idioma a aprender (progreso separado) */
-  h+='<div class="card"><h2>'+T('pfLangs')+'</h2>'
-    +'<p class="note" style="margin:0 0 8px;">'+T('pfLangsNote')+'</p>'
-    +'<button class="btn primary" style="margin:3px;" onclick="showLangSelector()">'+T('pfChangeLang')+'</button>'
-    +'<button class="btn" style="margin:3px;" onclick="showNativeSelector()">'+T('pfChangeNative')+'</button>'
-    +'<button class="btn" style="margin:3px;" onclick="showGenderSelector()">'+T('pfGender')+'</button></div>';
+    +'<h2>'+nm+'</h2><div class="pf-mail">'+email+'</div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;">'
+      +'<span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span>'
+      +'<span class="statpill">⭐ '+T('levelW')+' '+ul.lvl+'</span>'
+      +'<span class="statpill">⚡ '+xp+' XP</span></div>'
+    +'<div style="margin-top:12px;"><button class="btn" style="padding:7px 16px;background:rgba(255,255,255,.9);border:none;color:#2456d6;" onclick="document.getElementById(\'photoIn\').click()">📷 '+T('pfPhoto')+'</button></div>'
+    +'</div>';
+  /* Cuenta / info + editar */
+  h+='<div class="pf-list"><div class="pf-title">'+T('pfInfo')+'</div>'
+    +pfRow('✏️',T('pfName'),nm,'editName()')
+    +pfRow('🏷️',T('pfNick'),(profile.nick?('@'+profile.nick):'—'),'setNick()')
+    +pfInfo('📧',T('pfEmail'),(sbUser&&sbUser.email)||'—')
+    +pfInfo('🎯',T('pfGoal'),profile.goal?goalLabel(profile.goal):'—')
+    +pfInfo('💼',T('pfCareer'),(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
+    +pfInfo('⏰',T('pfDaily'),(profile.minutes||10)+' '+T('min'))
+    +'</div>';
+  /* Idiomas */
+  h+='<div class="pf-list"><div class="pf-title">'+T('pfLangs')+'</div>'
+    +pfRow('📚',T('pfChangeLang'),TL[profile.lang]||'Inglés','showLangSelector()')
+    +pfRow('🗣️',T('pfChangeNative'),TL[profile.native]||'—','showNativeSelector()')
+    +pfRow('🧑',T('pfGender'),'','showGenderSelector()')
+    +'</div>';
   /* Suscripción */
-  h+='<div class="card"><h2>'+T('pfSub')+'</h2>'
-    +'<p style="margin:0 0 8px;">'+T('pfPlanNow')+': <b>'+planTxt+'</b></p>';
-  if(FREE_MODE){ h+='<p class="note" style="margin:0 0 8px;">'+T('pfFreeNote')+'</p><button class="btn primary" onclick="notifyPremium()">'+T('pfNotifyPrem')+'</button>'; }
-  else if(pre){ if(!profile.premiumCanceled) h+='<button class="btn" onclick="cancelPremium()">Cancelar suscripción</button>'; }
-  else { h+='<button class="btn primary" onclick="goTab(\'progreso\')">Ver planes</button>'; }
+  h+='<div class="pf-list"><div class="pf-title">'+T('pfSub')+'</div>'
+    +pfInfo('💳',T('pfPlanNow'),planTxt);
+  if(FREE_MODE){ h+=pfRow('🔔',T('pfNotifyPrem'),'','notifyPremium()'); }
+  else if(pre){ if(!profile.premiumCanceled) h+=pfRow('↩️','Cancelar suscripción','','cancelPremium()'); }
+  else { h+=pfRow('⭐','Ver planes','','goTab(\'progreso\')'); }
   h+='</div>';
-  /* Ayuda y soporte */
-  h+='<div class="card"><h2>'+T('pfHelp')+'</h2><p class="note" style="margin:0 0 8px;">'+T('pfHelpNote')+'</p>'
-    +'<a class="btn primary" style="margin:3px;" href="'+waLink('Hola Milo 🐙, necesito ayuda con la plataforma.')+'" target="_blank">'+T('pfContact')+'</a>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'terms\')">'+T('pfTerms')+'</button>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'privacy\')">'+T('pfPrivacy')+'</button>'
-    +'<button class="btn" style="margin:3px;" onclick="openLegal(\'cancel\')">'+T('pfCancel')+'</button>'
+  /* Ayuda y legal */
+  h+='<div class="pf-list"><div class="pf-title">'+T('pfHelp')+'</div>'
+    +'<a class="pf-row" style="text-decoration:none;color:inherit;" href="'+waLink('Hola Milo 🐙, necesito ayuda con la plataforma.')+'" target="_blank"><span class="pf-ic">💬</span><span class="pf-lb">'+T('pfContact')+'</span><span class="pf-ch">›</span></a>'
+    +pfRow('📄',T('pfTerms'),'','openLegal(\'terms\')')
+    +pfRow('🔒',T('pfPrivacy'),'','openLegal(\'privacy\')')
+    +pfRow('↩️',T('pfCancel'),'','openLegal(\'cancel\')')
     +'</div>';
   /* Panel de administrador (SOLO para ti) */
   if(isAdmin()){
