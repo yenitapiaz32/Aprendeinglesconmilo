@@ -1290,7 +1290,27 @@ function gateTab(t){
 function renderGate(){
   ensureGate();
   var g=document.getElementById('authGate'); if(!g)return;
-  if(sbUser){ g.style.display='none'; document.body.classList.remove('gated'); }
+  /* MODO VISTA PREVIA: si abres el archivo directo en tu computador (file://),
+     no pide login — perfecto para probar cambios antes de subirlos a GitHub. */
+  if(location.protocol==='file:'){
+    g.style.display='none'; document.body.classList.remove('gated');
+    try{
+      if(!document.getElementById('previewBar')){
+        var pb=document.createElement('div'); pb.id='previewBar';
+        pb.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#312e81;color:#c7d2fe;text-align:center;font-size:.75rem;font-weight:700;padding:5px;';
+        pb.textContent='👁️ VISTA PREVIA LOCAL — así se verá cuando lo subas a GitHub';
+        document.body.appendChild(pb);
+      }
+    }catch(e){}
+    return;
+  }
+  if(sbUser){ g.style.display='none'; document.body.classList.remove('gated'); try{ store.set('wasLoggedIn',true); }catch(e){} }
+  else if(!navigator.onLine && store.get('wasLoggedIn',false)){
+    /* SIN INTERNET pero ya habías iniciado sesión antes: entra directo.
+       Tu progreso se guarda aquí y se sincroniza al volver la conexión. */
+    g.style.display='none'; document.body.classList.remove('gated');
+    try{ toast('📴 Modo sin conexión — tu progreso se guarda y se sincronizará'); }catch(e){}
+  }
   else { g.style.display='flex'; document.body.classList.add('gated'); }
 }
 function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
@@ -5962,45 +5982,53 @@ function renderHome(){
   const ul=userLevel();
   const challengeDoneToday=store.get('challengeDate','')===todayStr();
   const unlockedAch=ACHS.filter(a=>a.ok()); const lastAch=unlockedAch.length?unlockedAch[unlockedAch.length-1]:null;
-  let h='<div class="hero"><div class="hero-row">'
-    +'<div class="ring" style="--p:'+p+'"><div class="inner"><div><div class="pct">'+p+'%</div><div class="lbl">'+T('ofGoal')+'</div></div></div></div>'
-    +'<div style="flex:1;min-width:160px;">'
-      +'<h2>'+greet+', '+profile.name+' 👋</h2>'
-      +'<p style="margin:2px 0;">'+T('yourObjective')+': <b>'+curLevel+(profile.goal?(' · '+goalLabel(profile.goal)):'')+'</b></p>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span><span class="statpill">⭐ '+T('levelW')+' '+ul.lvl+'</span><span class="statpill">⚡ '+xp+' XP</span>'+(store.get('shields',0)>0?('<span class="statpill" title="Protector de racha: si un día no puedes entrar, él te cubre">🛡️ '+store.get('shields',0)+'</span>'):'')+'</div>'
-    +'</div>'
-    +'<div style="display:flex;flex-direction:column;align-items:center;"><div class="bubble">'+miloSays()+'</div>'+ILLUS+'</div>'
+  /* 1) MILO PRIMERO: tu compañero te recibe — nada de muros de información */
+  let h='<div class="hero" style="text-align:center;padding:28px 18px 24px;">'
+    +'<div class="bubble" style="max-width:300px;">'+miloSays()+'</div>'
+    +'<div style="display:flex;justify-content:center;">'+ILLUS+'</div>'
+    +'<h2 style="margin:8px 0 2px;">'+greet+', '+profile.name+' 👋</h2>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;">'
+      +'<span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span>'
+      +'<span class="statpill">⚡ '+xp+' XP</span>'
+      +(store.get('shields',0)>0?('<span class="statpill" title="Protector de racha">🛡️ '+store.get('shields',0)+'</span>'):'')
     +'</div></div>';
-  /* ÚNICA acción principal */
+  /* 2) ÚNICA acción principal: CONTINUAR */
   h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">'+T('cont')+'</button>';
-  /* acción secundaria: reto diario */
-  h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
-  /* TOEFL siempre a la vista (cuando aprendes inglés) */
-  if((profile.lang||'en')==='en'){
-    h+='<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;" onclick="openTOEFL()">'
-      +'<div style="font-size:1.8rem;">🎓</div>'
-      +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Preparación TOEFL iBT</div>'
-      +'<div style="font-size:.8rem;color:#c7d2fe;">Formato oficial ETS · estrategias · práctica con IA</div></div>'
-      +'<div style="font-size:1.2rem;color:#c7d2fe;">›</div></div>';
-  }
-  /* Ritmo semanal: cada día tiene su cita (lunes, miércoles, viernes, domingo) */
-  try{ h+=homeRhythmHTML(); }catch(e){}
-  /* Si ya cumpliste hoy: siembra la curiosidad de mañana */
-  try{ if(todayXP()>0){ h+=tomorrowTeaserHTML(); } }catch(e){}
-  /* repaso solo si hay pendientes */
+  /* 3) Motivación a un toque: ranking y progreso */
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
+      +'<div style="font-size:2rem;line-height:1;">🏆</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Ranking</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">¿Quién va ganando hoy?</div></div>'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\')">'
+      +'<div style="font-size:2rem;line-height:1;">📊</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">'+p+'% del curso</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">Mira cuánto has crecido</div></div>'
+    +'</div>';
+  /* repaso solo si hay pendientes (es urgente para la memoria) */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
-  /* Modo Simple: por defecto ON → solo héroe + acción; el resto se despliega */
+  /* 4) TODO lo demás vive plegado: quien quiera más, lo pide */
   var simple=store.get('homeSimple',true);
   if(simple){
     h+='<button class="btn" style="width:100%;margin-top:2px;" onclick="store.set(\'homeSimple\',false);renderHome();">▾ '+T('showMyDay')+'</button>';
   } else {
     h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;"><span class="sec-label" style="margin:0;">'+T('secYourDay')+'</span>'
       +'<button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'homeSimple\',true);renderHome();">'+T('simpleMode')+'</button></div>';
+    /* reto diario */
+    h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
+    /* TOEFL (cuando aprendes inglés) */
+    if((profile.lang||'en')==='en'){
+      h+='<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;" onclick="openTOEFL()">'
+        +'<div style="font-size:1.8rem;">🎓</div>'
+        +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Preparación TOEFL iBT</div>'
+        +'<div style="font-size:.8rem;color:#c7d2fe;">Formato oficial ETS · estrategias · práctica con IA</div></div>'
+        +'<div style="font-size:1.2rem;color:#c7d2fe;">›</div></div>';
+    }
+    /* ritmo semanal + curiosidad de mañana */
+    try{ h+=homeRhythmHTML(); }catch(e){}
+    try{ if(todayXP()>0){ h+=tomorrowTeaserHTML(); } }catch(e){}
     h+=programTaskHTML();
     try{ h+=mentorInsightHTML(); }catch(e){}
     try{ h+=adventureHTML(); }catch(e){}
     h+=miPlanCardHTML();
-    h+='<div class="card" style="background:linear-gradient(135deg,#0e9f6e,#22c55e);color:#fff;"><h2 style="color:#fff;">'+T('rankTitle')+'</h2><p style="margin:0 0 8px;color:#eafff3;">'+T('rankDesc')+'</p><button class="btn" style="background:#fff;color:#0f7a4d;font-weight:800;" onclick="goTab(\'progreso\');setTimeout(function(){lbTab=\'friends\';try{renderLeaderboard();var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},150);">'+T('rankBtn')+'</button></div>';
     if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
