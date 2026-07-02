@@ -1200,7 +1200,10 @@ async function sendMiloChat(){
     saveChat(); renderMiloChat(); return;
   }
   try{
-    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:chatScenario,messages:chatHistory})});
+    /* ecosistema: Milo conoce tus palabras recientes y las usa en la conversación */
+    var msgs=chatHistory.slice();
+    try{ var rw=(typeof recentWordsForChat==='function')?recentWordsForChat():''; if(rw){ msgs=[{role:'user',content:'(Instrucción del sistema, no la menciones: el estudiante se llama '+((profile&&profile.name)||'')+' y aprendió recientemente estas palabras/frases: '+rw+'. Úsalas con naturalidad en la conversación y hazle preguntas que lo inviten a usarlas.)'}].concat(msgs); } }catch(e){}
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:chatScenario,messages:msgs})});
     var j=await r.json();
     chatHistory.push({role:'assistant',content:(j&&(j.reply||j.content))||'(sin respuesta)'});
   }catch(e){ chatHistory.push({role:'assistant',content:'Ups, no pude conectar con la IA. Intenta de nuevo. 🐙'}); }
@@ -3870,6 +3873,7 @@ function finishQuiz(host){
     try{ var pctD=qState.score/qState.items.length; if(pctD>=0.6){ var dcode=(DENTAL_ACADEMY[curDental]||{}).code; if(dcode){ var dd=store.get('dentalDone',{}); dd[dcode]=true; store.set('dentalDone',dd); } } }catch(e){}
     let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, '+gword('doctora','doctor','doctor@')+'! +'+(qState.score*5)+' XP</p>';
     h+='<div style="text-align:center;"><button class="btn primary" onclick="renderDental()">Volver al módulo</button></div>';
+    try{ h+=tomorrowTeaserHTML(); }catch(e){}
     host.innerHTML=h;return;
   }
   if(qState.mode==='repaso'){
@@ -3877,6 +3881,7 @@ function finishQuiz(host){
     let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div>';
     h+='<p style="text-align:center;">Te quedan <b>'+review.length+'</b> tarjetas por dominar.</p>';
     h+='<div style="text-align:center;">'+(review.length?'<button class="btn primary" onclick="renderRepaso()">Seguir repasando</button> ':'')+'<button class="btn" onclick="renderHome()">Volver al inicio</button></div>';
+    try{ h+=tomorrowTeaserHTML(); }catch(e){}
     host.innerHTML=h;return;
   }
   const pct=Math.round(qState.score/qState.items.length*100);
@@ -3894,6 +3899,7 @@ function finishQuiz(host){
     let msg=pct>=90?'🏆 ¡Dominado!':pct>=70?'💪 ¡Muy bien!':'📈 Repasa y reintenta.';
     h+='<p style="text-align:center;">'+msg+'</p><div style="text-align:center;"><button class="btn primary" onclick="reQuiz()">Otro intento</button></div>';
   }
+  try{ h+=tomorrowTeaserHTML(); }catch(e){}
   host.innerHTML=h;
 }
 function reQuiz(){startQuiz('quizHost',DATA[curLevel].quiz.map(q=>({type:'mc',q:q[0],a:q[1],opts:shuffle([...new Set([q[1]].concat(q[2]))])})),false);}
@@ -4782,6 +4788,18 @@ function tickStreak(){
   var t=todayStr();
   /* 1) marca HOY como día activo (esta es la fuente de verdad de tu racha) */
   try{ var d=store.get('activeDays',[]); if(d.indexOf(t)<0){ d.push(t); if(d.length>400)d=d.slice(-400); store.set('activeDays',d); } }catch(e){}
+  /* 1.5) PROTECTOR DE RACHA 🛡️: si ayer faltaste y tienes escudo, lo usa y la racha vive */
+  try{
+    var days0=store.get('activeDays',[]); var set0={}; days0.forEach(function(x){set0[x]=1;});
+    var yd=new Date(); yd.setDate(yd.getDate()-1); var yk=yd.toISOString().slice(0,10);
+    var byd=new Date(); byd.setDate(byd.getDate()-2); var bk=byd.toISOString().slice(0,10);
+    var shields=store.get('shields',0);
+    if(!set0[yk] && set0[bk] && shields>0){
+      days0.push(yk); store.set('activeDays',days0);
+      store.set('shields',shields-1);
+      setTimeout(function(){ miloReact('wink','🛡️ Usé tu protector: tu racha sigue viva. Descansar también cuenta.'); },1600);
+    }
+  }catch(e){}
   /* 2) recalcula la racha contando días activos CONSECUTIVOS que terminan hoy (se auto-repara) */
   var days=store.get('activeDays',[]); var set={}; days.forEach(function(x){ set[x]=1; });
   var count=0, cur=new Date();
@@ -4789,6 +4807,13 @@ function tickStreak(){
   var prevCount=(streak&&streak.count)||0;
   streak={count:count,last:t}; store.set('streak',streak);
   try{ if(count>prevCount&&count>=2){ setTimeout(function(){miloReact('streak','🔥 ¡'+count+' días seguidos! Imparable');},900); } }catch(e){}
+  /* 2.5) gana 1 protector cada 7 días de racha (máx 2) */
+  try{
+    if(count>prevCount && count>0 && count%7===0){
+      var sh=store.get('shields',0);
+      if(sh<2){ store.set('shields',sh+1); setTimeout(function(){ miloReact('streak','🛡️ ¡'+count+' días! Ganaste un PROTECTOR de racha. Si un día no puedes, él te cubre.'); },2600); }
+    }
+  }catch(e){}
   try{schedulePublish();}catch(e){}
 }
 /* ===== META DIARIA: 1 de cada habilidad por día ===== */
@@ -4859,8 +4884,13 @@ const DAILY_XP={reading:5,listening:8,writing:8,speaking:10};
 /* Nivel de usuario (independiente del nivel de inglés) */
 function userLevel(){let lvl=1,need=40,acc=0;while(xp>=acc+need){acc+=need;lvl++;need+=10;}return {lvl:lvl,acc:acc,need:need,into:xp-acc};}
 function addXP(n){
+  var firstOfDay=(typeof todayXP==='function')&&todayXP()===0;
+  /* Lunes de arranque: XP doble en tu primer ejercicio de la semana */
+  if(firstOfDay && new Date().getDay()===1){ n=n*2; setTimeout(function(){ try{miloReact('streak','Lunes de arranque 🚀 ¡XP DOBLE en tu primer ejercicio!');}catch(e){} },700); }
   xp+=n;store.set('xp',xp);xpPop('+'+n+' XP');
   markActiveDay(); addDailyXP(n); addWeeklyXP(n);
+  /* Meta mínima: el primer ejercicio del día YA es victoria; lo demás es bonus */
+  if(firstOfDay){ setTimeout(function(){ try{miloReact('good','Meta mínima del día: CUMPLIDA ✅ Todo lo que hagas ahora es bonus.');}catch(e){} },2200); }
   const nl=userLevel().lvl, prev=store.get('ulevel',1);
   if(nl>prev){store.set('ulevel',nl);setTimeout(function(){ try{celebrateLevelUp(nl);}catch(e){ confetti();beep('win');toast('⭐ ¡Subiste a Nivel '+nl+'!'); } },500);}
   try{schedulePublish();}catch(e){}
@@ -5608,6 +5638,12 @@ function miloSays(){
   try{ var ld=store.get('lastDental',0); if(profile&&profile.career==='dentistry'&&ld){ var dd=Math.floor((Date.now()-ld)/86400000); if(dd>=5) return 'Hace '+dd+' días no practicas Dental English, '+nm+'. ¿Hacemos 5 minutos? 🦷'; } }catch(e){}
   /* 2) Vuelve tras ausencia larga */
   try{ var sl=store.get('streak',{last:''}); if(sl.last){ var gap=Math.floor((Date.now()-new Date(sl.last+'T12:00:00').getTime())/86400000); if(gap>=3) return '¡Te extrañé, '+nm+'! 😴→🤩 Han pasado '+gap+' días. Retomemos con algo cortito, ¿va? 🐙'; } }catch(e){}
+  /* 2.3) MEMORIA: recuerda tu último error y propone revancha */
+  try{ if(curX===0 && review && review.length && Math.random()<0.4){ return 'La última vez te enredó "'+review[0].a+'", '+nm+'. ¿Le damos revancha hoy? 💪'; } }catch(e){}
+  /* 2.4) MEMORIA: celebra palabras dominadas (estaban falladas y ya no) */
+  try{ var mw=store.get('masteredShown',''); var fw=forgotTop(3); if(curX===0 && fw.length && review && !review.some(function(r){return r.a===fw[0].w;}) && mw!==fw[0].w && Math.random()<0.3){ store.set('masteredShown',fw[0].w); return '¿Te acuerdas que "'+fw[0].w+'" te costaba, '+nm+'? Ya casi la dominas. Eso es progreso REAL. 🌱'; } }catch(e){}
+  /* 2.5) MEMORIA: usa tu profesión */
+  try{ if(curX===0 && profile.career && Math.random()<0.25){ var cc=(typeof careerById==='function')?careerById(profile.career):null; if(cc&&cc.name) return g+', '+nm+'! Hoy hay inglés de '+cc.name+' esperándote en Profesión 💼'; } }catch(e){}
   /* 3) Meta de hoy cumplida / en progreso */
   if(dc>=4 || (goalX>0&&curX>=goalX)) return '¡Completaste tu meta de hoy, '+nm+'! Chócala con mis 8 brazos. 🐙🏆';
   if(curX>0 && rem>0) return '¡Vas '+curX+'/'+goalX+' XP hoy, '+nm+'! Solo te faltan '+rem+' para tu meta. 🎯';
@@ -5748,7 +5784,7 @@ function renderHome(){
     +'<div style="flex:1;min-width:160px;">'
       +'<h2>'+greet+', '+profile.name+' 👋</h2>'
       +'<p style="margin:2px 0;">'+T('yourObjective')+': <b>'+curLevel+(profile.goal?(' · '+goalLabel(profile.goal)):'')+'</b></p>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span><span class="statpill">⭐ '+T('levelW')+' '+ul.lvl+'</span><span class="statpill">⚡ '+xp+' XP</span></div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span><span class="statpill">⭐ '+T('levelW')+' '+ul.lvl+'</span><span class="statpill">⚡ '+xp+' XP</span>'+(store.get('shields',0)>0?('<span class="statpill" title="Protector de racha: si un día no puedes entrar, él te cubre">🛡️ '+store.get('shields',0)+'</span>'):'')+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:center;"><div class="bubble">'+miloSays()+'</div>'+ILLUS+'</div>'
     +'</div></div>';
@@ -5764,6 +5800,10 @@ function renderHome(){
       +'<div style="font-size:.8rem;color:#c7d2fe;">Formato oficial ETS · estrategias · práctica con IA</div></div>'
       +'<div style="font-size:1.2rem;color:#c7d2fe;">›</div></div>';
   }
+  /* Ritmo semanal: cada día tiene su cita (lunes, miércoles, viernes, domingo) */
+  try{ h+=homeRhythmHTML(); }catch(e){}
+  /* Si ya cumpliste hoy: siembra la curiosidad de mañana */
+  try{ if(todayXP()>0){ h+=tomorrowTeaserHTML(); } }catch(e){}
   /* repaso solo si hay pendientes */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
   /* Modo Simple: por defecto ON → solo héroe + acción; el resto se despliega */
@@ -5812,6 +5852,7 @@ function renderProgreso(){
     +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">'+T('prLevels')+'</div></div>'
     +'</div></div>';
   try{ h+=donutRingsHTML(); }catch(e){}
+  try{ h+=jardinHTML(); }catch(e){}
   try{ h+=wrappedHTML(); }catch(e){}
   h+=dailyGoalHTML()+weekCalHTML();
   try{ h+=monthCalHTML(); }catch(e){}
@@ -6146,6 +6187,82 @@ try{ checkWompiReturn(); }catch(e){}
 try{ if(!store.get('fbAsked',false)){ setTimeout(askFeedback, 600000); } }catch(e){}
 /* Precargar voces del navegador (para el respaldo de audio) */
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}catch(e){}}
+/* ============================================================
+   MOTOR DE RETENCIÓN — teasers, jardín de palabras, ritmo semanal
+   (del documento Milo_Experiencia_y_Ecosistema.md)
+   ============================================================ */
+/* --- Curiosidad para mañana: ninguna sesión termina, se pausa --- */
+function tomorrowTeaserHTML(){
+  var t=[];
+  try{ var p=levelPct(curLevel); if(p>=70&&p<100) t.push('Estás al <b>'+p+'%</b> del nivel '+curLevel+'. Mañana podrías estar tocando la puerta del examen 🔓'); }catch(e){}
+  try{
+    var dow=(new Date().getDay()+1)%7; /* día de MAÑANA */
+    if(dow===1) t.push('Mañana es <b>Lunes de arranque</b>: tu primer ejercicio vale XP DOBLE 🚀');
+    if(dow===3) t.push('Mañana es <b>Miércoles de mundo</b>: te enseño un modismo que los cursos normales no enseñan 🌎');
+    if(dow===5) t.push('Mañana es <b>Viernes de reto</b>: el desafío especial te espera 🔥');
+    if(dow===0) t.push('Mañana es <b>Domingo de jardín</b>: día de regar tus palabras 🌱💧');
+  }catch(e){}
+  t.push('Mañana te espera una <b>palabra del día</b> nueva… y creo que te va a gustar 👀');
+  t.push('Mañana hay <b>reto diario</b> nuevo. 3 minutos. ¿Vendrás? Yo aquí estaré 🐙');
+  t.push('Mañana te enseño una expresión que los americanos usan <b>todos los días</b> y casi nadie enseña 🤫');
+  try{ if(review&&review.length) t.push('Tengo <b>'+review.length+' palabra'+(review.length>1?'s':'')+'</b> guardada'+(review.length>1?'s':'')+' para tu revancha de mañana 💪'); }catch(e){}
+  var doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  var pick2=t[doy%t.length];
+  return '<div style="margin-top:14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:16px;padding:14px 16px;display:flex;gap:10px;align-items:center;">'
+    +'<div style="flex:0 0 auto;">'+((typeof miloSVG==='function')?miloSVG(44):'🐙')+'</div>'
+    +'<div style="font-size:.9rem;color:#4c1d95;"><b>Para mañana…</b><br>'+pick2+'</div></div>';
+}
+/* --- Ritmo semanal: cada día de la semana tiene su cita --- */
+var MONTH_THEMES=['🎯 Enero: año nuevo, acento nuevo','💘 Febrero: el idioma del amor','🌱 Marzo: palabras que crecen','🌦️ Abril: small talk del clima','👩‍👧 Mayo: familia y raíces','☀️ Junio: inglés de vacaciones','✈️ Julio: Milo viaja contigo','📚 Agosto: vuelta a clases','🍂 Septiembre: rutinas que funcionan','🎃 Octubre: palabras que asustan (falsos amigos)','🦃 Noviembre: gratitud en inglés','🎁 Diciembre: tu año Wrapped'];
+function homeRhythmHTML(){
+  var d=new Date().getDay(); var h='';
+  var theme=MONTH_THEMES[new Date().getMonth()];
+  var ev=null;
+  if(d===1) ev=['🚀','Lunes de arranque','Tu primer ejercicio de hoy vale XP doble. Ya está activo.',"continuarHoy()",'Aprovechar'];
+  else if(d===3) ev=['🌎','Miércoles de mundo','Un modismo real que casi nadie enseña, en Extras.',"goTab('extras')",'Descubrir'];
+  else if(d===5) ev=['🔥','Viernes de reto','El desafío de 3 minutos de hoy tiene sabor especial.',"goTab('challenge')",'Al reto'];
+  else if(d===0) ev=['🌱','Domingo de jardín','Día de regar: repasa las palabras que se marchitan.',"renderRepaso()",'Regar'];
+  if(!ev) return '';
+  return '<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px dashed var(--accent);background:var(--card2);">'
+    +'<div style="font-size:1.7rem;">'+ev[0]+'</div>'
+    +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+ev[1]+'</div>'
+    +'<div style="font-size:.8rem;color:var(--muted);">'+ev[2]+' · <i>'+theme+'</i></div></div>'
+    +'<button class="btn" style="padding:8px 14px;font-size:.82rem;" onclick="'+ev[3]+'">'+ev[4]+'</button></div>';
+}
+/* --- JARDÍN DE PALABRAS v1: tu progreso hecho imagen --- */
+function jardinHTML(){
+  try{
+    var col=store.get('collected',{}); var words=Object.keys(col);
+    var fw=store.get('forgotWords',{});
+    var revSet={}; (review||[]).forEach(function(r){ if(r&&r.a) revSet[String(r.a).toLowerCase()]=1; });
+    if(!words.length && !Object.keys(fw).length) return '';
+    var plants=words.slice(-18).map(function(w){
+      var lw=String(w).toLowerCase();
+      var st = revSet[lw] ? ['🌿','necesita riego'] : (fw[w]>=2 ? ['💧','marchita — riégala'] : ['🌸','floreciendo']);
+      return '<div onclick="try{speak(\''+String(w).replace(/'/g,"\\'")+'\')}catch(e){}" title="'+st[1]+'" style="cursor:pointer;text-align:center;background:var(--card2);border-radius:12px;padding:8px 4px;transition:transform .15s var(--spring);">'
+        +'<div style="font-size:1.4rem;line-height:1;">'+st[0]+'</div>'
+        +'<div style="font-size:.62rem;font-weight:700;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+w+'</div></div>';
+    }).join('');
+    var thirsty=(review||[]).length;
+    return '<div class="card" style="background:linear-gradient(180deg,#f0fdf4,var(--card));border:1.5px solid #bbf7d0;">'
+      +'<h2 style="color:#166534;">🌱 Tu jardín de palabras</h2>'
+      +'<p class="note" style="margin:0 0 10px;">Cada palabra que aprendes es una planta. Úsala en juegos, chat y quizzes para que florezca. Total: <b>'+words.length+'</b> plantas.</p>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:7px;margin-bottom:10px;">'+plants+'</div>'
+      +(thirsty?('<button class="btn primary" style="width:100%;" onclick="renderRepaso()">💧 Regar ahora — '+thirsty+' palabra'+(thirsty>1?'s':'')+' con sed</button>'):'<p class="note" style="text-align:center;margin:0;">Todas tus plantas están felices hoy 🌸</p>')
+      +'</div>';
+  }catch(e){ return ''; }
+}
+/* --- El chat de Milo usa lo que aprendiste (ecosistema conectado) --- */
+function recentWordsForChat(){
+  try{
+    var out=[];
+    (review||[]).slice(0,4).forEach(function(r){ if(r&&r.a) out.push(r.a); });
+    forgotTop(3).forEach(function(o){ if(out.indexOf(o.w)<0) out.push(o.w); });
+    var col=store.get('collected',{}); Object.keys(col).slice(-3).forEach(function(w){ if(out.indexOf(w)<0) out.push(w); });
+    return out.slice(0,7).join(', ');
+  }catch(e){ return ''; }
+}
+
 /* ===== MODO SIN CONEXIÓN (PWA) =====
    El service worker es "network-first": con internet siempre trae lo último;
    sin internet sirve la copia guardada. El progreso vive en localStorage
