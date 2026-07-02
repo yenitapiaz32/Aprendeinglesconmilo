@@ -595,6 +595,91 @@
     /* el botón flotante de reportar sube para no chocar con el dock */
     #reportBtn{ bottom:82px!important; }
   }
+
+  /* ============================================================
+     FASE 2 — DESIGN SYSTEM 2.0 (botones, tipografía, tab bar nativa, Milo vivo)
+     ============================================================ */
+  /* Sistema de botones completo */
+  .btn.ghost{ background:transparent; border-color:transparent; border-bottom-width:2px; color:var(--accent); box-shadow:none; }
+  .btn.ghost:hover{ background:color-mix(in srgb,var(--accent) 8%,transparent); transform:none; box-shadow:none; }
+  .btn.secondary{ background:color-mix(in srgb,var(--accent) 10%,var(--card)); border-color:color-mix(in srgb,var(--accent) 30%,var(--line)); color:var(--accent-d); }
+  .btn.danger{ background:linear-gradient(135deg,#f87171,#dc2626); border-color:rgba(0,0,0,.15); color:#fff; box-shadow:0 8px 20px rgba(220,38,38,.3); }
+  .iconbtn{ width:44px; height:44px; border-radius:14px; border:1.5px solid var(--line); background:var(--card); display:inline-grid; place-items:center; cursor:pointer; font-size:1.15rem; transition:transform .15s var(--spring),background .15s; }
+  .iconbtn:hover{ transform:translateY(-1px); background:var(--card2); }
+  /* Números tabulares en todo dato numérico (no bailan al cambiar) */
+  .stat .n,.ring .pct,.lvl-n,.statpill,.land-trust .lt-n,.scorebig{ font-variant-numeric:tabular-nums; }
+  /* Jerarquía tipográfica disciplinada */
+  h2{ font-size:1.35rem; font-weight:700; letter-spacing:-.3px; }
+  h3{ font-weight:700; letter-spacing:-.15px; }
+  .lead{ font-size:.92rem; line-height:1.55; }
+
+  /* ===== TAB BAR NATIVA iOS (móvil): icono arriba, etiqueta abajo ===== */
+  nav button .nv-ic{ display:inline; }
+  nav button .nv-lb{ display:inline; margin-left:2px; }
+  @media(max-width:760px){
+    nav{ gap:0; padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px)); }
+    nav button{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px;
+      background:transparent; padding:6px 2px; border-radius:14px; min-height:52px; }
+    nav button .nv-ic{ font-size:1.35rem; line-height:1; transition:transform .25s var(--spring); }
+    nav button .nv-lb{ font-size:.58rem; font-weight:700; letter-spacing:.2px; margin-left:0; color:var(--muted); }
+    nav button.active{ background:color-mix(in srgb,var(--accent) 12%,transparent)!important; box-shadow:none!important; transform:none; }
+    nav button.active .nv-ic{ transform:translateY(-2px) scale(1.15); }
+    nav button.active .nv-lb{ color:var(--accent); }
+    @supports not (color:color-mix(in srgb,#000,#fff)){ nav button.active{ background:rgba(76,111,255,.12)!important; } }
+  }
+
+  /* ===== MILO VIVO — mascota SVG animada ===== */
+  .milo-svg{ display:inline-block; overflow:visible; }
+  .milo-svg .m-body{ transform-origin:50% 62%; animation:mBreathe 3.2s ease-in-out infinite; }
+  @keyframes mBreathe{ 0%,100%{transform:scale(1,1);} 50%{transform:scale(1.025,.975) translateY(1px);} }
+  .milo-svg .m-lid{ transform-origin:center; transform:scaleY(0); animation:mBlink 4.6s infinite; }
+  @keyframes mBlink{ 0%,94%,100%{transform:scaleY(0);} 96%,98%{transform:scaleY(1);} }
+  .milo-svg .m-tent{ transform-origin:top center; animation:mSway 3.8s ease-in-out infinite; }
+  .milo-svg .m-tent:nth-child(2){ animation-delay:.4s; } .milo-svg .m-tent:nth-child(3){ animation-delay:.8s; } .milo-svg .m-tent:nth-child(4){ animation-delay:1.2s; }
+  @keyframes mSway{ 0%,100%{transform:rotate(-4deg);} 50%{transform:rotate(4deg);} }
+  /* estados */
+  .milo-happy .m-body{ animation:mJump .55s var(--spring); }
+  @keyframes mJump{ 0%{transform:translateY(0);} 40%{transform:translateY(-12px) scale(1.05,.97);} 70%{transform:translateY(0) scale(.97,1.04);} 100%{transform:translateY(0);} }
+  .milo-sad .m-body{ animation:mSad .5s ease; }
+  @keyframes mSad{ 0%,100%{transform:rotate(0);} 25%{transform:rotate(-5deg);} 75%{transform:rotate(5deg);} }
+  .milo-sad .m-mouth{ d:path("M 42 66 Q 50 60 58 66"); }
+  .milo-wink .m-lid:last-of-type{ animation:mWink .8s ease; }
+  @keyframes mWink{ 0%,100%{transform:scaleY(0);} 25%,75%{transform:scaleY(1);} }
+  .milo-wink .m-body{ animation:mJump .55s var(--spring); }
+  .milo-streak .m-body{ animation:mParty .7s ease; }
+  @keyframes mParty{ 0%,100%{transform:rotate(0) translateY(0);} 25%{transform:rotate(-8deg) translateY(-8px);} 50%{transform:rotate(6deg) translateY(-4px);} 75%{transform:rotate(-4deg) translateY(-6px);} }
+  .milo-sleep .m-lid{ transform:scaleY(1); animation:none; }
+  .milo-sleep .m-body{ animation:mBreathe 5s ease-in-out infinite; }
+  .milo-zzz{ position:absolute; top:-8px; right:2px; font-size:1rem; animation:zzzFloat 2.2s ease-in-out infinite; pointer-events:none; }
+  @keyframes zzzFloat{ 0%{opacity:0; transform:translateY(4px) scale(.8);} 40%{opacity:1;} 100%{opacity:0; transform:translateY(-14px) scale(1.15);} }
+  /* Reacción flotante de Milo en quizzes (esquina inferior izquierda) */
+  .milo-react{ position:fixed; left:14px; bottom:96px; z-index:400; display:flex; align-items:flex-end; gap:6px;
+    pointer-events:none; opacity:0; transform:translateY(24px) scale(.8); transition:opacity .28s var(--spring),transform .28s var(--spring); }
+  .milo-react.show{ opacity:1; transform:translateY(0) scale(1); }
+  .milo-react .mr-b{ background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:14px 14px 14px 4px;
+    padding:8px 12px; font-weight:800; font-size:.86rem; box-shadow:var(--sh-float); margin-bottom:26px; }
+  @media(min-width:761px){ .milo-react{ bottom:20px; } }
+
+  /* ===== MILO CARD — tarjeta de perfil para compartir ===== */
+  .mcard{ position:relative; border-radius:26px; overflow:hidden; color:#fff; padding:22px 20px 18px;
+    background:linear-gradient(150deg,#3b2d7a 0%,#5b34e0 45%,#9266cc 100%); box-shadow:0 20px 50px rgba(60,30,140,.4); margin-bottom:16px; }
+  .mcard:before{ content:''; position:absolute; top:-50px; right:-40px; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.10); }
+  .mcard:after{ content:''; position:absolute; bottom:-70px; left:-40px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.07); }
+  .mcard .mc-top{ display:flex; align-items:center; gap:14px; position:relative; z-index:1; }
+  .mcard .mc-milo{ position:relative; flex:0 0 auto; filter:drop-shadow(0 10px 18px rgba(0,0,0,.3)); }
+  .mcard .mc-name{ font-family:'Poppins',sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:-.3px; line-height:1.15; }
+  .mcard .mc-nick{ color:rgba(255,255,255,.75); font-size:.84rem; font-weight:600; }
+  .mcard .mc-lang{ display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.25);
+    border-radius:99px; padding:4px 12px; font-size:.8rem; font-weight:800; margin-top:6px; backdrop-filter:blur(6px); }
+  .mcard .mc-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px; position:relative; z-index:1; }
+  .mcard .mc-st{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:10px 6px; text-align:center; backdrop-filter:blur(6px); }
+  .mcard .mc-n{ font-family:'Poppins',sans-serif; font-weight:800; font-size:1.25rem; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .mcard .mc-l{ font-size:.66rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:rgba(255,255,255,.78); margin-top:2px; }
+  .mcard .mc-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; position:relative; z-index:1; }
+  .mcard .mc-brand{ font-family:'Poppins',sans-serif; font-weight:800; font-size:.78rem; color:rgba(255,255,255,.85); letter-spacing:.3px; }
+  .mcard .mc-share{ border:none; background:rgba(255,255,255,.95); color:#5b34e0; font-weight:800; font-size:.82rem;
+    border-radius:12px; padding:9px 14px; cursor:pointer; transition:transform .15s var(--spring),filter .2s; font-family:'Poppins',sans-serif; }
+  .mcard .mc-share:hover{ transform:translateY(-1px); filter:brightness(1.03); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -630,6 +715,7 @@
     <h2>Tu ruta por niveles</h2>
     <p class="lead">Avanza nivel por nivel. El siguiente se <b>desbloquea</b> cuando apruebas el 🔓 Examen de nivel (80%+). Empiezas en A1.</p>
     <button class="btn primary" style="width:100%;margin-bottom:10px;" onclick="renderPlacement()">📊 Examen de nivelación — empieza en tu nivel, no desde cero</button>
+    <button class="btn" style="width:100%;margin-bottom:10px;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border-color:rgba(0,0,0,.15);" onclick="openTOEFL()">🎓 Preparación TOEFL iBT — formato oficial, estrategias y práctica</button>
     <div class="level-bar" id="levelBar"></div>
     <div class="subnav" id="subNav"></div>
     <div id="levelContent"></div>
@@ -886,7 +972,7 @@ function ensureGate(){
   var d=document.createElement('div'); d.id='authGate'; d.className='auth-gate'; d.style.display='none';
   var h='<div class="land">';
   /* barra superior con navegación */
-  h+='<div class="land-top"><div class="land-brand">🐙 Milo English</div>'
+  h+='<div class="land-top"><div class="land-brand">'+((typeof miloSVG==='function')?miloSVG(26):'🐙')+' Milo English</div>'
     +'<div class="land-nav">'
       +'<button class="lnav" onclick="gateScroll(\'secFeatures\')">Más información</button>'
       +'<button class="lnav" onclick="gateScroll(\'secPlanes\')">Planes</button>'
@@ -899,7 +985,7 @@ function ensureGate(){
     +'<h1>Pierde el <span class="hl">miedo a hablar</span> inglés en tu primera sesión.</h1>'
     +'<p class="sub">Milo 🐙 te entrena la pronunciación real y te hace conversar desde el día uno. Sin pena, sin teoría aburrida, a tu ritmo. (También español, portugués y francés.)</p>'
     +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secDemo\')">🎤 Probar gratis ahora</button>'
-    +'</div><div style="text-align:center;"><div class="land-milo">🐙</div><div style="color:#dde6ff;font-weight:700;font-size:.85rem;margin-top:4px;">Milo, tu pulpo políglota</div></div></div>';
+    +'</div><div style="text-align:center;"><div class="land-milo" style="position:relative;">'+miloSVG(150)+'</div><div style="color:#dde6ff;font-weight:700;font-size:.85rem;margin-top:4px;">Milo, tu pulpo políglota</div></div></div>';
   /* BARRA DE CONFIANZA (métricas) */
   h+='<div class="land-trust">'
     +'<div class="lt-item"><div class="lt-n">A1→C1</div><div class="lt-l">Todos los niveles</div></div>'
@@ -1394,7 +1480,7 @@ function ensureMouthModal(){
   d.id='mouthOv'; d.className='mouth-ov'; d.style.display='none';
   d.innerHTML='<div class="mouth-card">'
     +'<button class="mouth-x" onclick="closeMouth()">✕</button>'
-    +'<div style="font-size:2.6rem;line-height:1;">🐙</div>'
+    +'<div style="line-height:1;">'+((typeof miloSVG==='function')?miloSVG(56):'🐙')+'</div>'
     +'<div id="mthWord" class="mouth-word"></div>'
     +'<div class="mouth-btns">'
     +'<button class="btn primary" onclick="speak(mouthWord)">🔊 Escuchar</button>'
@@ -2505,8 +2591,86 @@ const EXTRA14={
    {t:'🗣️ Dando una opinión en una reunión',lines:[['Lead','What are your thoughts on the proposal?','¿Qué opinas de la propuesta?'],['You','I see the appeal, but I have a few reservations.','Veo el atractivo, pero tengo algunas reservas.'],['Lead','Such as?','¿Cómo cuáles?'],['You','The timeline seems overly optimistic.','El cronograma parece demasiado optimista.'],['Lead','That\'s a fair point. Let\'s revisit it.','Es un punto válido. Revisémoslo.']]}
  ]}
 };
+/* ===== EXTRA15: refuerzo de niveles avanzados B1/B2/C1 ===== */
+const EXTRA15={
+ B1:{
+  grammar:[
+    {t:"Reported speech (estilo indirecto)",form:"He said (that) + oración un tiempo atrás",use:"Para contar lo que alguien dijo sin citarlo textualmente. El tiempo verbal 'retrocede' un paso: present→past, will→would, can→could.",tip:"\"I'm tired\" → She said she <b>was</b> tired. \"I will call you\" → He said he <b>would</b> call me. Los pronombres y expresiones de tiempo también cambian: today→that day, tomorrow→the next day.",ex:["She said she was tired. | Dijo que estaba cansada.","He told me he would call. | Me dijo que llamaría.","They said they had finished. | Dijeron que habían terminado.","She asked if I was okay. | Preguntó si yo estaba bien.","He said he couldn't come. | Dijo que no podía venir."]},
+    {t:"Second conditional (condicional irreal)",form:"If + past simple, would + verbo",use:"Para situaciones imaginarias o poco probables en el presente/futuro: 'si yo fuera rico...'. La condición NO es real.",tip:"Aunque uses pasado (If I <b>had</b>), hablas del presente imaginario. Con 'be' se prefiere <b>were</b> para todos: \"If I <b>were</b> you...\" (si yo fuera tú). Nunca uses would en la parte del if.",ex:["If I had money, I would travel. | Si tuviera dinero, viajaría.","If I were you, I'd study more. | Si fuera tú, estudiaría más.","She would help if she could. | Ella ayudaría si pudiera.","What would you do if you won? | ¿Qué harías si ganaras?","If we lived closer, we'd visit. | Si viviéramos más cerca, visitaríamos."]},
+    {t:"Used to (hábitos del pasado)",form:"used to + verbo base",use:"Para hábitos o estados del pasado que YA no son verdad. No existe en presente: para hábitos actuales usa usually.",tip:"Negativo: didn't <b>use</b> to (sin -d). Pregunta: Did you <b>use</b> to...? No confundas con <b>be used to</b> (estar acostumbrado) ni <b>get used to</b> (acostumbrarse).",ex:["I used to play soccer. | Antes jugaba fútbol.","She used to live in Cali. | Ella vivía antes en Cali.","Did you use to smoke? | ¿Antes fumabas?","I didn't use to like coffee. | Antes no me gustaba el café.","We used to be neighbors. | Éramos vecinos antes."]}
+  ],
+  vocab:[
+    {w:"achieve",es:"lograr / alcanzar",ex:["She achieved her goal. | Logró su meta.","You can achieve anything. | Puedes lograr lo que sea.","He achieved great results. | Obtuvo grandes resultados.","We achieved it together. | Lo logramos juntos.","It's hard to achieve. | Es difícil de lograr."]},
+    {w:"improve",es:"mejorar",ex:["I want to improve my English. | Quiero mejorar mi inglés.","Her health improved. | Su salud mejoró.","We need to improve this. | Necesitamos mejorar esto.","The service has improved. | El servicio ha mejorado.","Practice improves your skills. | La práctica mejora tus habilidades."]},
+    {w:"although",es:"aunque",ex:["Although it rained, we went. | Aunque llovió, fuimos.","Although she's young, she's wise. | Aunque es joven, es sabia.","I like it, although it's expensive. | Me gusta, aunque es caro.","Although tired, he kept working. | Aunque cansado, siguió trabajando.","Although small, it's powerful. | Aunque pequeño, es potente."]},
+    {w:"advice",es:"consejo (incontable)",ex:["Can I give you some advice? | ¿Te puedo dar un consejo?","That's good advice. | Es un buen consejo.","She asked for my advice. | Pidió mi consejo.","Follow the doctor's advice. | Sigue el consejo del médico.","I need a piece of advice. | Necesito un consejo."]}
+  ],
+  idioms:[["Make up your mind","Decidirse","Come on, make up your mind! | ¡Vamos, decídete!"],["Keep in touch","Mantener el contacto","Let's keep in touch! | ¡Sigamos en contacto!"],["It's up to you","Tú decides","Pizza or sushi? — It's up to you. | ¿Pizza o sushi? — Tú decides."],["Run out of","Quedarse sin","We ran out of milk. | Nos quedamos sin leche."]],
+  quiz:[
+    ["She said she ___ tired.","was",["is","be","were"]],
+    ["If I ___ rich, I would travel.","were",["am","will be","would be"]],
+    ["I ___ to play soccer when I was a kid.","used",["use","using","was"]],
+    ["We've run ___ of sugar.","out",["off","away","over"]],
+    ["He told me he ___ call later.","would",["will","is","can"]]
+  ],
+  fill:[
+    ["If I ___ (be) you, I'd rest.","were"],["She said she ___ (have) a car.","had"],
+    ["I used to ___ (live) there.","live"],["He asked if I ___ (be) ready.","was"]
+  ]
+ },
+ B2:{
+  grammar:[
+    {t:"Third conditional (pasado irreal)",form:"If + past perfect, would have + participio",use:"Para imaginar un pasado diferente: cosas que NO pasaron y sus consecuencias. Ideal para arrepentimientos y reproches.",tip:"\"If I <b>had studied</b>, I <b>would have passed</b>\" = no estudié y no pasé. Versión corta hablada: If I'd studied, I would've passed. Mezcla con present: \"If I had slept, I wouldn't BE tired now\" (mixed conditional).",ex:["If I had known, I would have come. | Si hubiera sabido, habría venido.","She would have won if she had trained. | Habría ganado si hubiera entrenado.","If we had left earlier, we wouldn't have missed it. | Si hubiéramos salido antes, no lo habríamos perdido.","I wouldn't have said that. | Yo no habría dicho eso.","What would you have done? | ¿Qué habrías hecho?"]},
+    {t:"Passive voice (voz pasiva avanzada)",form:"be + participio (en cualquier tiempo)",use:"Cuando importa la ACCIÓN más que quién la hace, o el agente es obvio/desconocido. Muy común en noticias y textos formales.",tip:"Mueve el objeto al inicio: \"They built the bridge\" → \"The bridge <b>was built</b>\". Tiempos avanzados: is being built (están construyendo), has been built (ha sido construido), will be built. El agente va con by solo si aporta información.",ex:["The road is being repaired. | Están reparando la carretera.","The email has been sent. | El correo ha sido enviado.","He was offered the job. | Le ofrecieron el trabajo.","The results will be published. | Los resultados serán publicados.","It must be finished today. | Debe terminarse hoy."]},
+    {t:"Wish / If only (deseos)",form:"wish + past (presente) · wish + past perfect (pasado)",use:"Para expresar que algo NO es como quisieras. wish+past = deseo presente imposible; wish+past perfect = arrepentimiento del pasado.",tip:"\"I wish I <b>knew</b>\" = no lo sé y me gustaría. \"I wish I <b>had known</b>\" = no lo supe y me arrepiento. Con quejas usa would: \"I wish you <b>would stop</b>\" (ojalá dejaras de...).",ex:["I wish I had more time. | Ojalá tuviera más tiempo.","I wish I had studied medicine. | Ojalá hubiera estudiado medicina.","If only it were Friday! | ¡Ojalá fuera viernes!","She wishes she could fly. | Desearía poder volar.","I wish you would listen. | Ojalá escucharas."]}
+  ],
+  vocab:[
+    {w:"reliable",es:"confiable",ex:["She's a reliable friend. | Es una amiga confiable.","Is this source reliable? | ¿Esta fuente es confiable?","We need reliable data. | Necesitamos datos confiables.","The car is very reliable. | El carro es muy confiable.","He's reliable under pressure. | Es confiable bajo presión."]},
+    {w:"accomplish",es:"lograr / cumplir",ex:["We accomplished the mission. | Cumplimos la misión.","She accomplished a lot this year. | Logró mucho este año.","What do you hope to accomplish? | ¿Qué esperas lograr?","He accomplished his dream. | Cumplió su sueño.","Nothing was accomplished. | No se logró nada."]},
+    {w:"nevertheless",es:"sin embargo",ex:["It was hard; nevertheless, we tried. | Fue difícil; sin embargo, lo intentamos.","Nevertheless, she succeeded. | Sin embargo, tuvo éxito.","The risk was high. Nevertheless, he went. | El riesgo era alto. Sin embargo, fue.","Nevertheless, it's worth it. | Sin embargo, vale la pena.","I was tired; nevertheless, I finished. | Estaba cansada; sin embargo, terminé."]},
+    {w:"outcome",es:"resultado",ex:["The outcome was positive. | El resultado fue positivo.","We're waiting for the outcome. | Esperamos el resultado.","It changed the outcome. | Cambió el resultado.","The outcome depends on you. | El resultado depende de ti.","A surprising outcome. | Un resultado sorprendente."]}
+  ],
+  idioms:[["Get the hang of it","Agarrarle el tiro","You'll get the hang of it soon. | Pronto le agarras el tiro."],["Cut corners","Hacer las cosas a medias","Don't cut corners on safety. | No recortes en seguridad."],["The ball is in your court","Es tu turno de decidir","I made my offer; the ball is in your court. | Hice mi oferta; te toca decidir."],["Burn the midnight oil","Trasnochar trabajando","She burned the midnight oil before the exam. | Trasnochó estudiando antes del examen."]],
+  quiz:[
+    ["If I had known, I ___ have come.","would",["will","did","had"]],
+    ["The bridge ___ built in 1990.","was",["is","has","were"]],
+    ["I wish I ___ more time.","had",["have","has","having"]],
+    ["The email has ___ sent.","been",["be","being","was"]],
+    ["She ___ offered the job last week.","was",["is","has","had"]]
+  ],
+  fill:[
+    ["If she ___ (study), she would have passed.","had studied"],["The house is ___ (paint) right now.","being painted"],
+    ["I wish I ___ (know) the answer.","knew"],["The report must ___ (finish) today.","be finished"]
+  ]
+ },
+ C1:{
+  grammar:[
+    {t:"Inversion (inversión enfática)",form:"Never/Rarely/Not only... + auxiliar + sujeto",use:"Estructura formal y elegante: al empezar con una expresión negativa, el orden se invierte como en pregunta. Da énfasis y suena muy nativo en escritura.",tip:"\"<b>Never have I seen</b> such talent\" (en vez de I have never seen). Otros arranques: Rarely, Seldom, Not only... but also, No sooner... than, Under no circumstances. Solo la primera cláusula se invierte.",ex:["Never have I seen such talent. | Nunca he visto tanto talento.","Not only did she win, but she also broke the record. | No solo ganó, sino que rompió el récord.","Rarely do we get this chance. | Rara vez tenemos esta oportunidad.","No sooner had I arrived than it started raining. | Apenas llegué, empezó a llover.","Under no circumstances should you open it. | Bajo ninguna circunstancia debes abrirlo."]},
+    {t:"Cleft sentences (oraciones escindidas)",form:"It is/was X that... · What I need is...",use:"Para ENFOCAR una parte de la oración. En vez de 'I need coffee' → 'What I need is coffee' (lo que necesito es café). Muy útil para sonar articulado.",tip:"Dos moldes: <b>It was</b> John <b>who</b> called (fue John quien llamó — enfoca a John) y <b>What</b> matters <b>is</b> your effort (lo que importa es tu esfuerzo — enfoca la idea). Úsalos para corregir o contrastar.",ex:["It was John who called, not Mike. | Fue John quien llamó, no Mike.","What I need is a break. | Lo que necesito es un descanso.","It's the price that worries me. | Es el precio lo que me preocupa.","What she did was apologize. | Lo que hizo fue disculparse.","It was in Paris that they met. | Fue en París donde se conocieron."]},
+    {t:"Hedging (lenguaje cauteloso académico)",form:"appear to, tend to, arguably, to some extent",use:"En inglés académico y profesional no se afirma en seco: se matiza. 'Los datos SUGIEREN', 'esto PODRÍA indicar'. Suaviza afirmaciones y te protege de generalizar.",tip:"Sube de nivel tus frases: \"It IS true\" → \"It <b>appears to be</b> true\" / \"This is <b>arguably</b> the best option\" / \"Results <b>tend to</b> vary\". En presentaciones te hace sonar experta, no insegura.",ex:["The data appears to support this. | Los datos parecen respaldar esto.","This is arguably the best approach. | Este es posiblemente el mejor enfoque.","Prices tend to rise in December. | Los precios tienden a subir en diciembre.","To some extent, I agree. | Hasta cierto punto, estoy de acuerdo.","It could be argued that... | Podría argumentarse que..."]}
+  ],
+  vocab:[
+    {w:"compelling",es:"convincente / cautivador",ex:["A compelling argument. | Un argumento convincente.","The story is compelling. | La historia es cautivadora.","She made a compelling case. | Presentó un caso convincente.","There's compelling evidence. | Hay evidencia contundente.","A compelling reason to stay. | Una razón de peso para quedarse."]},
+    {w:"nuance",es:"matiz",ex:["The translation lost some nuance. | La traducción perdió matices.","She understands every nuance. | Entiende cada matiz.","A subtle nuance of meaning. | Un sutil matiz de significado.","The nuances of the language. | Los matices del idioma.","It's full of nuance. | Está lleno de matices."]},
+    {w:"leverage",es:"aprovechar / sacar partido",ex:["Leverage your strengths. | Aprovecha tus fortalezas.","We leveraged the new tools. | Sacamos partido de las nuevas herramientas.","She leveraged her network. | Aprovechó sus contactos.","How can we leverage this? | ¿Cómo podemos aprovechar esto?","They leveraged the data. | Aprovecharon los datos."]},
+    {w:"albeit",es:"aunque (formal)",ex:["A victory, albeit a small one. | Una victoria, aunque pequeña.","He accepted, albeit reluctantly. | Aceptó, aunque de mala gana.","Progress, albeit slow. | Progreso, aunque lento.","Useful, albeit expensive. | Útil, aunque costoso.","She smiled, albeit briefly. | Sonrió, aunque brevemente."]}
+  ],
+  idioms:[["Read between the lines","Leer entre líneas","Read between the lines of his email. | Lee entre líneas su correo."],["The elephant in the room","El tema del que nadie habla","Let's address the elephant in the room. | Hablemos del tema que todos evitan."],["Play devil's advocate","Hacer de abogado del diablo","Let me play devil's advocate here. | Déjame hacer de abogado del diablo."],["A double-edged sword","Un arma de doble filo","Fame is a double-edged sword. | La fama es un arma de doble filo."]],
+  quiz:[
+    ["Never ___ I seen such talent.","have",["did","was","had"]],
+    ["It was John ___ called.","who",["which","whom","what"]],
+    ["Not only ___ she win, she broke the record.","did",["does","was","has"]],
+    ["The data ___ to support this.","appears",["appear","appearing","appeared"]],
+    ["___ I need is more time.","What",["That","Which","It"]]
+  ],
+  fill:[
+    ["No sooner ___ (have) I arrived than it rained.","had"],["What matters ___ (be) your effort.","is"],
+    ["Rarely ___ (do) we get this chance.","do"],["It could be ___ (argue) that...","argued"]
+  ]
+ }
+};
 LEVELS_MERGE();
-function LEVELS_MERGE(){['A1','A2','B1','B2','C1'].forEach(L=>{[EXTRA,EXTRA2,EXTRA3,EXTRA4,EXTRA5,EXTRA6,EXTRA7,EXTRA8,EXTRA9,EXTRA10,EXTRA11,EXTRA12,EXTRA13,EXTRA14].forEach(SRC=>{if(SRC[L])for(const k in SRC[L]){DATA[L][k]=(DATA[L][k]||[]).concat(SRC[L][k]);}});});DATA.C1.pro=DENTAL;}
+function LEVELS_MERGE(){['A1','A2','B1','B2','C1'].forEach(L=>{[EXTRA,EXTRA2,EXTRA3,EXTRA4,EXTRA5,EXTRA6,EXTRA7,EXTRA8,EXTRA9,EXTRA10,EXTRA11,EXTRA12,EXTRA13,EXTRA14,EXTRA15].forEach(SRC=>{if(SRC[L])for(const k in SRC[L]){DATA[L][k]=(DATA[L][k]||[]).concat(SRC[L][k]);}});});DATA.C1.pro=DENTAL;}
 /* ===== MULTI-IDIOMA (PolyGlot) ===== */
 const POLY={};
 POLY['en_es']={
@@ -3221,7 +3385,7 @@ function applyUILang(){
   var L=(profile&&profile.native&&UI_LANG[profile.native])?profile.native:'es';
   var t=UI_LANG[L];
   var el;
-  if((el=document.getElementById('appTitle'))) el.textContent='🐙 '+t.trainer;
+  if((el=document.getElementById('appTitle'))) el.innerHTML='<span style="display:inline-block;vertical-align:-5px;margin-right:4px;">'+((typeof miloSVG==='function')?miloSVG(24):'🐙')+'</span>'+t.trainer;
   if((el=document.getElementById('appSub'))) el.textContent=t.sub;
   var map={home:t.home,levels:t.learn,practicar:t.practice,dental:t.prof,progreso:t.progress,explorar:t.explore,perfil:t.profile};
   document.querySelectorAll('#mainNav button').forEach(function(b){ if(map[b.dataset.tab]) b.textContent=map[b.dataset.tab]; });
@@ -4057,6 +4221,12 @@ DENTAL_ACADEMY.forEach(function(d){ if(DENTAL_MORE[d.code]){ d.modules=d.modules
 /* ===== INGLÉS PARA TU CARRERA (múltiples profesiones) ===== */
 const CAREERS=[
  {id:'dentistry',name:'Odontología',emoji:'🦷'},
+ {id:'chef',name:'Cocina / Chef',emoji:'👨‍🍳',modules:[
+   {h:'🍳 Vocabulario de cocina',items:[['kitchen','cocina'],['knife','cuchillo'],['cutting board','tabla de picar'],['pan','sartén'],['pot','olla'],['oven','horno'],['stove','estufa/fogón'],['ingredient','ingrediente'],['recipe','receta'],['seasoning','condimento'],['raw','crudo'],['well-done','bien cocido'],['grilled','a la parrilla'],['fried','frito'],['baked','horneado'],['steamed','al vapor']]},
+   {h:'🔪 Técnicas y verbos',items:[['to chop','picar'],['to slice','cortar en rebanadas'],['to dice','cortar en cubos'],['to stir','revolver'],['to whisk','batir'],['to season','sazonar'],['to taste','probar'],['to boil','hervir'],['to simmer','cocinar a fuego lento'],['to sauté','saltear'],['to marinate','marinar'],['to garnish','decorar el plato']]},
+   {h:'🗣️ Frases en la cocina profesional',items:[['Behind you!','¡Voy detrás de ti! (aviso en cocina)'],['Order up!','¡Pedido listo!'],['How many covers tonight?','¿Cuántos comensales hay esta noche?'],['We\'re running low on onions.','Se nos están acabando las cebollas.'],['Fire two steaks, medium rare.','Manda dos cortes término medio.'],['Taste it before it goes out.','Pruébalo antes de que salga.'],['Clean as you go.','Limpia mientras trabajas.'],['The mise en place is ready.','El mise en place está listo.']]},
+   {h:'🍽️ Con el cliente y el menú',items:[['Today\'s special is...','El especial de hoy es...'],['Does it contain nuts?','¿Contiene nueces?'],['It\'s gluten-free.','No contiene gluten.'],['How would you like your steak?','¿Qué término quiere su carne?'],['Enjoy your meal!','¡Buen provecho!'],['The dish comes with a side salad.','El plato viene con ensalada.'],['Would you like to see the dessert menu?','¿Le gustaría ver el menú de postres?']]}
+ ]},
  {id:'medicine',name:'Medicina',emoji:'🩺',modules:[
    {h:'🩺 Vocabulario clínico',items:[['patient','paciente'],['symptom','síntoma'],['diagnosis','diagnóstico'],['treatment','tratamiento'],['prescription','receta'],['blood pressure','presión arterial'],['fever','fiebre'],['pain','dolor'],['X-ray','radiografía'],['surgery','cirugía']]},
    {h:'🗣️ Frases con el paciente',items:[['Where does it hurt?','¿Dónde le duele?'],['How long have you felt this way?','¿Desde cuándo se siente así?'],['Take a deep breath.','Respire profundo.'],['I\'m going to examine you.','Voy a examinarlo.'],['Take this medicine twice a day.','Tome este medicamento dos veces al día.'],['You need to rest.','Necesita descansar.']]}
@@ -4616,7 +4786,9 @@ function tickStreak(){
   var days=store.get('activeDays',[]); var set={}; days.forEach(function(x){ set[x]=1; });
   var count=0, cur=new Date();
   while(true){ var k=cur.toISOString().slice(0,10); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
+  var prevCount=(streak&&streak.count)||0;
   streak={count:count,last:t}; store.set('streak',streak);
+  try{ if(count>prevCount&&count>=2){ setTimeout(function(){miloReact('streak','🔥 ¡'+count+' días seguidos! Imparable');},900); } }catch(e){}
   try{schedulePublish();}catch(e){}
 }
 /* ===== META DIARIA: 1 de cada habilidad por día ===== */
@@ -4640,7 +4812,7 @@ function dailyBtn(sk){return dailyDone(sk)?'<p style="color:var(--green);font-we
 function lessonKey(L,s){return L+'.'+s;}
 function isDone(L,s){return !!done[lessonKey(L,s)];}
 function markDone(L,s){
-  if(!isDone(L,s)){done[lessonKey(L,s)]=true;store.set('done',done);tickStreak();addXP(XP_BY[s]||5);confetti();beep('good');toast('✓ ¡Lección completada!');checkAch();}
+  if(!isDone(L,s)){done[lessonKey(L,s)]=true;store.set('done',done);tickStreak();addXP(XP_BY[s]||5);confetti();beep('good');toast('✓ ¡Lección completada!');checkAch();try{setTimeout(function(){miloReact('wink');},350);}catch(e){}}
   renderSub();renderHome();
 }
 var PCT_SECTIONS=['vocab','dialog','idioms','skills','quiz','fill','flash','test']; /* tenses/grammar ya están en Unidades */
@@ -4700,7 +4872,7 @@ function celebrateLevelUp(lvl){
   if(!o){ o=document.createElement('div'); o.id='lvlOv'; o.className='lvl-ov'; document.body.appendChild(o); }
   o.innerHTML='<div class="lvl-card">'
     +'<div class="lvl-burst"></div>'
-    +'<div class="lvl-milo">🐙</div>'
+    +'<div class="lvl-milo" style="display:inline-block;">'+miloSVG(96)+'</div>'
     +'<div class="lvl-star">⭐</div>'
     +'<div class="lvl-t">'+T('luTitle')+'</div>'
     +'<div class="lvl-n">'+T('levelW')+' '+lvl+'</div>'
@@ -5015,8 +5187,30 @@ function dailyGoalHTML(){
   return '<div class="card"><h2>'+T('goalTodayT')+'</h2><p class="note" style="margin:0 0 8px;">'+(done?T('goalDone'):(T('goalHave')+' '+cur+' '+T('goalOf')+' '+g+' '+T('goalXpToday')))+'</p>'
     +'<div style="background:#e8edf7;border-radius:99px;height:14px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2456d6,#34c97e);height:100%;width:'+p+'%;border-radius:99px;transition:width .4s;"></div></div></div>';
 }
+/* ===== CALENDARIO CON ÁNIMO: cada día habla, no hay cuadros vacíos ===== */
+var CAL_QUOTES=[
+ '“Un poco cada día se convierte en mucho.” 🌱','“No tienes que ser perfecta, solo constante.” 💜',
+ '“5 minutos hoy valen más que 1 hora nunca.” ⏱️','“Tu yo del futuro te va a agradecer esto.” ✨',
+ '“Cada palabra nueva es una puerta que se abre.” 🚪','“Los idiomas no se aprenden: se viven.” 🌎',
+ '“Equivocarse en inglés también es hablar inglés.” 💬','“La racha no es presión: es tu historia.” 🔥',
+ '“Hoy es un buen día para sorprenderte.” 🌟','“Paso a paso también se llega lejos.” 👣',
+ '“Estudiar hoy = presumir mañana.” 😎','“Tu cerebro ama esto, aunque no lo diga.” 🧠',
+ '“La constancia es el superpoder silencioso.” 🦸‍♀️','“Nadie empezó sabiendo. Todos empezaron empezando.” 🐙'];
+function calQuote(){
+  var d=new Date(); var doy=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);
+  return CAL_QUOTES[doy%CAL_QUOTES.length];
+}
+function calDayMsg(on,isToday,isFuture,dlabel){
+  try{
+    if(on){ miloReact('good','¡Ese día brillaste, '+((profile&&profile.name)||'crack')+'! ⭐'); }
+    else if(isToday){ miloReact('streak','¡Hoy cuenta! Un ejercicio y este círculo se enciende 🔥'); }
+    else if(isFuture){ miloReact('wink','Te espero el '+dlabel+' 😉 ¡Ya quiero verte!'); }
+    else { miloReact('bad','Ese día descansaste. ¡Hoy lo compensamos! 💪'); }
+  }catch(e){}
+}
 function weekCalHTML(){
   var days=['L','M','X','J','V','S','D'];
+  var dnamesFull=['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
   var act=store.get('activeDays',[]);
   var now=new Date(); var dow=(now.getDay()+6)%7; /* lunes=0 */
   var monday=new Date(now); monday.setDate(now.getDate()-dow);
@@ -5025,14 +5219,22 @@ function weekCalHTML(){
     var d=new Date(monday); d.setDate(monday.getDate()+i);
     var s=d.toISOString().slice(0,10);
     var isToday=(s===todayStr());
+    var isFuture=(i>dow);
     var on=act.indexOf(s)>=0;
-    var bg=on?'#34c97e':(isToday?'#ffd166':'#e8edf7');
-    var fg=on?'#fff':'#5a6b8c';
-    var mark=on?'✓':(isToday?'•':'');
-    cells+='<div style="text-align:center;"><div style="font-size:.72rem;color:#8493ad;margin-bottom:3px;">'+days[i]+'</div>'
-      +'<div style="width:34px;height:34px;border-radius:50%;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto;">'+mark+'</div></div>';
+    var bg=on?'linear-gradient(135deg,#22c55e,#15a34a)':(isToday?'linear-gradient(135deg,#ffd166,#f5a623)':'var(--card2)');
+    var fg=(on||isToday)?'#fff':'#8493ad';
+    var mark=on?'✓':(isToday?'🔥':(isFuture?'🌱':'·'));
+    cells+='<div style="text-align:center;cursor:pointer;" onclick="calDayMsg('+on+','+isToday+','+isFuture+',\''+dnamesFull[i]+'\')">'
+      +'<div style="font-size:.72rem;color:#8493ad;margin-bottom:3px;font-weight:700;">'+days[i]+'</div>'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto;'+(isToday&&!on?'animation:pulseGlow 2s ease-in-out infinite;box-shadow:0 4px 12px rgba(245,166,35,.4);':'')+(on?'box-shadow:0 4px 10px rgba(21,163,74,.3);':'')+'transition:transform .15s var(--spring);">'+mark+'</div></div>';
   }
-  return '<div class="card"><h2>'+T('weekT')+'</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">'+T('streakNow')+' 🔥 '+streak.count+' '+T('dayP')+'. '+T('dontBreak')+'</p></div>';
+  var doneToday=act.indexOf(todayStr())>=0;
+  var cheer=doneToday?('¡Hoy ya sumaste! 🔥 '+streak.count+' '+T('dayP')+' seguidos. Mañana te espero para el día '+(streak.count+1)+'.')
+    :(streak.count>0?('Llevas 🔥 '+streak.count+' '+T('dayP')+'. Un solo ejercicio hoy y la racha sigue viva.')
+    :'Hoy puede ser el día 1 de tu nueva racha. Un ejercicio basta 💪');
+  return '<div class="card"><h2>'+T('weekT')+'</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div>'
+    +'<p class="note" style="margin:10px 0 0;">'+cheer+'</p>'
+    +'<div style="margin-top:10px;background:var(--card2);border-radius:12px;padding:10px 14px;font-size:.86rem;font-weight:600;color:var(--accent-d);text-align:center;">'+calQuote()+'</div></div>';
 }
 /* ===== MILO WRAPPED — estadísticas bonitas estilo Spotify Wrapped ===== */
 function wrappedHTML(){
@@ -5102,14 +5304,22 @@ function monthCalHTML(){
     var ds=new Date(Date.UTC(y,m,day)).toISOString().slice(0,10);
     var on=!!act[ds]; if(on)cnt++;
     var isToday=(ds===todayS);
-    var bg=on?'linear-gradient(135deg,#22c55e,#15a34a)':(isToday?'#ffd166':'#eef2f9');
-    var fg=on?'#fff':'#5a6b8c';
-    cells+='<div style="aspect-ratio:1;border-radius:9px;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;'+(isToday&&!on?'box-shadow:inset 0 0 0 2px #d97706;':'')+'">'+day+'</div>';
+    var isFuture=(ds>todayS);
+    var bg=on?'linear-gradient(135deg,#22c55e,#15a34a)':(isToday?'linear-gradient(135deg,#ffd166,#f5a623)':'var(--card2)');
+    var fg=(on||isToday)?'#fff':'#8493ad';
+    var inner=on?'★':(isToday?day:(isFuture?day:day));
+    cells+='<div onclick="calDayMsg('+on+','+isToday+','+isFuture+',\'día '+day+'\')" style="aspect-ratio:1;border-radius:9px;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;cursor:pointer;'+(isToday&&!on?'box-shadow:0 0 0 2px #d97706;animation:pulseGlow 2s ease-in-out infinite;':'')+(isFuture?'opacity:.55;':'')+'" title="'+(on?'¡Día cumplido!':'')+'">'+inner+'</div>';
   }
+  var dim2=dim, goal=Math.min(dim2,cnt+5);
+  var push=cnt===0?'Este mes está esperando su primera estrella ⭐ ¡Hoy puede ser!'
+    :cnt<5?('¡'+cnt+' '+(cnt===1?'estrella':'estrellas')+' ya! ⭐ Llega a 5 y este mes toma vuelo 🚀')
+    :cnt<15?('¡'+cnt+' días este mes! 💪 ¿Te atreves a llegar a '+goal+'?')
+    :('¡'+cnt+' días! Eres oficialmente imparable 🏆');
   return '<div class="card"><h2>📅 '+mname+' '+y+'</h2>'
     +'<p class="note" style="margin:0 0 8px;">'+T('monthDays1')+' <b>'+cnt+'</b> '+T('monthDays2')+'</p>'
     +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;">'+head+'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">'+cells+'</div></div>';
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">'+cells+'</div>'
+    +'<div style="margin-top:10px;background:linear-gradient(135deg,#fef9c3,#fef3c7);border-radius:12px;padding:10px 14px;font-size:.86rem;font-weight:700;color:#92400e;text-align:center;">'+push+'</div></div>';
 }
 /* ===== PALABRAS OLVIDADAS (las que más fallas) ===== */
 function logForgot(word){
@@ -5175,7 +5385,7 @@ function showCertificate(L){
     +'<div style="position:absolute;top:-40px;left:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.18),transparent 70%);"></div>'
     +'<div style="position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.18),transparent 70%);"></div>'
     /* sello medallón */
-    +'<div style="width:66px;height:66px;margin:0 auto 6px;border-radius:50%;background:linear-gradient(135deg,#f5d97a,#d4af37);display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 20px rgba(212,175,55,.45);border:3px solid #fff;">🐙</div>'
+    +'<div style="width:66px;height:66px;margin:0 auto 6px;border-radius:50%;background:linear-gradient(135deg,#f5d97a,#d4af37);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(212,175,55,.45);border:3px solid #fff;">'+miloSVG(46)+'</div>'
     +'<div style="color:#16357f;font-weight:800;font-size:1.15rem;letter-spacing:3px;font-family:\'Poppins\',sans-serif;">MILO</div>'
     +'<div style="color:#b8912e;font-size:.72rem;letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;">Certificate of Achievement</div>'
     +'<div style="color:#666;font-size:.88rem;">'+T('certGrant')+'</div>'
@@ -5302,28 +5512,84 @@ var MILO_ITEMS=[
   {id:'glasses',emoji:'🕶️',name:{es:'Gafas cool',en:'Cool shades',pt:'Óculos',fr:'Lunettes'},xp:500},
   {id:'crown',emoji:'👑',name:{es:'Corona',en:'Crown',pt:'Coroa',fr:'Couronne'},xp:1000},
   {id:'wizard',emoji:'🎩',name:{es:'Sombrero de copa',en:'Top hat',pt:'Cartola',fr:'Haut-de-forme'},xp:1800},
-  {id:'star',emoji:'⭐',name:{es:'Estrella',en:'Star',pt:'Estrela',fr:'Étoile'},xp:3000}
+  {id:'star',emoji:'⭐',name:{es:'Estrella',en:'Star',pt:'Estrela',fr:'Étoile'},xp:3000},
+  /* — Colección con orgullo e identidad (Premium ✨) — */
+  {id:'pride',emoji:'🏳️‍🌈',name:{es:'Orgullo',en:'Pride',pt:'Orgulho',fr:'Fierté'},xp:0,prem:true},
+  {id:'trans',emoji:'🏳️‍⚧️',name:{es:'Bandera trans',en:'Trans flag',pt:'Bandeira trans',fr:'Drapeau trans'},xp:0,prem:true},
+  {id:'crescent',emoji:'☪️',name:{es:'Media luna',en:'Crescent',pt:'Crescente',fr:'Croissant'},xp:0,prem:true},
+  {id:'cross',emoji:'✝️',name:{es:'Cruz',en:'Cross',pt:'Cruz',fr:'Croix'},xp:0,prem:true},
+  {id:'david',emoji:'✡️',name:{es:'Estrella de David',en:'Star of David',pt:'Estrela de Davi',fr:'Étoile de David'},xp:0,prem:true},
+  {id:'om',emoji:'🕉️',name:{es:'Om',en:'Om',pt:'Om',fr:'Om'},xp:0,prem:true},
+  {id:'diamond',emoji:'💎',name:{es:'Diamante',en:'Diamond',pt:'Diamante',fr:'Diamant'},xp:0,prem:true},
+  {id:'flower',emoji:'🌺',name:{es:'Flor tropical',en:'Tropical flower',pt:'Flor tropical',fr:'Fleur tropicale'},xp:0,prem:true},
+  {id:'bow',emoji:'🎀',name:{es:'Moño elegante',en:'Fancy bow',pt:'Laço chique',fr:'Nœud chic'},xp:0,prem:true},
+  /* — Uniformes de profesión (dibujados: se ven igual en todo dispositivo) — */
+  {id:'coat',svg:true,emoji:'',name:{es:'Bata clínica',en:'Lab coat',pt:'Jaleco',fr:'Blouse'},xp:0,prem:true},
+  {id:'mask',svg:true,emoji:'',name:{es:'Tapabocas',en:'Face mask',pt:'Máscara',fr:'Masque'},xp:0,prem:true},
+  {id:'steto',svg:true,emoji:'',name:{es:'Estetoscopio',en:'Stethoscope',pt:'Estetoscópio',fr:'Stéthoscope'},xp:0,prem:true}
 ];
 function miloItem(id){ for(var i=0;i<MILO_ITEMS.length;i++){ if(MILO_ITEMS[i].id===id) return MILO_ITEMS[i]; } return MILO_ITEMS[0]; }
 function miloHatEmoji(){ var it=miloItem((profile&&profile.miloHat)||''); return it?it.emoji:''; }
+function miloSVG(size,acc){
+  size=size||104; acc=acc||'';
+  /* accesorios dibujados en SVG: idénticos en Android, iPhone y PC */
+  var accSVG='';
+  if(acc==='mask'){ /* tapabocas */
+    accSVG='<path d="M34 56 Q 50 52 66 56 L 64 70 Q 50 76 36 70 Z" fill="#dbeafe" stroke="#93b4e8" stroke-width="1.4"/>'
+      +'<path d="M36 60 Q 50 63 64 60 M36 64 Q 50 67 64 64" fill="none" stroke="#b3ccf0" stroke-width="1.2"/>'
+      +'<path d="M34 57 Q 24 52 21 44 M66 57 Q 76 52 79 44" fill="none" stroke="#93b4e8" stroke-width="1.6"/>';
+  } else if(acc==='coat'){ /* bata clínica */
+    accSVG='<path d="M22 62 Q 50 76 78 62 L 78 84 Q 50 96 22 84 Z" fill="#ffffff" stroke="#d7e0ee" stroke-width="1.5"/>'
+      +'<path d="M50 70 L 50 90" stroke="#d7e0ee" stroke-width="1.6"/>'
+      +'<path d="M40 64 L 46 72 L 50 66 L 54 72 L 60 64" fill="none" stroke="#c3d0e4" stroke-width="1.6"/>'
+      +'<circle cx="46" cy="78" r="1.4" fill="#9fb2cc"/><circle cx="46" cy="84" r="1.4" fill="#9fb2cc"/>'
+      +'<rect x="60" y="74" width="9" height="8" rx="1.5" fill="#eef3fb" stroke="#c3d0e4" stroke-width="1"/>';
+  } else if(acc==='steto'){ /* estetoscopio */
+    accSVG='<path d="M38 60 Q 36 76 46 80 M62 60 Q 64 76 54 80" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round"/>'
+      +'<circle cx="50" cy="82" r="5" fill="#94a3b8" stroke="#475569" stroke-width="1.6"/><circle cx="50" cy="82" r="2" fill="#e2e8f0"/>';
+  }
+  return '<svg class="milo-svg" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+    +'<defs><radialGradient id="mgBody" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#b18aec"/><stop offset="60%" stop-color="#9266cc"/><stop offset="100%" stop-color="#7a4fb8"/></radialGradient></defs>'
+    +'<g class="m-tents">'
+    +'<path class="m-tent" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#7a4fb8"/>'
+    +'<path class="m-tent" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#8659c2"/>'
+    +'<path class="m-tent" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#8659c2"/>'
+    +'<path class="m-tent" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#7a4fb8"/>'
+    +'</g>'
+    +'<g class="m-body">'
+    +'<ellipse cx="50" cy="46" rx="34" ry="32" fill="url(#mgBody)"/>'
+    +'<ellipse cx="38" cy="44" rx="7.5" ry="9" fill="#fff"/><ellipse cx="62" cy="44" rx="7.5" ry="9" fill="#fff"/>'
+    +'<circle class="m-pupil" cx="39.5" cy="46" r="3.6" fill="#2b2340"/><circle class="m-pupil" cx="60.5" cy="46" r="3.6" fill="#2b2340"/>'
+    +'<circle cx="41" cy="44.5" r="1.2" fill="#fff"/><circle cx="62" cy="44.5" r="1.2" fill="#fff"/>'
+    +'<ellipse class="m-lid" cx="38" cy="44" rx="8" ry="9.5" fill="#9266cc"/><ellipse class="m-lid" cx="62" cy="44" rx="8" ry="9.5" fill="#9266cc"/>'
+    +'<circle cx="30" cy="56" r="4" fill="#e6a4d0" opacity=".75"/><circle cx="70" cy="56" r="4" fill="#e6a4d0" opacity=".75"/>'
+    +'<path class="m-mouth" d="M 42 62 Q 50 70 58 62" fill="none" stroke="#2b2340" stroke-width="2.6" stroke-linecap="round"/>'
+    +accSVG
+    +'</g></svg>';
+}
 function buildIllus(){
-  var hat=miloHatEmoji();
+  var it=miloItem((profile&&profile.miloHat)||'');
+  var hat=(it&&!it.svg)?it.emoji:'';
+  var acc=(it&&it.svg)?it.id:'';
   return '<div class="illus" style="flex:0 0 112px;text-align:center;position:relative;">'
-    +(hat?'<span class="milo-hat" style="position:absolute;top:-4px;left:50%;transform:translateX(-52%);font-size:42px;z-index:3;line-height:1;">'+hat+'</span>':'')
-    +'<iconify-icon icon="twemoji:octopus" style="font-size:104px;line-height:1;"></iconify-icon><span style="display:none;font-size:96px;">🐙</span></div>';
+    +(hat?'<span class="milo-hat" style="position:absolute;top:-10px;left:50%;transform:translateX(-52%);font-size:38px;z-index:3;line-height:1;">'+hat+'</span>':'')
+    +miloSVG(104,acc)+'</div>';
 }
 var ILLUS=buildIllus();
-function setMiloHat(id){ var it=miloItem(id); if(xp<it.xp){ toast('🔒 Necesitas '+it.xp+' XP para desbloquear esto'); return; } profile.miloHat=id; store.set('profile',profile); ILLUS=buildIllus(); try{beep('good');confetti();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} }
+function setMiloHat(id){ var it=miloItem(id); if(it.prem&&!isPremium()&&!FREE_MODE){ toast('✨ Accesorio Premium — mejora tu plan para usarlo'); return; } if(xp<it.xp){ toast('🔒 Necesitas '+it.xp+' XP para desbloquear esto'); return; } profile.miloHat=id; store.set('profile',profile); ILLUS=buildIllus(); try{beep('good');confetti();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} }
 function miloAvatarHTML(){
   var cur=(profile&&profile.miloHat)||'';
+  var premOk=isPremium()||FREE_MODE;
   var grid=MILO_ITEMS.map(function(it){
-    var on=xp>=it.xp, sel=(it.id===cur);
+    var on=(xp>=it.xp)&&(!it.prem||premOk), sel=(it.id===cur);
     var label=it.name[nlang()]||it.name.es;
-    var face='<div style="font-size:2rem;position:relative;height:44px;">'+(it.emoji?'<span style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:1.1rem;">'+it.emoji+'</span>':'')+'🐙</div>';
-    return '<div onclick="'+(on?'setMiloHat(\''+it.id+'\')':'toast(\'🔒 '+it.xp+' XP\')')+'" style="cursor:pointer;text-align:center;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';border-radius:16px;padding:10px 6px;background:'+(sel?'var(--card2)':'var(--card)')+';'+(on?'':'opacity:.5;filter:grayscale(.6);')+'transition:transform .15s var(--spring);">'
+    var face='<div style="position:relative;height:44px;">'+(it.emoji?'<span style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:1.05rem;z-index:2;">'+it.emoji+'</span>':'')+miloSVG(40,it.svg?it.id:'')+'</div>';
+    var lockTxt=it.prem&&!premOk?'✨ Premium':('🔒 '+it.xp+' XP');
+    return '<div onclick="'+(on?'setMiloHat(\''+it.id+'\')':(it.prem&&!premOk?'toast(\'✨ Accesorio Premium — mejora tu plan\')':'toast(\'🔒 '+it.xp+' XP\')'))+'" style="cursor:pointer;text-align:center;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';border-radius:16px;padding:10px 6px;background:'+(sel?'var(--card2)':'var(--card)')+';'+(on?'':'opacity:.55;filter:grayscale(.5);')+'transition:transform .15s var(--spring);position:relative;">'
+      +(it.prem?'<span style="position:absolute;top:4px;right:6px;font-size:.62rem;font-weight:800;color:#b8860b;">✨</span>':'')
       +face
       +'<div style="font-size:.72rem;font-weight:700;margin-top:2px;">'+label+'</div>'
-      +'<div class="note" style="margin:0;font-size:.66rem;">'+(on?(sel?'✓':' '):('🔒 '+it.xp+' XP'))+'</div></div>';
+      +'<div class="note" style="margin:0;font-size:.66rem;">'+(on?(sel?'✓':' '):lockTxt)+'</div></div>';
   }).join('');
   return '<div class="pf-list" style="padding:14px;"><div class="pf-title" style="padding:0 0 8px;">'+T('avatarT')+'</div>'
     +'<p class="note" style="margin:0 0 10px;">'+T('avatarLead')+'</p>'
@@ -5490,6 +5756,14 @@ function renderHome(){
   h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">'+T('cont')+'</button>';
   /* acción secundaria: reto diario */
   h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
+  /* TOEFL siempre a la vista (cuando aprendes inglés) */
+  if((profile.lang||'en')==='en'){
+    h+='<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;" onclick="openTOEFL()">'
+      +'<div style="font-size:1.8rem;">🎓</div>'
+      +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Preparación TOEFL iBT</div>'
+      +'<div style="font-size:.8rem;color:#c7d2fe;">Formato oficial ETS · estrategias · práctica con IA</div></div>'
+      +'<div style="font-size:1.2rem;color:#c7d2fe;">›</div></div>';
+  }
   /* repaso solo si hay pendientes */
   if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
   /* Modo Simple: por defecto ON → solo héroe + acción; el resto se despliega */
@@ -5562,6 +5836,39 @@ function onPhotoPick(input){
   rd.readAsDataURL(f);
 }
 function infoRow(label,val){ return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #eef1f8;"><span class="note" style="margin:0;">'+label+'</span><b style="text-align:right;">'+(val||'—')+'</b></div>'; }
+/* ===== MILO CARD: tarjeta de perfil digna de compartir ===== */
+function miloCardHTML(){
+  var nm=(profile&&profile.name)||'Estudiante';
+  var ul=(typeof userLevel==='function')?userLevel():{lvl:1};
+  var TLF={en:['🇺🇸','Inglés'],es:['🇪🇸','Español'],pt:['🇧🇷','Portugués'],fr:['🇫🇷','Francés']};
+  var lf=TLF[profile.lang||'en']||TLF.en;
+  var hat=miloHatEmoji();
+  return '<div class="mcard" id="miloCard">'
+    +'<div class="mc-top">'
+      +'<div class="mc-milo">'+(hat?'<span style="position:absolute;top:-12px;left:50%;transform:translateX(-52%);font-size:26px;z-index:3;line-height:1;">'+hat+'</span>':'')+miloSVG(78,(function(){var it=miloItem((profile&&profile.miloHat)||'');return (it&&it.svg)?it.id:'';})())+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="mc-name">'+nm+'</div>'
+        +(profile.nick?'<div class="mc-nick">@'+profile.nick+'</div>':'')
+        +'<span class="mc-lang">'+lf[0]+' Aprendiendo '+lf[1]+' · '+curLevel+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="mc-stats">'
+      +'<div class="mc-st"><div class="mc-n">🔥 '+streak.count+'</div><div class="mc-l">'+(streak.count===1?'día':'días')+'</div></div>'
+      +'<div class="mc-st"><div class="mc-n">⚡ '+xp+'</div><div class="mc-l">XP</div></div>'
+      +'<div class="mc-st"><div class="mc-n">⭐ '+ul.lvl+'</div><div class="mc-l">nivel</div></div>'
+    +'</div>'
+    +'<div class="mc-foot"><span class="mc-brand">🐙 aprendeconmilo.com</span>'
+    +'<button class="mc-share" onclick="shareMiloCard()">📤 Compartir</button></div>'
+    +'</div>';
+}
+function shareMiloCard(){
+  var nm=(profile&&profile.name)||'';
+  var txt='🐙 ¡Estoy aprendiendo con Milo! '+(nm?nm+' · ':'')+'Nivel '+curLevel+' · 🔥 '+streak.count+' días seguidos · ⚡ '+xp+' XP. Aprende idiomas gratis en https://aprendeconmilo.com';
+  try{
+    if(navigator.share){ navigator.share({title:'Mi progreso con Milo 🐙',text:txt,url:'https://aprendeconmilo.com'}); return; }
+  }catch(e){}
+  try{ navigator.clipboard.writeText(txt); toast('📋 ¡Copiado! Pégalo donde quieras'); }catch(e){ toast('Toma una captura de tu tarjeta 📸'); }
+}
 function renderPerfil(){
   var el=document.getElementById('perfilContent'); if(!el)return;
   var nm=(profile&&profile.name)||'Estudiante';
@@ -5584,6 +5891,7 @@ function renderPerfil(){
       +'<span class="statpill">⚡ '+xp+' XP</span></div>'
     +'<div style="margin-top:12px;"><button class="btn" style="padding:7px 16px;background:rgba(255,255,255,.9);border:none;color:#2456d6;" onclick="document.getElementById(\'photoIn\').click()">📷 '+T('pfPhoto')+'</button></div>'
     +'</div>';
+  try{ h+=miloCardHTML(); }catch(e){}
   try{ h+=miloAvatarHTML(); }catch(e){}
   /* Cuenta / info + editar */
   h+='<div class="pf-list"><div class="pf-title">'+T('pfInfo')+'</div>'
@@ -5838,11 +6146,87 @@ try{ checkWompiReturn(); }catch(e){}
 try{ if(!store.get('fbAsked',false)){ setTimeout(askFeedback, 600000); } }catch(e){}
 /* Precargar voces del navegador (para el respaldo de audio) */
 if('speechSynthesis' in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}catch(e){}}
-/* Limpiar service worker y caché viejos para que SIEMPRE cargue la última versión */
+/* ===== MODO SIN CONEXIÓN (PWA) =====
+   El service worker es "network-first": con internet siempre trae lo último;
+   sin internet sirve la copia guardada. El progreso vive en localStorage
+   (funciona offline) y se sube a la nube al reconectar. */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});
+  try{ navigator.serviceWorker.register('./sw.js').catch(function(){}); }catch(e){}
 }
-if('caches' in window){ caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){}); }
+window.addEventListener('online',function(){
+  try{ toast('☁️ De vuelta en línea — sincronizando tu progreso…'); }catch(e){}
+  try{ scheduleCloudSave(); }catch(e){}
+  try{ schedulePublish(); }catch(e){}
+});
+window.addEventListener('offline',function(){
+  try{ toast('📴 Sin conexión — puedes seguir estudiando, tu progreso se guarda aquí'); }catch(e){}
+});
+
+/* ============================================================
+   MILO VIVO 2.0 — reacciones, sueño, haptics y tab bar nativa
+   (solo presentación: no altera datos ni lógica de estudio)
+   ============================================================ */
+/* 1) Tab bar nativa: separa icono y etiqueta en cada botón del nav */
+try{
+  document.querySelectorAll('#mainNav button').forEach(function(b){
+    if(b.querySelector('.nv-ic'))return;
+    var t=b.textContent.trim(), sp=t.indexOf(' ');
+    if(sp>0){ b.innerHTML='<span class="nv-ic">'+t.slice(0,sp)+'</span><span class="nv-lb">'+t.slice(sp+1)+'</span>'; }
+  });
+}catch(e){}
+/* 2) Haptics sutiles (si el dispositivo lo permite) */
+function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+try{ document.getElementById('mainNav').addEventListener('click',function(ev){ if(ev.target.closest('button')) buzz(8); }); }catch(e){}
+/* 3) Reacciones de Milo en toda la app: se engancha a beep(good/bad/win) */
+var MR_GOOD=['¡Genial! 🎉','¡Eso es! ✨','¡Perfecto!','¡Sigue así! 💪','¡Wow! 🌟','Excellent!'];
+var MR_BAD=['¡Casi! Tú puedes','Los errores enseñan 💜','¡Otra vez! Vas bien','No pasa nada 🙌'];
+var MR_WIN=['¡INCREÍBLE! 🏆 👏👏👏','¡Lo lograste! 🎊 ¡Aplausos!','¡Nivel superado! 🚀'];
+var MR_WINK=['¡Lección lista! 😉','¡Bien hecho! 😉','¡Una más para ti! 😉'];
+var mrTimer=null;
+function miloReact(type,msg){
+  try{
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var el=document.getElementById('miloReact');
+    if(!el){ el=document.createElement('div'); el.id='miloReact'; el.className='milo-react';
+      el.innerHTML='<div class="mr-milo" style="position:relative;">'+miloSVG(56)+'</div><div class="mr-b"></div>';
+      document.body.appendChild(el); }
+    var arr=type==='good'?MR_GOOD:type==='win'?MR_WIN:type==='wink'?MR_WINK:MR_BAD;
+    el.querySelector('.mr-b').textContent=msg||arr[Math.floor(Math.random()*arr.length)];
+    var mw=el.querySelector('.mr-milo');
+    mw.classList.remove('milo-happy','milo-sad','milo-wink','milo-streak');
+    void mw.offsetWidth;
+    mw.classList.add(type==='bad'?'milo-sad':type==='wink'?'milo-wink':type==='streak'?'milo-streak':'milo-happy');
+    el.classList.add('show');
+    buzz(type==='good'?12:type==='win'?[14,40,14]:type==='bad'?[8,30,8]:12);
+    clearTimeout(mrTimer); mrTimer=setTimeout(function(){ el.classList.remove('show'); }, (type==='win'||type==='streak')?2400:1500);
+  }catch(e){}
+}
+/* enganche: cada beep dispara la reacción (good/bad/win) */
+try{
+  var _origBeep=beep;
+  beep=function(type){ _origBeep(type); if(type==='good'||type==='bad'||type==='win') miloReact(type); };
+}catch(e){}
+/* 4) Milo se duerme si te ausentas (y despierta al tocar) */
+var miloLastActive=Date.now();
+['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){
+  window.addEventListener(ev,function(){
+    miloLastActive=Date.now();
+    document.querySelectorAll('.illus').forEach(function(i){
+      i.classList.remove('milo-sleep');
+      var z=i.querySelector('.milo-zzz'); if(z)z.remove();
+    });
+  },{passive:true});
+});
+setInterval(function(){
+  if(Date.now()-miloLastActive>90000){
+    document.querySelectorAll('.illus').forEach(function(i){
+      if(!i.classList.contains('milo-sleep')){
+        i.classList.add('milo-sleep');
+        var z=document.createElement('span'); z.className='milo-zzz'; z.textContent='💤'; i.appendChild(z);
+      }
+    });
+  }
+},15000);
 </script>
 </body>
 </html>
