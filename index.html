@@ -4945,9 +4945,13 @@ async function publishStats(){
   if(!supa||!sbUser)return;
   try{
     var ws=weekStartStr(); var wx=(profile&&profile.weekStart===ws)?(profile.weekXp||0):0;
-    var row={user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', nick:(profile&&profile.nick)||null, xp:xp, streak:(streak&&streak.count)||0, ulevel:userLevel().lvl, week_xp:wx, week_start:ws, updated_at:new Date()};
+    var row={user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', nick:(profile&&profile.nick)||null, xp:xp, streak:(streak&&streak.count)||0, ulevel:userLevel().lvl, week_xp:wx, week_start:ws, updated_at:new Date(), hat:(profile&&profile.miloHat)||''};
     var up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select();
-    if(!up.error && (!up.data||up.data.length===0)){ await supa.from('leaderboard').insert(row); }
+    if(up.error){ /* la tabla aún no tiene la columna "hat": publica sin ella */ delete row.hat; up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select(); }
+    if(!up.error && (!up.data||up.data.length===0)){
+      var ins=await supa.from('leaderboard').insert(row);
+      if(ins&&ins.error&&row.hat!==undefined){ delete row.hat; await supa.from('leaderboard').insert(row); }
+    }
   }catch(e){}
 }
 /* ===== PLAN PERSONALIZADO DE MILO ===== */
@@ -5178,7 +5182,17 @@ async function renderLeaderboard(){
     }
     var list=rows.map(function(p,i){ var me=(sbUser&&p.user_id===sbUser.id); var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
       var nudgeBtn=(!me && lbTab==='friends')?'<button class="btn" title="Enviar ánimo" style="padding:4px 9px;font-size:.95rem;" onclick="openNudge(\''+p.user_id+'\',\''+String(p.name||'amigo').replace(/[\\\'"<>]/g,"")+'\')">👋</button>':'';
-      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div><div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:60px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div>'+nudgeBtn+'</div>'; }).join('');
+      /* el Milo personalizado de cada estudiante (su accesorio elegido) */
+      var ava='';
+      try{
+        var hid=(me?((profile&&profile.miloHat)||''):(p.hat||''));
+        var it=miloItem(hid);
+        var acc=(it&&it.svg)?it.id:'', hatEm=(it&&!it.svg)?it.emoji:'';
+        ava='<div style="position:relative;width:34px;height:36px;flex:0 0 auto;">'
+          +(hatEm?'<span style="position:absolute;top:-6px;left:50%;transform:translateX(-52%);font-size:13px;z-index:2;line-height:1;">'+hatEm+'</span>':'')
+          +miloSVG(32,acc)+'</div>';
+      }catch(e){ ava=''; }
+      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div>'+ava+'<div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:60px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div>'+nudgeBtn+'</div>'; }).join('');
     host.innerHTML=tabs+(lbTab==='friends'?friendsPanel():'')+(list||emptyState('🐙🏆',T('emRankT'),T('emRankD'),'',''));
     if(lbTab==='friends') setTimeout(drawFriendQR,50);
   }catch(e){ host.innerHTML=tabs+'<p class="note">No se pudo cargar (¿ya creaste la tabla <b>leaderboard</b> en Supabase?).</p>'; }
@@ -5630,7 +5644,7 @@ function buildIllus(){
     +miloSVG(104,acc)+'</div>';
 }
 var ILLUS=buildIllus();
-function setMiloHat(id){ var it=miloItem(id); if(it.prem&&!isPremium()&&!FREE_MODE){ toast('✨ Accesorio Premium — mejora tu plan para usarlo'); return; } if(xp<it.xp){ toast('🔒 Necesitas '+it.xp+' XP para desbloquear esto'); return; } profile.miloHat=id; store.set('profile',profile); ILLUS=buildIllus(); try{beep('good');confetti();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} }
+function setMiloHat(id){ var it=miloItem(id); if(it.prem&&!isPremium()&&!FREE_MODE){ toast('✨ Accesorio Premium — mejora tu plan para usarlo'); return; } if(xp<it.xp){ toast('🔒 Necesitas '+it.xp+' XP para desbloquear esto'); return; } profile.miloHat=id; store.set('profile',profile); ILLUS=buildIllus(); try{beep('good');confetti();}catch(e){} try{schedulePublish();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} }
 function miloAvatarHTML(){
   var cur=(profile&&profile.miloHat)||'';
   var premOk=isPremium()||FREE_MODE;
