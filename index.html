@@ -6049,15 +6049,19 @@ function renderTOEFL(){
   h+=toeflSec('🎧','Listening','Conferencias y conversaciones · notas · ~36 min',
       'Escuchas audios académicos una sola vez y respondes. Puedes tomar notas.',
       ['Toma notas de la ESTRUCTURA: tema → puntos → ejemplos.','Atiende al tono y a las palabras de transición (however, therefore…).','Practica con conferencias reales (TED, podcasts académicos).'],
-      '🎧 Ir a Listening','document.getElementById(\'toeflOv\').style.display=\'none\';curSub=\'skills\';renderSub();renderContent();goTab(\'levels\');');
+      '🎧 Practicar Listening','startTOEFLListening()');
   h+=toeflSec('🎙️','Speaking','4 tareas (1 independiente + 3 integradas) · ~16 min',
       'Grabas respuestas habladas: das tu opinión y resumes lo que leíste/escuchaste.',
       ['Estructura: opinión + 2 razones + ejemplo. Cronométrate (45–60 s).','Habla claro y con ritmo; mejor fluidez que perfección.','Usa Speak Now de Milo para practicar en voz alta.'],
-      '🎤 Practicar Speaking','document.getElementById(\'toeflOv\').style.display=\'none\';goTab(\'speak\');');
+      '🎤 Practicar Speaking (cronometrado)','startTOEFLSpeaking()');
   h+=toeflSec('✍️','Writing','2 tareas (integrada + academic discussion) · ~29 min',
       'Escribes ensayos: uno combinando lectura + audio, y otro dando tu opinión argumentada.',
       ['Plantea tesis clara → 2–3 párrafos con razones → conclusión.','Usa conectores (First, Moreover, In contrast, Therefore).','Escribe tu respuesta abajo y Milo (IA) te da feedback.'],
-      '✍️ Practicar Writing con IA','startTOEFLWriting()');
+      '✍️ Practicar Writing','startTOEFLWriting()');
+  h+=toeflSec('🧠','Academic Vocabulary','Las palabras que aparecen en TODOS los exámenes académicos',
+      'El vocabulario académico (analyze, evidence, hypothesis…) es el 10% de cualquier texto TOEFL. Dominarlo sube tu Reading y tu Writing a la vez.',
+      ['Aprende las palabras en familias: analyze → analysis → analytical.','Estas palabras se repiten en ciencia, historia y arte: son comodines.','Úsalas en tu Writing: suben tu puntaje de vocabulario.'],
+      '🧠 Practicar vocabulario académico','startTOEFLVocab()');
   /* Bibliografía oficial (enlaces a la fuente oficial, sin reproducir su contenido) */
   h+='<div class="skillbox"><h4>📚 Recursos oficiales (ETS)</h4>'
     +'<p class="note" style="margin:0 0 6px;">La fuente oficial es <b>ETS</b>, creador del examen. Milo te prepara con práctica original basada en el formato; para material oficial acude a:</p>'
@@ -6069,32 +6073,192 @@ function renderTOEFL(){
     +'<p class="note" style="margin:8px 0 0;">Nota: Milo no reproduce el contenido con derechos de autor de ETS; ofrece práctica original con el mismo formato y estrategias.</p></div>';
   b.innerHTML=h;
 }
-function startTOEFLReading(){
-  var b=document.getElementById('toeflBody'); if(b)b.innerHTML='<p class="note">🐙 Milo está creando un pasaje estilo TOEFL...</p>';
-  if(!CHAT_ENDPOINT){ if(b)b.innerHTML='<p class="note">Activa la IA de Milo para generar prácticas. Mientras tanto, usa los recursos oficiales de ETS.</p><button class="btn" onclick="renderTOEFL()">← Volver</button>'; return; }
-  var p='Crea una práctica de READING estilo TOEFL iBT (contenido ORIGINAL, no copiado). Da: 1) un pasaje académico corto (120-150 palabras) en inglés sobre un tema de ciencia o historia; 2) tres preguntas de opción múltiple (idea principal, detalle, inferencia) con 4 opciones cada una; 3) al final las respuestas correctas. Formato claro en español para las instrucciones y en inglés el pasaje y preguntas.';
-  fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0.6,messages:[{role:'user',content:p}]})})
-    .then(function(r){return r.json();}).then(function(j){ var t=(j&&(j.reply||j.content))||''; if(b)b.innerHTML='<div class="skillbox" style="white-space:pre-wrap;line-height:1.55;">'+String(t).replace(/</g,'&lt;')+'</div><div style="text-align:center;"><button class="btn primary" onclick="startTOEFLReading()">🔄 Otro pasaje</button> <button class="btn" onclick="renderTOEFL()">← Volver</button></div>'; })
-    .catch(function(){ if(b)b.innerHTML='<p class="note">No se pudo generar. Intenta de nuevo.</p><button class="btn" onclick="renderTOEFL()">← Volver</button>'; });
+/* ============================================================
+   PRÁCTICA TOEFL REAL — funciona 100% sin IA (contenido original de Milo)
+   ============================================================ */
+var T_READS=[
+ {t:'The Secret Language of Bees',p:"Honeybees communicate the location of food through a behavior known as the waggle dance. When a bee finds flowers rich in nectar, it returns to the hive and moves in a figure-eight pattern. The angle of the dance tells other bees the direction of the food in relation to the sun, while the duration of the waggle indicates the distance. Remarkably, bees adjust their dance as the sun moves across the sky, proving they possess an internal clock. Scientists consider this one of the most sophisticated communication systems in the animal kingdom, because it transmits abstract information — direction and distance — rather than simple signals.",
+  qs:[
+   {q:'What is the main idea of the passage?',o:['Bees are the most intelligent insects.','Bees communicate food locations through a dance.','Bees depend on the sun to find flowers.','Bees have an internal clock.'],a:1},
+   {q:'What does the DURATION of the waggle indicate?',o:['The direction of the food','The type of flower','The distance to the food','The time of day'],a:2},
+   {q:'What can be inferred about the waggle dance?',o:['It only works at night.','It conveys abstract information, not just signals.','It is learned from humans.','It is unique to one species of flower.'],a:1}]},
+ {t:'Urban Heat Islands',p:"Cities are often several degrees warmer than the rural areas that surround them, a phenomenon called the urban heat island effect. Concrete and asphalt absorb heat during the day and release it slowly at night, while buildings block cooling winds. Vehicles, air conditioners, and industry add even more warmth. This effect increases energy consumption, raises pollution levels, and can endanger the health of elderly residents during heat waves. To fight it, many cities are planting trees, installing reflective 'cool roofs', and creating green corridors. Even small parks can lower the temperature of a neighborhood noticeably.",
+  qs:[
+   {q:'What is the urban heat island effect?',o:['Cities being warmer than surrounding rural areas','Islands becoming cities','Heat waves occurring only on islands','Rural areas absorbing city heat'],a:0},
+   {q:'Which of the following is NOT mentioned as a cause?',o:['Concrete and asphalt','Vehicles and air conditioners','Ocean currents','Buildings blocking wind'],a:2},
+   {q:'What solution does the passage mention?',o:['Building taller towers','Planting trees and cool roofs','Banning all cars','Moving cities to the coast'],a:1}]},
+ {t:'The Printing Revolution',p:"Before the fifteenth century, books in Europe were copied by hand, making them rare and extremely expensive. The introduction of the movable-type printing press around 1440 changed society profoundly. Books could suddenly be produced quickly and cheaply, which allowed ideas to spread faster than ever before. Literacy rates began to climb as reading material became affordable to ordinary people. Scholars could now compare identical copies of the same text, which accelerated scientific progress. Many historians argue that this single invention laid the foundation for the modern information age.",
+  qs:[
+   {q:'What is the passage mainly about?',o:['The history of European libraries','How the printing press transformed society','Why books were expensive','The biography of an inventor'],a:1},
+   {q:'According to the passage, what happened to literacy?',o:['It declined','It stayed the same','It increased as books became affordable','It was banned'],a:2},
+   {q:'Why did printing accelerate scientific progress?',o:['Scientists could compare identical copies of texts','Printers were scientists','Books became heavier','Universities closed'],a:0}]}
+];
+var T_LISTENS=[
+ {t:'Mini-lecture: Sleep and Memory',p:"Today I want to talk about why sleep matters for learning. When you study something new, your brain stores it temporarily, like a note written in pencil. During deep sleep, the brain replays the day's information and transfers it to long-term memory — tracing over that pencil with ink. In one experiment, students who slept after studying remembered about forty percent more than students who stayed awake. So if you have an exam, staying up all night is actually the worst strategy. Sleep is not lost study time; sleep is when the real learning happens.",
+  qs:[
+   {q:'What is the lecture mainly about?',o:['How to take notes','The role of sleep in memory','Why exams are stressful','How to study all night'],a:1},
+   {q:'What happened to students who slept after studying?',o:['They forgot everything','They remembered about 40% more','They failed the exam','They studied less'],a:1},
+   {q:'What does the professor imply about all-nighters?',o:['They are the best strategy','They are necessary','They are the worst strategy before an exam','They improve memory'],a:2}]},
+ {t:'Conversation: At the University Library',p:"Student: Hi, I'm looking for a quiet place to prepare a group presentation. Librarian: Our study rooms can be reserved online, but they fill up fast during finals week. Student: Oh, I didn't know reservations were required. Librarian: They're not required for the open tables, but for the private rooms, yes. I'd suggest booking at least two days ahead. Also, the rooms on the fourth floor have projectors, which are great for presentations. Student: That's exactly what we need. Thanks so much!",
+  qs:[
+   {q:'Why does the student talk to the librarian?',o:['To return a book','To find a place for a group presentation','To complain about noise','To apply for a job'],a:1},
+   {q:'What does the librarian suggest?',o:['Booking a room two days ahead','Studying at home','Coming during finals week','Avoiding the fourth floor'],a:0},
+   {q:'Why is the fourth floor useful for the student?',o:['It is silent','The rooms have projectors','It has more books','The librarian works there'],a:1}]}
+];
+var T_VOCAB=[
+ ['analyze','analizar (examinar en detalle)',['ignorar','analizar','copiar','vender']],
+ ['evidence','evidencia / pruebas',['opinión','duda','evidencia','error']],
+ ['hypothesis','hipótesis (idea por comprobar)',['conclusión final','hipótesis','resumen','pregunta']],
+ ['significant','significativo / importante',['pequeño','significativo','dudoso','rápido']],
+ ['approach','enfoque / método',['problema','enfoque','resultado','excusa']],
+ ['establish','establecer / demostrar',['destruir','establecer','olvidar','esconder']],
+ ['factor','factor (elemento que influye)',['resultado','factor','obstáculo','final']],
+ ['furthermore','además (conector formal)',['sin embargo','además','por el contrario','nunca']],
+ ['decline','disminuir / disminución',['aumentar','disminuir','mantener','celebrar']],
+ ['assess','evaluar / valorar',['adivinar','evaluar','copiar','borrar']],
+ ['consequently','en consecuencia',['al azar','en consecuencia','al principio','quizás']],
+ ['relevant','relevante / pertinente',['aburrido','relevante','antiguo','falso']]
+];
+var T_WPROMPTS=[
+ 'Do you agree or disagree: Technology has made people less social. Use reasons and examples.',
+ 'Some people prefer to work in teams; others prefer to work alone. Which do you prefer and why?',
+ 'Do you agree or disagree: It is better to make decisions quickly than to wait. Support your answer.',
+ 'Should universities require students to take classes outside their major? Why or why not?',
+ 'Is it more important to have a job you love or a job that pays well? Explain your position.'
+];
+function tStat(sec,c,t){ try{ var s=store.get('toeflStats',{}); s[sec]=s[sec]||{c:0,t:0,n:0}; s[sec].c+=c; s[sec].t+=t; s[sec].n++; store.set('toeflStats',s); }catch(e){} }
+var tPr=null;
+function tQuizStart(kind,idx){
+  var pool=(kind==='reading')?T_READS:T_LISTENS;
+  var n=store.get('tIdx_'+kind,0); var item=pool[(idx!=null?idx:n)%pool.length]; if(idx==null) store.set('tIdx_'+kind,n+1);
+  tPr={kind:kind,item:item,i:0,score:0,plays:0};
+  tQuizRender();
+}
+function tQuizRender(){
+  var b=document.getElementById('toeflBody'); if(!b||!tPr)return;
+  var it=tPr.item, h='';
+  if(tPr.kind==='reading'){
+    h+='<div class="skillbox"><h4>📖 '+it.t+'</h4><div class="passage" style="line-height:1.6;">'+it.p+'</div></div>';
+  } else {
+    h+='<div class="skillbox"><h4>🎧 '+it.t+'</h4>'
+      +'<p class="note" style="margin:0 0 8px;">Como en el examen real: escucha (máx. 2 veces), toma notas y responde. El texto NO se muestra.</p>'
+      +'<div style="text-align:center;"><button class="btn primary" id="tPlayBtn" onclick="tPlayAudio()">🔊 Escuchar ('+(2-tPr.plays)+' disponibles)</button></div></div>';
+  }
+  if(tPr.i<it.qs.length){
+    var q=it.qs[tPr.i];
+    h+='<div class="skillbox"><div class="q">Pregunta '+(tPr.i+1)+' de '+it.qs.length+': '+q.q+'</div><div class="opts">'
+      +q.o.map(function(o,i){return '<button class="opt" onclick="tAns(this,'+i+')">'+o+'</button>';}).join('')
+      +'</div><div class="feedback" id="tFb"></div></div>';
+  } else {
+    var pct=Math.round(tPr.score/it.qs.length*100);
+    tStat(tPr.kind,tPr.score,it.qs.length);
+    try{ addXP(tPr.score*5); if(pct>=67)beep('win'); }catch(e){}
+    h+='<div class="skillbox" style="text-align:center;"><div class="scorebig">'+tPr.score+' / '+it.qs.length+'</div>'
+      +'<p>'+(pct>=67?'💪 Nivel TOEFL: ¡vas muy bien!':'📈 Normal al empezar: el formato se domina practicando.')+' +'+(tPr.score*5)+' XP</p>'
+      +'<button class="btn primary" onclick="tQuizStart(\''+tPr.kind+'\')">🔄 Otro '+(tPr.kind==='reading'?'pasaje':'audio')+'</button> '
+      +'<button class="btn" onclick="renderTOEFL()">← Volver al centro TOEFL</button></div>';
+  }
+  h+='<div style="text-align:center;margin-top:6px;"><button class="btn ghost" onclick="renderTOEFL()">← Volver</button></div>';
+  b.innerHTML=h;
+}
+function tPlayAudio(){
+  if(!tPr||tPr.plays>=2){ toast('En el examen real solo se escucha una vez 😉'); return; }
+  tPr.plays++;
+  try{ speak(tPr.item.p); }catch(e){}
+  var btn=document.getElementById('tPlayBtn'); if(btn) btn.textContent='🔊 Escuchar ('+(2-tPr.plays)+' disponibles)';
+}
+function tAns(btn,i){
+  if(!tPr)return; var q=tPr.item.qs[tPr.i]; var fb=document.getElementById('tFb');
+  document.querySelectorAll('#toeflBody .opt').forEach(function(b,bi){ b.disabled=true; if(bi===q.a)b.classList.add('correct'); });
+  if(i===q.a){ tPr.score++; beep('good'); if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>'; }
+  else{ btn.classList.add('wrong'); beep('bad'); if(fb)fb.innerHTML='<span style="color:var(--red)">✗ La correcta era: '+q.o[q.a]+'</span>'; }
+  setTimeout(function(){ tPr.i++; tQuizRender(); },1400);
+}
+function startTOEFLReading(){ tQuizStart('reading'); }
+function startTOEFLListening(){ tQuizStart('listening'); }
+/* Vocabulario académico: quiz directo (la opción correcta es la índice 1 de T_VOCAB) */
+function startTOEFLVocab(){
+  var qs=shuffle(T_VOCAB.slice()).slice(0,8).map(function(v){
+    var correct=v[2][1], opts=shuffle(v[2].slice());
+    return {q:'"'+v[0]+'" significa…',o:opts,a:opts.indexOf(correct)};
+  });
+  tPr={kind:'vocab',item:{t:'Academic Vocabulary',qs:qs},i:0,score:0,plays:9};
+  tQuizRender();
+}
+/* Speaking cronometrado: 15 s de preparación + 45 s de respuesta */
+var tSpTimer=null;
+function startTOEFLSpeaking(){
+  var b=document.getElementById('toeflBody'); if(!b)return;
+  clearInterval(tSpTimer);
+  var n=store.get('tIdx_speak',0); var prompt=T_WPROMPTS[n%T_WPROMPTS.length]; store.set('tIdx_speak',n+1);
+  b.innerHTML='<div class="skillbox"><h4>🎤 Speaking — Independent task (como el examen real)</h4>'
+    +'<p style="margin:0 0 8px;"><b>Tu tema:</b> <i>"'+prompt+'"</i></p>'
+    +'<p class="note" style="margin:0 0 10px;">Estructura ganadora: tu opinión → 2 razones → 1 ejemplo. Primero 15 s para PENSAR, luego 45 s para HABLAR en voz alta.</p>'
+    +'<div style="text-align:center;"><div id="tSpClock" style="font-family:\'Poppins\',sans-serif;font-size:2.4rem;font-weight:800;">15</div>'
+    +'<div id="tSpPhase" style="font-weight:700;color:var(--amber);">🧠 PREPARA tus ideas…</div>'
+    +'<button class="btn primary" id="tSpBtn" style="margin-top:10px;" onclick="tSpGo()">▶️ Empezar</button></div>'
+    +'<div id="tSpEnd" style="display:none;margin-top:12px;">'
+    +'<p style="font-weight:700;">✅ ¡Tiempo! Autoevalúate con honestidad:</p>'
+    +'<ul style="margin:0 0 10px;"><li>¿Dijiste tu opinión clara en la primera frase?</li><li>¿Diste 2 razones y un ejemplo?</li><li>¿Hablaste los 45 segundos sin parar mucho?</li></ul>'
+    +'<button class="btn primary" onclick="startTOEFLSpeaking()">🔄 Otro tema</button> '
+    +'<button class="btn" onclick="document.getElementById(\'toeflOv\').style.display=\'none\';goTab(\'speak\')">🎙️ Practicar con micrófono (Speak Now)</button></div>'
+    +'</div><div style="text-align:center;margin-top:6px;"><button class="btn ghost" onclick="clearInterval(tSpTimer);renderTOEFL()">← Volver</button></div>';
+}
+function tSpGo(){
+  var btn=document.getElementById('tSpBtn'); if(btn)btn.style.display='none';
+  var clock=document.getElementById('tSpClock'), phase=document.getElementById('tSpPhase');
+  var t=15, mode='prep'; beep('good');
+  clearInterval(tSpTimer);
+  tSpTimer=setInterval(function(){
+    t--; if(clock)clock.textContent=t;
+    if(t<=0){
+      if(mode==='prep'){ mode='talk'; t=45; beep('win'); if(phase)phase.innerHTML='🗣️ ¡HABLA AHORA! (en voz alta, de verdad)'; if(clock)clock.style.color='#16a34a'; }
+      else{ clearInterval(tSpTimer); beep('win'); if(clock)clock.textContent='🎉'; if(phase)phase.textContent='¡Hecho!';
+        var end=document.getElementById('tSpEnd'); if(end)end.style.display='block';
+        tStat('speaking',1,1); try{ addXP(10); }catch(e){}
+      }
+    }
+  },1000);
 }
 function startTOEFLWriting(){
   var b=document.getElementById('toeflBody'); if(!b)return;
+  var n=store.get('tIdx_write',0); var prompt=T_WPROMPTS[n%T_WPROMPTS.length]; store.set('tIdx_write',n+1);
   b.innerHTML='<div class="skillbox"><h4>✍️ Writing estilo TOEFL — Independent task</h4>'
-    +'<p style="margin:0 0 8px;"><b>Prompt:</b> <i>"Do you agree or disagree: Technology has made people less social. Use reasons and examples to support your answer."</i></p>'
-    +'<textarea id="toeflW" placeholder="Write your essay here (aim for 250–300 words)..." style="min-height:150px;"></textarea>'
-    +'<button class="btn primary" style="margin-top:8px;" onclick="gradeTOEFLWriting()">✅ Revisar con Milo (IA)</button>'
+    +'<p style="margin:0 0 8px;"><b>Prompt:</b> <i>"'+prompt+'"</i></p>'
+    +'<textarea id="toeflW" placeholder="Write your essay here (aim for 250–300 words)..." style="min-height:150px;" oninput="try{document.getElementById(\'tWc\').textContent=(this.value.trim()?this.value.trim().split(/\\s+/).length:0)+\' palabras\';}catch(e){}"></textarea>'
+    +'<div class="note" id="tWc" style="text-align:right;margin:4px 0;">0 palabras</div>'
+    +'<button class="btn primary" style="margin-top:4px;" onclick="gradeTOEFLWriting()">✅ Revisar mi ensayo</button>'
     +'<div id="toeflWres" style="margin-top:10px;"></div>'
-    +'<div style="margin-top:8px;"><button class="btn" onclick="renderTOEFL()">← Volver</button></div></div>';
+    +'<div style="margin-top:8px;"><button class="btn" onclick="startTOEFLWriting()">🔄 Otro tema</button> <button class="btn" onclick="renderTOEFL()">← Volver</button></div></div>';
+}
+function tWLocalReview(t,res){
+  var words=t.trim().split(/\s+/).length;
+  var paras=t.trim().split(/\n\s*\n|\n/).filter(function(x){return x.trim().length>20;}).length;
+  var CONN=['first','second','moreover','furthermore','however','in contrast','therefore','for example','in conclusion','finally','although'];
+  var used=CONN.filter(function(c){ return t.toLowerCase().indexOf(c)>=0; });
+  var thesis=/i (think|believe|agree|disagree)/i.test(t);
+  var checks=[
+    [words>=250,'Longitud: '+words+' palabras '+(words>=250?'✓ (meta: 250+)':'— apunta a 250+')],
+    [paras>=3,'Estructura: '+paras+' párrafo'+(paras===1?'':'s')+' '+(paras>=3?'✓':'— usa intro + 2 razones + conclusión')],
+    [used.length>=3,'Conectores: '+(used.length?used.join(', '):'ninguno')+' '+(used.length>=3?'✓':'— usa al menos 3 (First, Moreover, Therefore…)')],
+    [thesis,'Tesis clara: '+(thesis?'✓ dijiste tu opinión':'— empieza con "I believe/agree that…"')]
+  ];
+  var ok=checks.filter(function(c){return c[0];}).length;
+  if(res)res.innerHTML='<div class="skillbox" style="background:#faf7ff;"><h4>📋 Revisión de Milo ('+ok+'/4)</h4><ul style="margin:0;">'
+    +checks.map(function(c){return '<li style="color:'+(c[0]?'var(--green)':'var(--amber)')+';">'+c[1]+'</li>';}).join('')
+    +'</ul><p class="note" style="margin:8px 0 0;">+10 XP por practicar ✍️</p></div>';
 }
 function gradeTOEFLWriting(){
   var t=(document.getElementById('toeflW')||{}).value||''; var res=document.getElementById('toeflWres');
   if(!t.trim()){ toast('Escribe tu ensayo primero ✍️'); return; }
-  if(!CHAT_ENDPOINT){ if(res)res.innerHTML='<p class="note">Activa la IA de Milo para recibir feedback.</p>'; return; }
+  try{ tStat('writing',1,1); addXP(10); }catch(e){}
+  /* Sin IA (o si la IA falla): revisión automática local */
+  if(!CHAT_ENDPOINT){ tWLocalReview(t,res); return; }
   if(res)res.innerHTML='<p class="note">🐙 Milo está evaluando tu ensayo estilo TOEFL...</p>';
   var p='Actúa como examinador TOEFL iBT. Evalúa este ensayo (independent writing) y responde en español: 1) puntaje estimado 0-5 y equivalente 0-30; 2) fortalezas; 3) 2-3 mejoras concretas (tesis, organización, gramática, vocabulario, conectores); 4) una versión corregida de una frase débil. Sé breve y útil. Ensayo: "'+t.replace(/"/g,"'")+'"';
   fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0.3,messages:[{role:'user',content:p}]})})
     .then(function(r){return r.json();}).then(function(j){ var x=(j&&(j.reply||j.content))||''; if(res)res.innerHTML='<div class="skillbox" style="white-space:pre-wrap;line-height:1.55;background:#faf7ff;">'+String(x).replace(/</g,'&lt;')+'</div>'; try{addXP(10);}catch(e){} })
-    .catch(function(){ if(res)res.innerHTML='<p class="note">No se pudo evaluar. Intenta de nuevo.</p>'; });
+    .catch(function(){ tWLocalReview(t,res); });
 }
 /* ===== PANEL DE ADMINISTRADOR (solo para el dueño) ===== */
 var ADMIN_EMAILS=['yeni.tapiaz32@gmail.com'];
@@ -6404,7 +6568,16 @@ function toeflScoreCardHTML(){
     +'<div style="font-family:\'Poppins\',sans-serif;font-size:1.8rem;font-weight:800;">'+band+' <span style="font-size:.9rem;font-weight:600;opacity:.8;">/ 120</span></div>'
     +'<p style="margin:4px 0 8px;color:#c7d2fe;font-size:.85rem;">Estimado según tu nivel '+curLevel+' del curso (equivalencia CEFR↔TOEFL). Sube de nivel en Milo y esta banda sube contigo.</p>'
     +'<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:8px 12px;font-size:.85rem;">'
-    +'💡 <b>Tu plan de esta semana:</b> tu sección con menos práctica es <b>'+weak[2]+' '+weak[1]+'</b>. Dedícale 2 sesiones y el estimado se vuelve más sólido.</div></div>';
+    +'💡 <b>Tu plan de esta semana:</b> tu sección con menos práctica es <b>'+weak[2]+' '+weak[1]+'</b>. Dedícale 2 sesiones y el estimado se vuelve más sólido.</div>'
+    +(function(){ try{
+      var s=store.get('toeflStats',{}); var keys=Object.keys(s); if(!keys.length) return '';
+      var parts=[]; if(s.reading)parts.push('📖 '+s.reading.c+'/'+s.reading.t);
+      if(s.listening)parts.push('🎧 '+s.listening.c+'/'+s.listening.t);
+      if(s.vocab)parts.push('🧠 '+s.vocab.c+'/'+s.vocab.t);
+      if(s.speaking)parts.push('🎤 '+s.speaking.n+' tarea'+(s.speaking.n>1?'s':''));
+      if(s.writing)parts.push('✍️ '+s.writing.n+' ensayo'+(s.writing.n>1?'s':''));
+      return '<div style="margin-top:8px;font-size:.8rem;color:#c7d2fe;">📊 Tu práctica TOEFL: '+parts.join(' · ')+'</div>';
+    }catch(e){ return ''; } })()+'</div>';
 }
 /* --- El chat de Milo usa lo que aprendiste (ecosistema conectado) --- */
 function recentWordsForChat(){
