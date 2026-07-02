@@ -686,6 +686,39 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+<!-- SPLASH: Milo en movimiento mientras carga la app -->
+<div id="miloSplash" style="position:fixed;inset:0;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#0d1b52,#1c3aa8 55%,#2456d6);transition:opacity .5s ease;">
+  <style>
+    @keyframes msBounce{0%,100%{transform:translateY(0) scale(1,1);}50%{transform:translateY(-14px) scale(1.03,.97);}}
+    @keyframes msSway{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+    @keyframes msBlink{0%,92%,100%{transform:scaleY(0);}95%,97%{transform:scaleY(1);}}
+    @keyframes msDot{0%,80%,100%{opacity:.25;transform:scale(.8);}40%{opacity:1;transform:scale(1.15);}}
+    #miloSplash .msB{transform-origin:50% 60%;animation:msBounce 1.6s ease-in-out infinite;}
+    #miloSplash .msT{transform-origin:top center;animation:msSway 2.2s ease-in-out infinite;}
+    #miloSplash .msT2{animation-delay:.4s;} #miloSplash .msT3{animation-delay:.8s;} #miloSplash .msT4{animation-delay:1.1s;}
+    #miloSplash .msL{transform-origin:center;transform:scaleY(0);animation:msBlink 3.4s infinite;}
+    #miloSplash .msD{width:9px;height:9px;border-radius:50%;background:#ffd166;display:inline-block;margin:0 3px;animation:msDot 1.2s infinite;}
+    #miloSplash .msD2{animation-delay:.2s;} #miloSplash .msD3{animation-delay:.4s;}
+  </style>
+  <svg width="130" height="130" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 18px 26px rgba(0,0,0,.4));">
+    <defs><radialGradient id="msg" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#b18aec"/><stop offset="60%" stop-color="#9266cc"/><stop offset="100%" stop-color="#7a4fb8"/></radialGradient></defs>
+    <g class="msB">
+      <g><path class="msT" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#7a4fb8"/>
+      <path class="msT msT2" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#8659c2"/>
+      <path class="msT msT3" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#8659c2"/>
+      <path class="msT msT4" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#7a4fb8"/></g>
+      <ellipse cx="50" cy="46" rx="34" ry="32" fill="url(#msg)"/>
+      <ellipse cx="38" cy="44" rx="7.5" ry="9" fill="#fff"/><ellipse cx="62" cy="44" rx="7.5" ry="9" fill="#fff"/>
+      <circle cx="39.5" cy="46" r="3.6" fill="#2b2340"/><circle cx="60.5" cy="46" r="3.6" fill="#2b2340"/>
+      <circle cx="41" cy="44.5" r="1.2" fill="#fff"/><circle cx="62" cy="44.5" r="1.2" fill="#fff"/>
+      <ellipse class="msL" cx="38" cy="44" rx="8" ry="9.5" fill="#9266cc"/><ellipse class="msL" cx="62" cy="44" rx="8" ry="9.5" fill="#9266cc"/>
+      <circle cx="30" cy="56" r="4" fill="#e6a4d0" opacity=".75"/><circle cx="70" cy="56" r="4" fill="#e6a4d0" opacity=".75"/>
+      <path d="M 42 62 Q 50 70 58 62" fill="none" stroke="#2b2340" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </svg>
+  <div style="color:#fff;font-family:'Poppins','Segoe UI',sans-serif;font-weight:800;font-size:1.5rem;margin-top:14px;letter-spacing:.5px;">Milo</div>
+  <div style="margin-top:10px;"><span class="msD"></span><span class="msD msD2"></span><span class="msD msD3"></span></div>
+</div>
 <header style="position:relative;">
   <h1 id="appTitle">🐙 Milo · Languages Trainer</h1>
   <p id="appSub">A1 → C1 · Tu academia de idiomas</p>
@@ -772,7 +805,29 @@ async function loadCloud(){
   try{
     var r=await supa.from('Progreso').select('data').eq('user_id',sbUser.id).maybeSingle();
     if(r&&r.data&&r.data.data){
-      var d=r.data.data; Object.keys(d).forEach(function(k){ if(d[k]!=null){ try{localStorage.setItem(k,d[k]);}catch(e){} } });
+      var d=r.data.data;
+      /* FUSIÓN INTELIGENTE: si estudiaste SIN internet, lo local va adelante.
+         1) Une los días activos de ambos lados (ninguna racha se pierde). */
+      try{
+        var la=JSON.parse(localStorage.getItem('activeDays')||'[]'), ca=JSON.parse(d.activeDays||'[]');
+        var u={}; la.concat(ca).forEach(function(k){u[k]=1;});
+        d.activeDays=JSON.stringify(Object.keys(u).sort());
+      }catch(e){}
+      /* 2) Si el XP local es MAYOR que el de la nube (estudiaste offline), NO pises lo local: súbelo. */
+      try{
+        var lxp=parseInt(localStorage.getItem('xp')||'0',10)||0;
+        var cxp=parseInt(d.xp||'0',10)||0;
+        if(lxp>cxp){
+          try{ localStorage.setItem('activeDays',d.activeDays); }catch(e){}
+          cloudReady=true;
+          try{ checkDailyReset(); tickStreak(); }catch(e){}
+          saveCloud(); /* sube tu progreso offline a la nube */
+          try{ toast('☁️ Tu progreso sin conexión se guardó en la nube'); }catch(e){}
+          try{ renderAll(); }catch(e){}
+          return;
+        }
+      }catch(e){}
+      Object.keys(d).forEach(function(k){ if(d[k]!=null){ try{localStorage.setItem(k,d[k]);}catch(e){} } });
       cloudReady=true;
       var applied=false; try{applied=!!sessionStorage.getItem('cloudApplied');}catch(e){}
       if(!applied){ try{sessionStorage.setItem('cloudApplied','1');}catch(e){} location.reload(); return; }
@@ -6816,6 +6871,11 @@ window.addEventListener('online',function(){
 window.addEventListener('offline',function(){
   try{ toast('📴 Sin conexión — puedes seguir estudiando, tu progreso se guarda aquí'); }catch(e){}
 });
+/* Despedir el splash de carga: Milo saluda y se va */
+try{
+  var _sp=document.getElementById('miloSplash');
+  if(_sp){ setTimeout(function(){ _sp.style.opacity='0'; setTimeout(function(){ try{_sp.remove();}catch(e){} },550); },500); }
+}catch(e){}
 
 /* ============================================================
    MILO VIVO 2.0 — reacciones, sueño, haptics y tab bar nativa
