@@ -850,9 +850,10 @@ async function sbInitSession(){
 }
 async function sbSignUp(){
   initSupa(); if(!supa){alert('Necesitas conexión a internet para crear tu cuenta. Inténtalo de nuevo en un momento.');return;}
-  var em=(document.getElementById('authEmail')||{}).value, pw=(document.getElementById('authPass')||{}).value;
+  var em=(document.getElementById('authEmail')||{}).value, pw=(document.getElementById('authPass')||{}).value, pw2=(document.getElementById('authPass2')||{}).value||'';
   if(!em||!pw){alert('Escribe correo y contraseña.');return;}
   if(pw.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}
+  if(pw!==pw2){alert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');return;}
   try{ var r=await supa.auth.signUp({email:em,password:pw});
     if(r.error){alert(r.error.message);return;}
     if(r.data&&r.data.session){ sbUser=r.data.session.user; cloudReady=true; await saveCloud(); alert('¡Cuenta creada! Tu progreso se guardará en la nube.'); renderAuth(); }
@@ -887,7 +888,9 @@ function renderAuth(){
   } else {
     el.innerHTML='<p class="note" style="margin:0 0 8px;">Crea una cuenta o inicia sesión para guardar tu progreso en la nube y usarlo en cualquier dispositivo.</p>'
       +'<input id="authEmail" type="email" placeholder="Tu correo" style="width:100%;padding:10px;border:1px solid #ccd;border-radius:10px;margin-bottom:6px;">'
-      +'<input id="authPass" type="password" placeholder="Contraseña (mín. 6)" style="width:100%;padding:10px;border:1px solid #ccd;border-radius:10px;margin-bottom:8px;">'
+      +'<input id="authPass" type="password" placeholder="Contraseña (mín. 6)" style="width:100%;padding:10px;border:1px solid #ccd;border-radius:10px;margin-bottom:8px;" oninput="pwMatchHint(\'authPass\',\'authPass2\',\'authPwHint\')">'
+      +'<input id="authPass2" type="password" placeholder="Confirma tu contraseña" style="width:100%;padding:10px;border:1px solid #ccd;border-radius:10px;margin-bottom:4px;" oninput="pwMatchHint(\'authPass\',\'authPass2\',\'authPwHint\')">'
+      +'<div id="authPwHint" style="font-size:.8rem;font-weight:700;margin:0 0 8px;min-height:16px;"></div>'
       +'<button class="btn primary" style="margin-right:6px;" onclick="sbSignIn()">Iniciar sesión</button>'
       +'<button class="btn" onclick="sbSignUp()">Crear cuenta</button>';
   }
@@ -1015,7 +1018,16 @@ function authCardHTML(){
     +'<div id="gPanelUp" style="display:none;">'
       +'<input id="gName" type="text" autocomplete="name" placeholder="Tu nombre o apodo">'
       +'<input id="gEmail2" type="email" autocomplete="email" placeholder="Correo electrónico">'
-      +'<input id="gPass2" type="password" autocomplete="new-password" placeholder="Contraseña (mín. 6 caracteres)">'
+      +'<input id="gPhone" type="tel" autocomplete="tel" placeholder="Celular con país (ej: +57 300 123 4567)">'
+      +'<div id="gSmsBox" style="display:none;text-align:left;background:#eef3ff;border-radius:12px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div style="font-size:.85rem;font-weight:700;color:#16357f;margin-bottom:6px;">📲 Te enviamos un código por SMS</div>'
+        +'<input id="gSmsCode" type="text" inputmode="numeric" placeholder="Código de 6 dígitos" style="margin-bottom:6px;">'
+        +'<button class="btn primary" style="width:100%;" onclick="smsVerifyCode()">Verificar código</button>'
+        +'<div id="gSmsHint" style="font-size:.78rem;margin-top:4px;min-height:14px;"></div>'
+      +'</div>'
+      +'<input id="gPass2" type="password" autocomplete="new-password" placeholder="Contraseña (mín. 6 caracteres)" oninput="pwMatchHint(\'gPass2\',\'gPass2c\',\'gPwHint\')">'
+      +'<input id="gPass2c" type="password" autocomplete="new-password" placeholder="Confirma tu contraseña" oninput="pwMatchHint(\'gPass2\',\'gPass2c\',\'gPwHint\')">'
+      +'<div id="gPwHint" style="font-size:.8rem;font-weight:700;margin:-4px 0 8px;min-height:16px;text-align:left;"></div>'
       +'<button class="btn primary gate-btn" onclick="gateSignUp()">Crear mi cuenta gratis</button>'
     +'</div>'
     +'<p class="gate-note">🔒 Empieza gratis. Tu progreso se guarda en tu cuenta y lo recuperas en cualquier dispositivo.</p>'
@@ -1291,12 +1303,58 @@ async function gateSignIn(){
     sbUser=r.data.user; await loadCloud(); renderGate(); renderAll();
   }catch(e){alert('Error: '+e.message);}
 }
+/* ===== VERIFICACIÓN POR SMS (preparada; se activa cuando configures un proveedor) =====
+   Para activarla: 1) en Supabase → Authentication → Providers → Phone, conecta Twilio (u otro);
+   2) cambia SMS_VERIFY a true. Mientras esté en false, el celular solo se guarda en el perfil. */
+var SMS_VERIFY=false;
+function normPhone(p){ p=String(p||'').replace(/[\s\-().]/g,''); return p; }
+function validPhone(p){ p=normPhone(p); return /^\+?[0-9]{10,15}$/.test(p); }
+async function smsSendCode(phone){
+  try{
+    var r=await supa.auth.signInWithOtp({phone:normPhone(phone)});
+    if(r.error){ alert('No se pudo enviar el SMS: '+r.error.message); return false; }
+    var box=document.getElementById('gSmsBox'); if(box)box.style.display='block';
+    var h=document.getElementById('gSmsHint'); if(h){h.textContent='Código enviado a '+phone+' ✓';h.style.color='#16a34a';}
+    return true;
+  }catch(e){ alert('Error enviando SMS: '+e.message); return false; }
+}
+async function smsVerifyCode(){
+  try{
+    var phone=normPhone(gv('gPhone')), code=(gv('gSmsCode')||'').trim();
+    if(!code){ toast('Escribe el código que te llegó 📲'); return; }
+    var r=await supa.auth.verifyOtp({phone:phone,token:code,type:'sms'});
+    var h=document.getElementById('gSmsHint');
+    if(r.error){ if(h){h.textContent='✗ Código incorrecto o vencido. Revisa e intenta de nuevo.';h.style.color='#dc2626';} return; }
+    if(h){h.textContent='✓ ¡Celular verificado!';h.style.color='#16a34a';}
+    profile.phoneVerified=true; store.set('profile',profile);
+    toast('📲 Celular verificado ✓');
+  }catch(e){ alert('Error: '+e.message); }
+}
+/* Aviso en vivo: ¿las contraseñas coinciden? */
+function pwMatchHint(aId,bId,hintId){
+  try{
+    var a=(document.getElementById(aId)||{}).value||'', b=(document.getElementById(bId)||{}).value||'';
+    var h=document.getElementById(hintId); if(!h)return;
+    if(!b){ h.textContent=''; return; }
+    if(a===b){ h.textContent='✓ Las contraseñas coinciden'; h.style.color='#16a34a'; }
+    else{ h.textContent='✗ Las contraseñas no coinciden'; h.style.color='#dc2626'; }
+  }catch(e){}
+}
 async function gateSignUp(){
   initSupa(); if(!supa){alert('Necesitas conexión a internet para crear tu cuenta. Inténtalo en un momento.');return;}
-  var nm=gv('gName'),em=gv('gEmail2'),pw=gv('gPass2');
+  var nm=gv('gName'),em=gv('gEmail2'),pw=gv('gPass2'),pw2=gv('gPass2c'),ph=gv('gPhone');
   if(!nm){alert('Escribe tu nombre o apodo.');return;}
   if(!em||!pw){alert('Escribe tu correo y contraseña.');return;}
+  if(!ph){alert('Escribe tu número de celular (con el código de país, ej: +57...).');return;}
+  if(!validPhone(ph)){alert('⚠️ El celular no se ve válido. Usa el formato internacional, ej: +57 300 123 4567.');try{document.getElementById('gPhone').focus();}catch(e){}return;}
   if(pw.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}
+  if(pw!==pw2){alert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');try{document.getElementById('gPass2c').focus();}catch(e){}return;}
+  /* guarda el celular en el perfil (y si el SMS está activo, verifica primero) */
+  profile.phone=normPhone(ph); store.set('profile',profile);
+  if(SMS_VERIFY && !profile.phoneVerified){
+    var sent=await smsSendCode(ph);
+    if(sent){ toast('📲 Verifica tu celular con el código y luego pulsa "Crear mi cuenta" de nuevo'); return; }
+  }
   try{ var r=await supa.auth.signUp({email:em,password:pw});
     if(r.error){alert(r.error.message);return;}
     if(r.data&&r.data.session){
@@ -3583,10 +3641,24 @@ function renderContent(){
   if(curSub==='units'){ h+=renderUnitsHTML(L); }
   else if(curSub==='tenses'){
     h+='<p class="note">Tiempos verbales de tu nivel (según Cambridge). Forma, uso y 5 ejemplos con traducción.</p>';
-    d.tenses.forEach((t,ti)=>{h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div><p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'tenses\','+ti+')">🎮 Practicar este tiempo</button>'+ownBoxHTML(L,ti,t.n)+'</div>';});
+    d.tenses.forEach((t,ti)=>{
+      var teoria='<p><b>Forma:</b> '+t.form+'<br><b>Uso:</b> '+t.use+'</p><ul>';t.ex.forEach(e=>teoria+=exLi(e));teoria+='</ul>'+ownBoxHTML(L,ti,t.n);
+      h+='<div class="skillbox"><div class="vhead"><span class="vico">'+iconHTML(t.ex.map(enOnly).join(' '))+'</span><span class="vt">'+t.n+'</span></div>'
+        +'<button class="btn primary" style="width:100%;margin:4px 0 6px;" onclick="activeLesson(\'tenses\','+ti+')">🎓 Vivir esta lección — descúbrela tú</button>'
+        +'<div style="display:flex;gap:6px;"><button class="btn" style="flex:1;" onclick="var x=document.getElementById(\'thT'+ti+'\');x.style.display=x.style.display===\'none\'?\'block\':\'none\';this.textContent=x.style.display===\'none\'?\'📖 Teoría completa\':\'📖 Ocultar teoría\';">📖 Teoría completa</button>'
+        +'<button class="btn" style="flex:1;" onclick="practiceTopic(\'tenses\','+ti+')">🎮 Practicar</button></div>'
+        +'<div id="thT'+ti+'" style="display:none;margin-top:8px;">'+teoria+'</div></div>';
+    });
   } else if(curSub==='grammar'){
     h+='<p class="note">Gramática clave del nivel. Cada tema con su forma y 5 ejemplos con traducción.</p>';
-    d.grammar.forEach((g,gi)=>{h+='<div class="skillbox"><h4>'+g.t+'</h4><p><b>Forma:</b> '+g.form+'</p><ul>';g.ex.forEach(e=>h+=exLi(e));h+='</ul><button class="btn primary" style="width:100%;margin-top:6px;" onclick="practiceTopic(\'grammar\','+gi+')">🎮 Practicar este tema</button></div>';});
+    d.grammar.forEach((g,gi)=>{
+      var teoriaG='<p><b>Forma:</b> '+g.form+'</p>'+(g.use?'<p><b>Uso:</b> '+g.use+'</p>':'')+'<ul>';g.ex.forEach(e=>teoriaG+=exLi(e));teoriaG+='</ul>';
+      h+='<div class="skillbox"><h4>'+g.t+'</h4>'
+        +'<button class="btn primary" style="width:100%;margin:4px 0 6px;" onclick="activeLesson(\'grammar\','+gi+')">🎓 Vivir esta lección — descúbrela tú</button>'
+        +'<div style="display:flex;gap:6px;"><button class="btn" style="flex:1;" onclick="var x=document.getElementById(\'thG'+gi+'\');x.style.display=x.style.display===\'none\'?\'block\':\'none\';this.textContent=x.style.display===\'none\'?\'📖 Teoría completa\':\'📖 Ocultar teoría\';">📖 Teoría completa</button>'
+        +'<button class="btn" style="flex:1;" onclick="practiceTopic(\'grammar\','+gi+')">🎮 Practicar</button></div>'
+        +'<div id="thG'+gi+'" style="display:none;margin-top:8px;">'+teoriaG+'</div></div>';
+    });
   } else if(curSub==='vocab'){
     h+='<p class="note">Vocabulario con traducción, 5 ejemplos cada uno'+((L==='B1'||L==='B2'||L==='C1')?' y <span class="syn">sinónimos</span> para ampliar':'')+'.</p>';
     window.VG_POOL=(d.vocab||[]).map(function(v){return [enOnly(v.w), v.es];});
@@ -4390,9 +4462,18 @@ function renderDentalBar(){
   DENTAL_ACADEMY.forEach((d,i)=>{
     const btn=document.createElement('button');btn.className=i===curDental?'active':'';
     btn.innerHTML=d.emoji+'<span class="sub">'+d.code.replace('D-','')+'</span>';
-    btn.onclick=()=>{curDental=i;store.set('curDental',i);renderDentalBar();renderDental();};
+    btn.onclick=()=>{openDentalStage(i);};
     bar.appendChild(btn);
   });
+}
+/* Abre una etapa clínica y LLEVA la vista a su contenido (antes quedaba oculto abajo) */
+function openDentalStage(i){
+  curDental=i; store.set('curDental',i);
+  renderDentalBar(); renderDental();
+  setTimeout(function(){
+    var t=document.getElementById('dentalStage');
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
 }
 /* ===== JUEGO DE VOCABULARIO (palabra/imagen ↔ significado) ===== */
 var vgState=null;
@@ -4454,7 +4535,7 @@ function dentalRouteHTML(){
     +'<div style="background:#e0f2fe;border-radius:99px;height:12px;overflow:hidden;margin-bottom:12px;"><div style="background:linear-gradient(90deg,#0ea5e9,#22c55e);height:100%;width:'+pct+'%;border-radius:99px;transition:width .5s var(--spring);"></div></div>';
   DENTAL_ACADEMY.forEach(function(dd,i){
     var cur=i===curDental, isdn=!!done[dd.code];
-    h+='<div onclick="curDental='+i+';store.set(\'curDental\','+i+');renderDentalBar();renderDental();window.scrollTo({top:0,behavior:\'smooth\'});" class="lesson-card'+(isdn?' done':'')+'" style="cursor:pointer;'+(cur?'border:2px solid #0ea5e9;box-shadow:0 8px 20px rgba(14,165,233,.18);':'')+'">'
+    h+='<div onclick="openDentalStage('+i+');" class="lesson-card'+(isdn?' done':'')+'" style="cursor:pointer;'+(cur?'border:2px solid #0ea5e9;box-shadow:0 8px 20px rgba(14,165,233,.18);':'')+'">'
       +'<div class="lesson-ico">'+(isdn?'✅':dd.emoji)+'</div>'
       +'<div class="lesson-meta"><div class="t">'+dd.code+' · '+dd.name+'</div><div class="d">'+dd.modules.length+' '+T('dentModules')+(isdn?(' · '+T('dentDone')):(cur?(' · '+T('dentHere')):''))+'</div></div>'
       +'<div class="lesson-check '+(isdn?'':'todo')+'">'+(isdn?'✓':'›')+'</div></div>';
@@ -4507,6 +4588,8 @@ function renderDental(){
   const d=DENTAL_ACADEMY[curDental];
   let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
   h+=dentalRouteHTML();
+  h+='<div id="dentalStage" style="scroll-margin-top:70px;"></div>';
+  h+='<div class="tip" style="border-left-color:#0ea5e9;background:#eff8ff;">📍 Estás estudiando: <b>'+d.code+' · '+d.name+'</b> — el contenido está aquí abajo 👇</div>';
   h+='<div class="badge b-'+d.code.replace('D-','')+'">'+d.code+' · '+d.name+'</div>';
   window.VG_POOL=collectPairs(d.modules);
   h+='<button class="btn primary" style="width:100%;margin:8px 0;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
@@ -6546,6 +6629,131 @@ function jardinHTML(){
       +'</div>';
   }catch(e){ return ''; }
 }
+/* ============================================================
+   LECCIÓN VIVA — pedagogía activa sobre el contenido EXISTENTE
+   (nada del conocimiento cambia; cambia cómo se vive)
+   Ciencia aplicada: curiosity gap (paso 1) · aprendizaje inductivo (2) ·
+   generación de hipótesis (3) · confirmación breve = menor carga cognitiva (4) ·
+   active recall + feedback inmediato (5) · producción oral (6) ·
+   metacognición (7) · repetición espaciada al marcar "me confunde" (8).
+   ============================================================ */
+var AL=null;
+function alItem(){ var d=DATA[curLevel]; return (AL.kind==='tenses'?d.tenses:d.grammar)[AL.idx]; }
+function alTitle(it){ return it.n||it.t||''; }
+function alEsc(s){ return String(s).replace(/</g,'&lt;'); }
+function alEx(it,i){ var e=it.ex[i%it.ex.length]; var p=String(e).split('|'); return {en:p[0].trim(), es:(p[1]||'').trim()}; }
+function activeLesson(kind,idx){
+  AL={kind:kind,idx:idx,step:0,xp:0};
+  var ov=document.getElementById('alOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='alOv'; ov.className='legal-ov';
+    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3 id="alTitle">🎓 Lección</h3><button class="legal-x" onclick="document.getElementById(\'alOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="alBody" style="background:var(--bg);"></div></div>';
+    document.body.appendChild(ov); }
+  ov.style.display='flex';
+  document.getElementById('alTitle').textContent='🎓 '+alTitle(alItem());
+  alRender();
+}
+function alMilo(txt){ return '<div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;"><div style="flex:0 0 auto;">'+miloSVG(52)+'</div><div class="mr-b" style="margin:0;">'+txt+'</div></div>'; }
+function alDots(){ var h='<div style="display:flex;gap:5px;justify-content:center;margin-bottom:14px;">'; for(var i=0;i<7;i++){ h+='<span style="width:8px;height:8px;border-radius:50%;background:'+(i<=AL.step?'var(--accent)':'var(--line)')+';"></span>'; } return h+'</div>'; }
+function alNextBtn(label){ return '<div style="text-align:center;margin-top:14px;"><button class="btn primary" style="min-width:200px;" onclick="AL.step++;alRender();">'+label+'</button></div>'; }
+function alRender(){
+  var b=document.getElementById('alBody'); if(!b||!AL)return; var it=alItem(); var h=alDots();
+  if(AL.step===0){ /* 1. CURIOSIDAD: frase real antes que teoría */
+    var e=alEx(it,0);
+    h+=alMilo('Antes de la teoría… mira esta frase REAL. ¿Qué crees que significa? 🤔');
+    h+='<div class="card" style="text-align:center;"><div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:700;">'+alEsc(e.en)+'</div>'
+      +'<button class="btn" style="margin-top:8px;" onclick="try{speak(\''+e.en.replace(/'/g,"\\'")+'\')}catch(e){}">🔊 Escuchar</button>'
+      +'<div id="alRev" style="display:none;margin-top:10px;color:var(--green);font-weight:700;">'+alEsc(e.es)+'</div>'
+      +'<div style="margin-top:10px;"><button class="btn primary" onclick="document.getElementById(\'alRev\').style.display=\'block\';this.outerHTML=\'<span style=&quot;color:var(--muted);font-size:.85rem;&quot;>¿Le atinaste? No importa: ya estás pensando en inglés 😉</span>\';setTimeout(function(){AL.step++;alRender();},1800);">👀 Tengo una idea — muéstrame</button></div></div>';
+  }
+  else if(AL.step===1){ /* 2. OBSERVACIÓN: ejemplos sin regla */
+    h+=alMilo('Ahora mira estas frases juntas. <b>¿Qué tienen en común?</b> Obsérvalas como detective 🔎');
+    h+='<div class="card">';
+    for(var i=0;i<Math.min(3,it.ex.length);i++){ var ei=alEx(it,i); h+='<div style="padding:8px 0;border-bottom:1px solid var(--line);"><b>'+alEsc(ei.en)+'</b><br><span class="es">'+alEsc(ei.es)+'</span></div>'; }
+    h+='</div>'+alNextBtn('Tengo una hipótesis 🤔');
+  }
+  else if(AL.step===2){ /* 3. HIPÓTESIS: elige el patrón (equivocarse está bien) */
+    var d=DATA[curLevel]; var pool=(AL.kind==='tenses'?d.tenses:d.grammar);
+    var wrong=[]; for(var j=0;j<pool.length&&wrong.length<2;j++){ if(j!==AL.idx&&pool[j].form&&pool[j].form!==it.form) wrong.push(pool[j].form); }
+    while(wrong.length<2) wrong.push('sujeto + verbo en cualquier orden');
+    var opts=shuffle([it.form].concat(wrong));
+    h+=alMilo('Vamos a comprobar tu hipótesis: ¿cuál crees que es el <b>patrón</b> de esas frases?');
+    h+='<div class="card"><div class="opts">'+opts.map(function(o){ var ok=(o===it.form); return '<button class="opt" onclick="alHypo(this,'+(ok?1:0)+')">'+alEsc(o)+'</button>'; }).join('')+'</div><div class="feedback" id="alFb"></div></div>';
+  }
+  else if(AL.step===3){ /* 4. CONFIRMACIÓN: la regla en pocas líneas (la que ya existía) */
+    h+=alMilo('Esto es exactamente lo que acabas de descubrir 👇');
+    h+='<div class="card"><p style="margin:0 0 6px;"><b>Patrón:</b> '+it.form+'</p><p style="margin:0;"><b>Cuándo se usa:</b> '+(it.use||'')+'</p>'
+      +(it.tip?('<button class="btn ghost" style="margin-top:10px;" onclick="var x=document.getElementById(\'alTip\');x.style.display=\'block\';this.style.display=\'none\';">💡 Ver el truco de Milo</button><div id="alTip" style="display:none;margin-top:8px;background:#fffbeb;border-left:4px solid var(--amber);border-radius:0 10px 10px 0;padding:10px 12px;font-size:.9rem;">'+it.tip+'</div>'):'')
+      +'</div>'+alNextBtn('Ponerlo a prueba 🎯');
+  }
+  else if(AL.step===4){ /* 5. APLICACIÓN: reconstruye la frase (active recall) */
+    var e4=alEx(it,3);
+    AL.words=e4.en.replace(/[.?!,]/g,'').split(/\s+/).filter(Boolean);
+    if(AL.words.length>10){ e4=alEx(it,1); AL.words=e4.en.replace(/[.?!,]/g,'').split(/\s+/).filter(Boolean); }
+    AL.target=AL.words.join(' '); AL.pick=[]; AL.shuf=shuffle(AL.words.slice());
+    h+=alMilo('Sin mirar atrás: <b>construye la frase</b> tocando las palabras en orden. ('+alEsc(e4.es)+')');
+    h+='<div class="card"><div id="alBuild" style="min-height:44px;background:var(--card2);border-radius:12px;padding:10px;font-weight:700;margin-bottom:10px;"></div>'
+      +'<div id="alChips" style="display:flex;flex-wrap:wrap;gap:6px;">'+AL.shuf.map(function(w,i){ return '<button class="btn" style="padding:8px 12px;" id="alW'+i+'" onclick="alPick('+i+')">'+alEsc(w)+'</button>'; }).join('')+'</div>'
+      +'<div class="feedback" id="alFb2"></div></div>';
+  }
+  else if(AL.step===5){ /* 6. HABLA: producción oral inmediata */
+    var e5=alEx(it,0);
+    h+=alMilo('Ahora tu boca: dila <b>en voz alta</b> 2 veces. Tu oído y tu memoria trabajan juntos 🗣️');
+    h+='<div class="card" style="text-align:center;"><div style="font-family:\'Poppins\',sans-serif;font-size:1.1rem;font-weight:700;">'+alEsc(e5.en)+'</div><div class="es" style="margin:4px 0 10px;">'+alEsc(e5.es)+'</div>'
+      +'<button class="btn" onclick="try{speak(\''+e5.en.replace(/'/g,"\\'")+'\')}catch(e){}">🔊 Escuchar primero</button> '
+      +'<button class="btn primary" onclick="try{addXP(3);}catch(e){};AL.step++;alRender();">Lo dije en voz alta 🗣️</button></div>';
+  }
+  else if(AL.step===6){ /* 7. REFLEXIÓN (metacognición) + 8. REACTIVACIÓN futura */
+    h+=alMilo('Última pregunta, la más importante: <b>¿cómo se siente este tema?</b> Tu respuesta decide cuándo te lo vuelvo a mostrar.');
+    h+='<div class="card" style="text-align:center;">'
+      +'<button class="btn primary" style="width:100%;margin-bottom:8px;" onclick="alFinish(true)">💪 Ya es mío — lo entiendo</button>'
+      +'<button class="btn" style="width:100%;" onclick="alFinish(false)">🤔 Aún me confunde un poco</button>'
+      +'<p class="note" style="margin:10px 0 0;">Si te confunde, es normal: lo volveré a traer en unos días, en otro contexto, sin avisarte 😉</p></div>';
+  }
+  b.innerHTML=h; b.scrollTop=0;
+}
+function alHypo(btn,ok){
+  var box=btn.parentElement; box.querySelectorAll('.opt').forEach(function(o){o.disabled=true;});
+  var fb=document.getElementById('alFb');
+  if(ok){ btn.classList.add('correct'); beep('good'); AL.xp+=4; if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Excelente observación! Tu hipótesis era correcta.</span>'; }
+  else{ btn.classList.add('wrong'); beep('bad'); if(fb)fb.innerHTML='<span style="color:var(--amber)">Buena intención — el patrón real te va a sorprender 👇</span>'; }
+  setTimeout(function(){ AL.step++; alRender(); },1400);
+}
+function alPick(i){
+  var btn=document.getElementById('alW'+i); if(!btn||btn.disabled)return;
+  btn.disabled=true; btn.style.opacity='.35';
+  AL.pick.push(AL.shuf[i]);
+  document.getElementById('alBuild').textContent=AL.pick.join(' ');
+  if(AL.pick.length===AL.words.length){
+    var fb=document.getElementById('alFb2');
+    if(AL.pick.join(' ')===AL.target){ beep('good'); AL.xp+=5; if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Perfecta! Así se construye.</span>'; setTimeout(function(){AL.step++;alRender();},1200); }
+    else{ beep('bad'); if(fb)fb.innerHTML='<span style="color:var(--red)">Casi — era: <b>'+alEsc(AL.target)+'</b>. Reintenta 💪</span>'; setTimeout(function(){alRender();},2200); }
+  }
+}
+function alFinish(mastered){
+  var it=alItem();
+  try{
+    if(!mastered){ /* REACTIVACIÓN: entra a la repetición espaciada como ejercicio, sin anunciarse */
+      var e=alEx(it,2); var w=e.en.replace(/[.?!,]/g,'').split(/\s+/);
+      var key=w.length>2?w[1]:w[0];
+      var others=['is','have','was']; if(others.indexOf(key)>=0)others=['do','will','been'];
+      review.push({q:e.en.replace(key,'___')+' ('+alTitle(it)+')',a:key,opts:shuffle([key].concat(others.slice(0,2))),box:0,due:Date.now()+86400000});
+      store.set('review',review);
+    }
+  }catch(e){}
+  try{ addXP(AL.xp+5); confetti(); beep('win'); }catch(e){}
+  var b=document.getElementById('alBody');
+  if(b) b.innerHTML=alDots()+alMilo(mastered?'¡Eso es DESCUBRIR un idioma! 🎉 No leíste una regla: la encontraste tú.':'Valiente respuesta 💜 Lo volveremos a ver juntos, tranquila.')
+    +'<div class="card" style="text-align:center;"><div class="scorebig">+'+(AL.xp+5)+' XP</div>'
+    +'<button class="btn primary" style="width:100%;margin-bottom:8px;" onclick="alNext()">Una lección más 😏 →</button>'
+    +'<button class="btn" style="width:100%;" onclick="document.getElementById(\'alOv\').style.display=\'none\'">Por hoy está bien</button>'
+    +(typeof tomorrowTeaserHTML==='function'?tomorrowTeaserHTML():'')+'</div>';
+}
+function alNext(){
+  var d=DATA[curLevel]; var pool=(AL.kind==='tenses'?d.tenses:d.grammar);
+  var nx=(AL.idx+1)%pool.length;
+  activeLesson(AL.kind,nx);
+}
+
 /* ============================================================
    FEED INTELIGENTE DE DESCUBRIMIENTO — el scroll infinito del conocimiento
    Dopamina POSITIVA: cada tarjeta enseña algo real, adaptado a ti.
