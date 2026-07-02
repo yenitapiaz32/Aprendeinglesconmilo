@@ -427,6 +427,174 @@
   @media(prefers-reduced-motion:reduce){
     *,*:after,*:before{ animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; }
   }
+
+  /* ============================================================
+     DESIGN SYSTEM — ACENTO POR SECCIÓN (cada destino con personalidad)
+     ============================================================ */
+  :root{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#7c5cff; }
+  body[data-sec="home"]{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#7c5cff; }
+  body[data-sec="levels"]{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#6d8bff; }
+  body[data-sec="practicar"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
+  body[data-sec="progreso"]{ --accent:#0ea5e9; --accent-d:#0369a1; --accent-2:#38bdf8; }
+  body[data-sec="dental"]{ --accent:#f97316; --accent-d:#c2540b; --accent-2:#fb9a4b; }
+  body[data-sec="explorar"]{ --accent:#ec4899; --accent-d:#be1d67; --accent-2:#f472b6; }
+  body[data-sec="perfil"]{ --accent:#475569; --accent-d:#334155; --accent-2:#64748b; }
+  body[data-sec="pron"]{ --accent:#7c5cff; --accent-d:#5b34e0; --accent-2:#a78bfa; }
+  body[data-sec="speak"]{ --accent:#7c5cff; --accent-d:#5b34e0; --accent-2:#a78bfa; }
+  body[data-sec="games"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
+  body[data-sec="challenge"]{ --accent:#f59e0b; --accent-d:#b45309; --accent-2:#fbbf24; }
+
+  /* Aplicar el acento a los elementos clave (coherencia en toda la app) */
+  nav button.active{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 40%,transparent)!important; }
+  .btn.primary{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 34%,transparent)!important; border-color:rgba(0,0,0,.14)!important; }
+  .cta{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 40%,transparent)!important; }
+  .cta:hover{ box-shadow:0 20px 46px color-mix(in srgb,var(--accent) 52%,transparent)!important; }
+  h2{ color:var(--accent-d); }
+  .subnav button.active,.level-bar button.active,.gate-tabs button.active~*{ }
+  .subnav button.active{ background:var(--accent)!important; border-color:var(--accent)!important; }
+  .level-bar button.active{ background:var(--accent)!important; border-color:var(--accent)!important; }
+  .sec-label{ color:color-mix(in srgb,var(--accent) 70%,var(--muted)); }
+  /* la lección (skillbox) toma la barra de acento de su sección */
+  .skillbox li{ border-left-color:var(--accent)!important; }
+  a.link{ color:var(--accent); }
+  :focus-visible{ outline-color:color-mix(in srgb,var(--accent) 55%,transparent); }
+
+  /* MÁS AIRE: respiración estilo Apple */
+  main{ padding:22px 16px 40px; }
+  .card{ padding:24px; margin-bottom:22px; }
+  @media(max-width:600px){ main{ padding:16px 12px 36px; } .card{ padding:18px 16px; margin-bottom:18px; } }
+  h2{ letter-spacing:-.2px; }
+
+  /* Fallback si el navegador no soporta color-mix: usa el accent directo */
+  @supports not (color:color-mix(in srgb,#000,#fff)){
+    nav button.active,.btn.primary,.cta{ box-shadow:0 10px 24px rgba(20,30,60,.18)!important; }
+  }
+
+  /* ============================================================
+     PANTALLA DE ACCESO / REGISTRO — rediseño premium
+     ============================================================ */
+  .auth-gate{
+    background:
+      radial-gradient(circle at 15% 12%, rgba(124,92,255,.42), transparent 42%),
+      radial-gradient(circle at 85% 8%, rgba(14,165,233,.36), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(76,111,255,.5), transparent 60%),
+      linear-gradient(160deg,#0d1b52,#1c3aa8 55%,#2456d6);
+  }
+  .auth-gate:before{ /* grano/luz sutil premium */
+    content:''; position:fixed; inset:0; pointer-events:none;
+    background:radial-gradient(circle at 50% 0%, rgba(255,255,255,.10), transparent 45%);
+  }
+  .land-top{ background:rgba(13,27,82,.55)!important; backdrop-filter:saturate(180%) blur(16px)!important; -webkit-backdrop-filter:saturate(180%) blur(16px)!important; border:1px solid rgba(255,255,255,.10); }
+  .land-hero{ background:rgba(255,255,255,.08)!important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.18)!important; box-shadow:0 24px 60px rgba(4,10,40,.4); border-radius:28px!important; }
+  .land-hero h1{ letter-spacing:-.5px; font-size:2.2rem; }
+  .land-milo{ animation:miloFloat 3.6s ease-in-out infinite; filter:drop-shadow(0 16px 24px rgba(0,0,0,.35)); }
+  .land-badge{ background:rgba(255,255,255,.16)!important; border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(6px); }
+
+  /* Tarjeta de acceso: glass claro, premium */
+  .land-card{ border-radius:24px!important; box-shadow:0 24px 70px rgba(4,10,40,.45)!important; border:1px solid rgba(255,255,255,.6); padding:24px!important; }
+  .gate-tabs{ background:#eef2fb; border-radius:14px; padding:5px; }
+  .gate-tabs button{ border-radius:10px; transition:all .2s var(--spring); }
+  .gate-tabs button.active{ background:#fff!important; color:#2456d6!important; box-shadow:0 4px 12px rgba(20,30,60,.12); }
+  .land-card input,.gate-card input{ border:1.5px solid #dbe3f2!important; border-radius:14px!important; padding:14px 14px!important; font-size:1rem; transition:border-color .18s,box-shadow .18s,background .18s; background:#fbfcff!important; }
+  .land-card input:focus,.gate-card input:focus{ border-color:#4c6fff!important; background:#fff!important; box-shadow:0 0 0 4px rgba(76,111,255,.16)!important; }
+  .gate-btn{ border-radius:14px!important; padding:15px!important; font-size:1.05rem!important; background:linear-gradient(135deg,#4c6fff,#2456d6)!important; border:none!important; color:#fff!important; box-shadow:0 12px 28px rgba(76,111,255,.42)!important; transition:transform .16s var(--spring),box-shadow .2s,filter .2s; }
+  .gate-btn:hover{ transform:translateY(-2px); filter:brightness(1.05); box-shadow:0 18px 40px rgba(76,111,255,.52)!important; }
+  .gate-btn:active{ transform:translateY(1px); }
+
+  /* Secciones del landing con más aire y sombra suave */
+  .land-sec{ border-radius:26px!important; box-shadow:0 12px 40px rgba(4,10,40,.14); padding:30px 26px!important; }
+  .land-hero,.land-sec,.land-cta{ animation:riseIn .55s var(--spring) both; }
+  .feat,.testi{ transition:transform .2s var(--spring),box-shadow .2s; }
+  .feat:hover,.testi:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(20,30,60,.12); }
+  .land-top .btn,.land-cta .btn,.trial-banner + h2 + .lead + .btn{ transition:transform .16s var(--spring),filter .2s; }
+  .land-top .btn:hover{ transform:translateY(-1px); }
+
+  /* ===== Celebración al subir de nivel ===== */
+  .lvl-ov{ position:fixed; inset:0; z-index:100050; display:none; align-items:center; justify-content:center; padding:20px;
+    background:rgba(10,18,45,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; transition:opacity .3s; }
+  .lvl-ov.show{ display:flex; opacity:1; }
+  .lvl-card{ position:relative; background:linear-gradient(160deg,#1c3aa8,#2456d6 55%,#7c5cff); color:#fff; border-radius:28px;
+    padding:34px 28px; max-width:340px; width:100%; text-align:center; box-shadow:0 30px 80px rgba(4,10,40,.55);
+    animation:lvlIn .5s cubic-bezier(.22,1,.36,1) both; overflow:hidden; }
+  @keyframes lvlIn{ from{opacity:0; transform:translateY(30px) scale(.9);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .lvl-burst{ position:absolute; top:-30%; left:50%; width:220px; height:220px; transform:translateX(-50%);
+    background:radial-gradient(circle,rgba(255,209,102,.6),transparent 62%); animation:pulseGlow 2s ease-in-out infinite; }
+  @keyframes pulseGlow{ 0%,100%{opacity:.6; transform:translateX(-50%) scale(1);} 50%{opacity:1; transform:translateX(-50%) scale(1.15);} }
+  .lvl-milo{ font-size:4.4rem; line-height:1; position:relative; animation:miloWave .9s ease .2s; }
+  .lvl-star{ position:absolute; top:22px; right:calc(50% - 66px); font-size:1.6rem; animation:popIn .6s .35s both, spin 3s linear .9s infinite; }
+  @keyframes spin{ to{transform:rotate(360deg);} }
+  .lvl-t{ font-family:'Poppins',sans-serif; font-weight:700; letter-spacing:2px; text-transform:uppercase; font-size:.8rem; opacity:.9; margin-top:8px; }
+  .lvl-n{ font-family:'Poppins',sans-serif; font-weight:800; font-size:2.2rem; margin:2px 0 6px; }
+  .lvl-d{ color:rgba(255,255,255,.9); font-size:.95rem; }
+  .lvl-card .cta{ background:rgba(255,255,255,.95)!important; color:#2456d6!important; box-shadow:0 10px 24px rgba(0,0,0,.25)!important; }
+
+  /* ===== Estados vacíos con personalidad ===== */
+  .empty{ text-align:center; padding:30px 18px; }
+  .empty .em{ font-size:3.2rem; line-height:1; animation:miloFloat 3.4s ease-in-out infinite; display:inline-block; }
+  .empty h3{ font-family:'Poppins',sans-serif; color:var(--accent-d); margin:10px 0 4px; font-size:1.05rem; }
+  .empty p{ color:var(--muted); font-size:.9rem; max-width:320px; margin:0 auto 12px; }
+
+  /* ===== PROFUNDIDAD / PLANOS — modales y overlays premium (jerarquía Z) ===== */
+  .legal-ov,.chat-ov,.mouth-ov{ background:rgba(10,18,45,.5)!important; backdrop-filter:blur(10px)!important; -webkit-backdrop-filter:blur(10px)!important; }
+  .legal-card,.chat-card,.mouth-card,.gate-card{ box-shadow:0 30px 80px rgba(4,10,40,.5)!important; border:1px solid rgba(255,255,255,.5); animation:modalIn .42s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes modalIn{ from{opacity:0; transform:translateY(24px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .legal-card,.chat-card{ border-radius:24px!important; }
+  .legal-head,.chat-head{ border-radius:24px 24px 0 0; }
+  .legal-x,.chat-x,.mouth-x{ transition:transform .15s var(--spring),background .15s; }
+  .legal-x:hover,.chat-x:hover,.mouth-x:hover{ transform:rotate(90deg) scale(1.06); }
+  /* el chat-ov overlay del juego de práctica también */
+  #tpOv{ background:rgba(10,18,45,.5)!important; backdrop-filter:blur(10px)!important; -webkit-backdrop-filter:blur(10px)!important; }
+  #tpOv .chat-card{ border-radius:24px!important; }
+
+  /* ===== MOTION — transiciones y micro-presión (se siente vivo) ===== */
+  .tab.active{ animation:tabIn .42s cubic-bezier(.22,1,.36,1) both!important; }
+  @keyframes tabIn{ from{opacity:0; transform:translateY(14px) scale(.99);} to{opacity:1; transform:translateY(0) scale(1);} }
+  /* micro-presión al tocar opciones y tarjetas de lección */
+  .opt{ transition:transform .12s var(--spring),background .15s,border-color .15s,box-shadow .15s; }
+  .opt:hover{ transform:translateY(-1px); box-shadow:var(--sh-rest); }
+  .opt:active{ transform:scale(.98); }
+  .lesson-card:active{ transform:scale(.99); }
+  .btn:active,.cta:active,nav button:active{ transform:scale(.97); }
+  .pf-row:active{ background:var(--card2); transform:scale(.995); }
+  /* brillo que recorre las barras de progreso */
+  .progfill,.progwrap>div,[style*="linear-gradient(90deg,#4c6fff"],[style*="linear-gradient(90deg,#2456d6"]{ position:relative; overflow:hidden; }
+  .progfill:after{ content:''; position:absolute; inset:0; background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent); transform:translateX(-100%); animation:barShine 2.6s ease-in-out infinite; }
+  @keyframes barShine{ 0%,55%{transform:translateX(-100%);} 100%{transform:translateX(120%);} }
+  /* iconos de sección hacen un micro-bounce al activarse */
+  nav button.active{ animation:navPop .32s var(--spring); }
+  @keyframes navPop{ 0%{transform:scale(.9);} 55%{transform:scale(1.06) translateY(-1px);} 100%{transform:scale(1) translateY(-1px);} }
+  /* ===== Barra de confianza de la landing ===== */
+  .land-trust{ display:flex; flex-wrap:wrap; gap:10px; justify-content:space-around; margin-top:16px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); border-radius:20px; padding:16px 12px;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); animation:riseIn .55s var(--spring) both; }
+  .land-trust .lt-item{ text-align:center; flex:1; min-width:90px; }
+  .land-trust .lt-n{ font-family:'Poppins',sans-serif; font-weight:800; font-size:1.5rem; color:#ffd166; line-height:1.1; }
+  .land-trust .lt-l{ color:#dde6ff; font-size:.74rem; margin-top:2px; }
+
+  /* ===== ATMÓSFERA POR IDIOMA (sutil, da identidad a cada idioma) ===== */
+  body[data-lang="en"]{ --atmo:#4c6fff; }  /* Nueva York · tech · azul */
+  body[data-lang="es"]{ --atmo:#f59e0b; }  /* plazas · cálido · ámbar */
+  body[data-lang="pt"]{ --atmo:#14b8a6; }  /* playas · turquesa */
+  body[data-lang="fr"]{ --atmo:#f472b6; }  /* París · crema-rosé */
+  body:after{ content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+      radial-gradient(circle at 50% -8%, color-mix(in srgb,var(--atmo,#4c6fff) 14%,transparent), transparent 42%),
+      radial-gradient(circle at 100% 100%, color-mix(in srgb,var(--atmo,#4c6fff) 8%,transparent), transparent 40%);
+    transition:background .6s ease; }
+  @supports not (color:color-mix(in srgb,#000,#fff)){ body:after{ display:none; } }
+
+  /* ===== Dock de navegación inferior tipo iOS (móvil) — se siente app nativa ===== */
+  @media(max-width:760px){
+    nav{ position:fixed; top:auto; bottom:0; left:0; right:0; border-radius:22px 22px 0 0;
+      padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px)); justify-content:flex-start;
+      box-shadow:0 -10px 34px rgba(20,30,60,.14); border-top:1px solid rgba(255,255,255,.6); border-bottom:none; z-index:60; }
+    body.dark nav{ border-top-color:rgba(255,255,255,.06); }
+    body{ padding-bottom:88px; }
+    nav button{ scroll-snap-align:center; }
+    /* el botón flotante de reportar sube para no chocar con el dock */
+    #reportBtn{ bottom:82px!important; }
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -499,7 +667,7 @@ initSupa();
   if(n<=0){ try{renderAuth();}catch(e){} return; }
   setTimeout(function(){ initSupa(); if(supa){ try{sbInitSession();}catch(e){} } else { try{renderAuth();}catch(e){} waitSupa(n-1); } }, 600);
 })(8);
-const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone','prog_en','prog_es','prog_pt','prog_fr','dailyXP','activeDays','lives','chatTime','miPlan','miProgram','mentorLog','unlockedSeen','dentalDone'];
+const CLOUD_KEYS=['profile','xp','ulevel','unlocked','done','unitDone','streak','daily','review','collected','curLevel','curTarget','achShown','challengeDate','tourDone','prog_en','prog_es','prog_pt','prog_fr','dailyXP','activeDays','lives','chatTime','miPlan','miProgram','mentorLog','unlockedSeen','dentalDone','lastDental','forgotWords','skillTotals'];
 var cloudTimer=null, cloudReady=false;
 function scheduleCloudSave(){ if(!supa||!sbUser||!cloudReady) return; clearTimeout(cloudTimer); cloudTimer=setTimeout(saveCloud,2500); }
 async function saveCloud(){
@@ -732,6 +900,14 @@ function ensureGate(){
     +'<p class="sub">Milo 🐙 te entrena la pronunciación real y te hace conversar desde el día uno. Sin pena, sin teoría aburrida, a tu ritmo. (También español, portugués y francés.)</p>'
     +'<button class="btn" style="background:#ffd166;color:#16357f;font-weight:800;font-size:1.05rem;padding:13px 22px;" onclick="gateScroll(\'secDemo\')">🎤 Probar gratis ahora</button>'
     +'</div><div style="text-align:center;"><div class="land-milo">🐙</div><div style="color:#dde6ff;font-weight:700;font-size:.85rem;margin-top:4px;">Milo, tu pulpo políglota</div></div></div>';
+  /* BARRA DE CONFIANZA (métricas) */
+  h+='<div class="land-trust">'
+    +'<div class="lt-item"><div class="lt-n">A1→C1</div><div class="lt-l">Todos los niveles</div></div>'
+    +'<div class="lt-item"><div class="lt-n">4</div><div class="lt-l">Idiomas</div></div>'
+    +'<div class="lt-item"><div class="lt-n">+1.000</div><div class="lt-l">Palabras</div></div>'
+    +'<div class="lt-item"><div class="lt-n">14+</div><div class="lt-l">Profesiones</div></div>'
+    +'<div class="lt-item"><div class="lt-n">IA</div><div class="lt-l">Conversación real</div></div>'
+    +'</div>';
   /* DEMO SIN FRICCIÓN (sin registro, no usa base de datos) */
   h+='<div class="land-sec" id="secDemo" style="text-align:center;"><h2>🎤 Pruébalo en 20 segundos</h2><p class="lead">Sin registro. Mira lo fácil que se siente aprender con Milo.</p><div id="demoHost"></div></div>';
   /* 3 BENEFICIOS */
@@ -2849,6 +3025,7 @@ const TARGET_INFO={en:{flag:'\uD83C\uDDFA\uD83C\uDDF8',name:'Inglés'},es:{flag:
 let curTarget=store.get('curTarget','en');
 function applyTarget(code){
   curTarget=code; store.set('curTarget',code);
+  try{ document.body.setAttribute('data-lang', code); }catch(e){} /* atmósfera por idioma */
   DATA = LANG_DATA[code]||ENGLISH_DATA;
   TTS_LANG = TARGET_TTS[code]||'en';
   const enOnly=['dental','speak','pron','accent','extras'];
@@ -3016,10 +3193,13 @@ Object.assign(TT.pt,{ exT:'🌎 Explorar',exLead:'Curiosidades, cultura e ajuste
   obGenderT:'Como você se identifica?',obGenderD:'Assim o Milo fala com você corretamente. Pode mudar depois.',obGF:'👩 Feminino',obGM:'👨 Masculino',obGN:'🧑 Prefiro neutro',obGX:'🤐 Prefiro não dizer',obLangT:'Qual idioma você quer aprender?',obWhyT:'Por que você quer aprender',obWhyD:'Milo vai personalizar sua motivação.',obCareerT:'Qual é a sua carreira ou profissão?',obCareerD:'Mostraremos vocabulário da sua área nas lições.',obOther:'Outra carreira',obWhich:'Qual? Escreva',obSave:'Salvar',obCareerNote:'Se não vê a sua, escreva em "Outra carreira" e adicionaremos em breve. 🙌',obTimeT:'Quanto tempo por dia? ⏰',obTimeD:'Milo vai ajustar sua meta diária ao seu ritmo. O importante é a constância.',obStartT:'Por onde você quer começar?',obBeginner:'Sou iniciante',obBeginnerD:'Comece do A1, passo a passo.',obKnow:'Já sei um pouco',obKnowD:'Faça o teste de nível e comece no seu nível.',obPerfect:'Perfeito' });
 Object.assign(TT.fr,{ exT:'🌎 Explorer',exLead:'Curiosités, culture et réglages.',exComments:'Commentaires',exCommentsD:'Lis et laisse des avis de la communauté Milo.',exExtras:'Extras',exExtrasD:'Erreurs fréquentes, argot et sons difficiles.',exAccent:'Sonner natif',exAccentD:'Rythme, réductions et musicalité de la langue.',exSettings:'⚙️ Réglages',exLangBtn:'🌍 Langue :',exTour:'❓ Comment utiliser l\'app (visite)',exTestAudio:'🔊 Tester le son',exTheme:'🎨 Thème de couleur :',exView:'Voir',
   obGenderT:'Comment t\'identifies-tu ?',obGenderD:'Ainsi Milo te parle correctement. Tu peux changer plus tard.',obGF:'👩 Féminin',obGM:'👨 Masculin',obGN:'🧑 Plutôt neutre',obGX:'🤐 Je préfère ne pas dire',obLangT:'Quelle langue veux-tu apprendre ?',obWhyT:'Pourquoi veux-tu apprendre',obWhyD:'Milo personnalisera ta motivation.',obCareerT:'Quel est ton métier ou ta profession ?',obCareerD:'Nous montrerons le vocabulaire de ton domaine dans les leçons.',obOther:'Autre métier',obWhich:'Lequel ? Écris-le',obSave:'Enregistrer',obCareerNote:'Si tu ne vois pas le tien, écris-le dans "Autre métier" et on l\'ajoutera bientôt. 🙌',obTimeT:'Combien de temps par jour ? ⏰',obTimeD:'Milo ajustera ton objectif quotidien à ton rythme. La régularité, c\'est l\'essentiel.',obStartT:'Par où veux-tu commencer ?',obBeginner:'Je suis débutant',obBeginnerD:'Commence à A1, étape par étape.',obKnow:'Je connais déjà un peu',obKnowD:'Passe le test de niveau et commence à ton niveau.',obPerfect:'Parfait' });
-Object.assign(TT.es,{ secYourDay:'Tu día',showMyDay:'Ver mi día (plan, mentor, ranking…)',simpleMode:'Modo simple',pfPhoto:'Cambiar foto' });
-Object.assign(TT.en,{ secYourDay:'Your day',showMyDay:'See my day (plan, mentor, ranking…)',simpleMode:'Simple mode',pfPhoto:'Change photo' });
-Object.assign(TT.pt,{ secYourDay:'Seu dia',showMyDay:'Ver meu dia (plano, mentor, ranking…)',simpleMode:'Modo simples',pfPhoto:'Mudar foto' });
-Object.assign(TT.fr,{ secYourDay:'Ta journée',showMyDay:'Voir ma journée (plan, mentor, classement…)',simpleMode:'Mode simple',pfPhoto:'Changer la photo' });
+Object.assign(TT.es,{ secYourDay:'Tu día',showMyDay:'Ver mi día (plan, mentor, ranking…)',simpleMode:'Modo simple',pfPhoto:'Cambiar foto',monthDays1:'Estudiaste',monthDays2:'días este mes. 🟩',forgotT:'Palabras que más olvidas',forgotLead:'Milo guarda las que fallas. Tócalas para oírlas y repásalas.',forgotPractice:'🎮 Repasar estas palabras',ringsT:'📊 Tus anillos de progreso',ringToday:'Meta de hoy',ringLevel:'Tu nivel',ringCourse:'Todo el curso',luTitle:'¡Subiste de nivel!',luDesc:'Milo está orgulloso de ti. ¡Sigue así! 🐙',luBtn:'¡Genial! 🎉',emCmtT:'Milo aún no ve reseñas aquí…',emCmtD:'¿Escribes la primera? A Milo le encantaría saber qué te parece. 🐙',emRankT:'El podio está vacío…',emRankD:'Gana algo de XP y aparecerás aquí. ¡Milo cree en ti! 🐙🏆',avatarT:'🎨 Viste a Milo',avatarLead:'Desbloquea accesorios ganando XP y elige el look de tu Milo.',wrapT:'Milo Wrapped',wrapLead:'Tu resumen de aprendizaje, como un Wrapped. 🐙',wrapXp:'XP total',wrapDays:'Días activos',wrapLevel:'Nivel',wrapTopics:'Temas',wrapWords:'Palabras',wrapSkills:'Tus habilidades',skReading:'Reading',skListening:'Listening',skWriting:'Writing',skSpeaking:'Speaking',certGrant:'Se otorga el presente certificado a',certFor:'por completar satisfactoriamente el nivel',certDate:'Fecha',certCode:'Código',certNote:'Certificado de práctica de Milo · no es un título oficial.',certPrint:'Imprimir / PDF',certShare:'Compartir',certCopied:'¡Copiado! Pégalo donde quieras.',certShareMsg:'completó el nivel',close:'Cerrar' });
+Object.assign(TT.en,{ avatarT:'🎨 Dress up Milo',avatarLead:'Unlock accessories by earning XP and pick Milo\'s look.',wrapT:'Milo Wrapped',wrapLead:'Your learning recap, Wrapped-style. 🐙',wrapXp:'Total XP',wrapDays:'Active days',wrapLevel:'Level',wrapTopics:'Topics',wrapWords:'Words',wrapSkills:'Your skills',skReading:'Reading',skListening:'Listening',skWriting:'Writing',skSpeaking:'Speaking',certGrant:'This certificate is awarded to',certFor:'for successfully completing level',certDate:'Date',certCode:'Code',certNote:'Milo practice certificate · not an official qualification.',certPrint:'Print / PDF',certShare:'Share',certCopied:'Copied! Paste it anywhere.',certShareMsg:'completed level',close:'Close' });
+Object.assign(TT.pt,{ avatarT:'🎨 Vista o Milo',avatarLead:'Desbloqueie acessórios ganhando XP e escolha o visual do Milo.',wrapT:'Milo Wrapped',wrapLead:'Seu resumo de aprendizado, estilo Wrapped. 🐙',wrapXp:'XP total',wrapDays:'Dias ativos',wrapLevel:'Nível',wrapTopics:'Temas',wrapWords:'Palavras',wrapSkills:'Suas habilidades',skReading:'Reading',skListening:'Listening',skWriting:'Writing',skSpeaking:'Speaking',certGrant:'Este certificado é concedido a',certFor:'por concluir com êxito o nível',certDate:'Data',certCode:'Código',certNote:'Certificado de prática do Milo · não é título oficial.',certPrint:'Imprimir / PDF',certShare:'Compartilhar',certCopied:'Copiado! Cole onde quiser.',certShareMsg:'concluiu o nível',close:'Fechar' });
+Object.assign(TT.fr,{ avatarT:'🎨 Habille Milo',avatarLead:'Débloque des accessoires en gagnant des XP et choisis le look de Milo.',wrapT:'Milo Wrapped',wrapLead:'Ton récap d\'apprentissage, façon Wrapped. 🐙',wrapXp:'XP total',wrapDays:'Jours actifs',wrapLevel:'Niveau',wrapTopics:'Thèmes',wrapWords:'Mots',wrapSkills:'Tes compétences',skReading:'Reading',skListening:'Listening',skWriting:'Writing',skSpeaking:'Speaking',certGrant:'Ce certificat est décerné à',certFor:'pour avoir terminé le niveau',certDate:'Date',certCode:'Code',certNote:'Certificat de pratique Milo · pas un diplôme officiel.',certPrint:'Imprimer / PDF',certShare:'Partager',certCopied:'Copié ! Colle-le où tu veux.',certShareMsg:'a terminé le niveau',close:'Fermer' });
+Object.assign(TT.en,{ secYourDay:'Your day',showMyDay:'See my day (plan, mentor, ranking…)',simpleMode:'Simple mode',pfPhoto:'Change photo',monthDays1:'You studied',monthDays2:'days this month. 🟩',forgotT:'Words you forget most',forgotLead:'Milo saves the ones you miss. Tap to hear them and review.',forgotPractice:'🎮 Review these words',ringsT:'📊 Your progress rings',ringToday:'Today\'s goal',ringLevel:'Your level',ringCourse:'Whole course',luTitle:'You leveled up!',luDesc:'Milo is proud of you. Keep it up! 🐙',luBtn:'Awesome! 🎉',emCmtT:'Milo doesn\'t see any reviews yet…',emCmtD:'Wanna write the first one? Milo would love to hear what you think. 🐙',emRankT:'The podium is empty…',emRankD:'Earn some XP and you\'ll show up here. Milo believes in you! 🐙🏆' });
+Object.assign(TT.pt,{ secYourDay:'Seu dia',showMyDay:'Ver meu dia (plano, mentor, ranking…)',simpleMode:'Modo simples',pfPhoto:'Mudar foto',monthDays1:'Você estudou',monthDays2:'dias este mês. 🟩',forgotT:'Palavras que mais esquece',forgotLead:'Milo guarda as que você erra. Toque para ouvir e revisar.',forgotPractice:'🎮 Revisar estas palavras',ringsT:'📊 Seus anéis de progresso',ringToday:'Meta de hoje',ringLevel:'Seu nível',ringCourse:'Curso todo',luTitle:'Você subiu de nível!',luDesc:'Milo está orgulhoso de você. Continue assim! 🐙',luBtn:'Ótimo! 🎉',emCmtT:'Milo ainda não vê avaliações aqui…',emCmtD:'Quer escrever a primeira? Milo adoraria saber o que você acha. 🐙',emRankT:'O pódio está vazio…',emRankD:'Ganhe um pouco de XP e você aparecerá aqui. Milo acredita em você! 🐙🏆' });
+Object.assign(TT.fr,{ secYourDay:'Ta journée',showMyDay:'Voir ma journée (plan, mentor, classement…)',simpleMode:'Mode simple',pfPhoto:'Changer la photo',monthDays1:'Tu as étudié',monthDays2:'jours ce mois-ci. 🟩',forgotT:'Mots que tu oublies le plus',forgotLead:'Milo garde ceux que tu rates. Touche pour les écouter et réviser.',forgotPractice:'🎮 Réviser ces mots',ringsT:'📊 Tes anneaux de progrès',ringToday:'Objectif du jour',ringLevel:'Ton niveau',ringCourse:'Tout le cours',luTitle:'Tu as gagné un niveau !',luDesc:'Milo est fier de toi. Continue comme ça ! 🐙',luBtn:'Super ! 🎉',emCmtT:'Milo ne voit pas encore d\'avis ici…',emCmtD:'Tu écris le premier ? Milo adorerait savoir ce que tu en penses. 🐙',emRankT:'Le podium est vide…',emRankD:'Gagne des XP et tu apparaîtras ici. Milo croit en toi ! 🐙🏆' });
 /* Claves de la Ruta clínica dental */
 Object.assign(TT.es,{ dentT:'Dental English · Ruta clínica',dentLead:'De la recepción a la especialidad. Toca una etapa para estudiarla. 🦷',dentModules:'módulos',dentDone:'✓ completada',dentHere:'aquí estás' });
 Object.assign(TT.en,{ dentT:'Dental English · Clinical path',dentLead:'From front desk to specialty. Tap a stage to study it. 🦷',dentModules:'modules',dentDone:'✓ completed',dentHere:'you are here' });
@@ -3047,6 +3227,7 @@ function applyUILang(){
   document.querySelectorAll('#mainNav button').forEach(function(b){ if(map[b.dataset.tab]) b.textContent=map[b.dataset.tab]; });
 }
 function goTab(id){try{exitFocus();}catch(e){}document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
+  try{ document.body.setAttribute('data-sec', id); }catch(e){} /* acento de color por sección */
   try{ if(id==='practicar')renderPracticar(); else if(id==='progreso')renderProgreso(); else if(id==='explorar')renderExplorar(); else if(id==='perfil')renderPerfil(); }catch(e){}
   window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('#mainNav button').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.tab)));
@@ -3520,6 +3701,7 @@ function finishQuiz(host){
   if(qState.mode==='test'){return finishTest(host);}
   if(qState.mode==='dentalquiz'){
     addXP(qState.score*5);confetti();beep('win');
+    try{ store.set('lastDental',Date.now()); }catch(e){}
     /* marca la etapa clínica como completada si pasó (≥60%) */
     try{ var pctD=qState.score/qState.items.length; if(pctD>=0.6){ var dcode=(DENTAL_ACADEMY[curDental]||{}).code; if(dcode){ var dd=store.get('dentalDone',{}); dd[dcode]=true; store.set('dentalDone',dd); } } }catch(e){}
     let h='<div class="scorebig">'+qState.score+' / '+qState.items.length+'</div><p style="text-align:center;">🦷 ¡Buen trabajo, '+gword('doctora','doctor','doctor@')+'! +'+(qState.score*5)+' XP</p>';
@@ -4005,7 +4187,7 @@ function vgAns(btn,choice,ans){
   document.querySelectorAll('#tpBody .opt').forEach(function(x){x.disabled=true;});
   var good=choice===ans, fb=document.getElementById('tpFb');
   if(good){vgState.score++;try{beep('good');}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
-  else{btn.classList.add('wrong');try{beep('bad');}catch(e){}loseLife();if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Era: '+ans+'</span>';}
+  else{btn.classList.add('wrong');try{beep('bad');}catch(e){}loseLife();try{logForgot(ans);}catch(e){}if(fb)fb.innerHTML='<span style="color:var(--red)">✗ Era: '+ans+'</span>';}
   if(livesEnabled()&&livesLeft()<=0){ setTimeout(function(){var b=document.getElementById('tpBody');if(b)b.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:2.4rem;">💔</div><h3>Sin vidas</h3><button class="btn primary" onclick="notifyPremium()">⭐ Hazte Pro</button> <button class="btn" onclick="closeTP()">Cerrar</button></div>';},1100); return; }
   setTimeout(function(){vgState.i++;renderVG();},1150);
 }
@@ -4449,7 +4631,7 @@ function dailyDone(sk){checkDailyReset();return !!daily[sk];}
 function dailyCount(){checkDailyReset();return SK4.filter(x=>daily[x[0]]).length;}
 function markDaily(sk){
   checkDailyReset();
-  if(!daily[sk]){daily[sk]=true;store.set('daily',daily);addXP(DAILY_XP[sk]||5);beep('good');toast('✓ '+skLabel(sk)+' de hoy hecho');
+  if(!daily[sk]){daily[sk]=true;store.set('daily',daily);try{var st=store.get('skillTotals',{});st[sk]=(st[sk]||0)+1;store.set('skillTotals',st);}catch(e){}addXP(DAILY_XP[sk]||5);beep('good');toast('✓ '+skLabel(sk)+' de hoy hecho');
     if(dailyCount()===4){confetti();beep('win');addXP(20);setTimeout(()=>toast('🏆 ¡Meta diaria completa! +20 XP'),700);}}
   renderContent();renderHome();
 }
@@ -4508,8 +4690,25 @@ function addXP(n){
   xp+=n;store.set('xp',xp);xpPop('+'+n+' XP');
   markActiveDay(); addDailyXP(n); addWeeklyXP(n);
   const nl=userLevel().lvl, prev=store.get('ulevel',1);
-  if(nl>prev){store.set('ulevel',nl);setTimeout(function(){confetti();beep('win');toast('⭐ ¡Subiste a Nivel '+nl+'!');},500);}
+  if(nl>prev){store.set('ulevel',nl);setTimeout(function(){ try{celebrateLevelUp(nl);}catch(e){ confetti();beep('win');toast('⭐ ¡Subiste a Nivel '+nl+'!'); } },500);}
   try{schedulePublish();}catch(e){}
+}
+/* ===== CELEBRACIÓN PREMIUM AL SUBIR DE NIVEL ===== */
+function celebrateLevelUp(lvl){
+  try{beep('win');}catch(e){} try{confetti();}catch(e){}
+  var o=document.getElementById('lvlOv');
+  if(!o){ o=document.createElement('div'); o.id='lvlOv'; o.className='lvl-ov'; document.body.appendChild(o); }
+  o.innerHTML='<div class="lvl-card">'
+    +'<div class="lvl-burst"></div>'
+    +'<div class="lvl-milo">🐙</div>'
+    +'<div class="lvl-star">⭐</div>'
+    +'<div class="lvl-t">'+T('luTitle')+'</div>'
+    +'<div class="lvl-n">'+T('levelW')+' '+lvl+'</div>'
+    +'<div class="lvl-d">'+T('luDesc')+'</div>'
+    +'<button class="cta" style="max-width:220px;margin:14px auto 0;" onclick="document.getElementById(\'lvlOv\').classList.remove(\'show\')">'+T('luBtn')+'</button>'
+    +'</div>';
+  o.classList.add('show');
+  setTimeout(function(){ try{confetti();}catch(e){} },400);
 }
 /* ===== RANKING SOCIAL (Supabase tabla 'leaderboard') ===== */
 function weekStartStr(){ var d=new Date(); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.toISOString().slice(0,10); }
@@ -4608,12 +4807,12 @@ async function renderComments(){
     +'<div id="cmtStars" style="margin-bottom:6px;">'+starPicker()+'</div>'
     +'<textarea id="cmtText" placeholder="Escribe tu comentario..." style="width:100%;min-height:70px;"></textarea>'
     +'<button class="btn primary" style="margin-top:6px;" onclick="submitComment()">Publicar</button></div>';
-  b.innerHTML=form+'<p class="note">Cargando comentarios...</p>';
+  b.innerHTML=form+skeletonRows(3);
   if(!supa){ b.innerHTML=form+'<p class="note">Inicia sesión para ver y publicar comentarios.</p>'; return; }
   try{
     var r=await supa.from('comments').select('*').order('created_at',{ascending:false}).limit(50); var rows=r.data||[];
     var list=rows.map(function(c){ var st=''; for(var i=0;i<(c.rating||0);i++)st+='⭐'; return '<div style="border-bottom:1px solid #eef1f8;padding:9px 0;"><div style="font-weight:700;color:var(--blue);">'+(c.name||'Estudiante')+' <span style="font-size:.8rem;">'+st+'</span></div><div>'+String(c.text||'').replace(/</g,'&lt;')+'</div></div>'; }).join('');
-    b.innerHTML=form+(list||'<p class="note">Aún no hay comentarios. ¡Sé el primero! 🐙</p>');
+    b.innerHTML=form+(list||emptyState('🐙💬',T('emCmtT'),T('emCmtD'),'',''));
   }catch(e){ b.innerHTML=form+'<p class="note">No se pudieron cargar (¿ya creaste la tabla <b>comments</b> en Supabase?).</p>'; }
 }
 async function submitComment(){
@@ -4742,7 +4941,7 @@ async function renderLeaderboard(){
   var host=document.getElementById('lbHost'); if(!host)return;
   var tabs='<div class="gate-tabs" style="margin-bottom:10px;"><button class="'+(lbTab==='global'?'active':'')+'" onclick="lbTab=\'global\';renderLeaderboard();">🌍 Global</button><button class="'+(lbTab==='week'?'active':'')+'" onclick="lbTab=\'week\';renderLeaderboard();">🔥 Semanal</button><button class="'+(lbTab==='friends'?'active':'')+'" onclick="lbTab=\'friends\';renderLeaderboard();">👥 Amigos</button></div>';
   if(!supa||!sbUser){ host.innerHTML=tabs+'<p class="note">Inicia sesión para ver el ranking.</p>'; return; }
-  host.innerHTML=tabs+'<p class="note">Cargando...</p>';
+  host.innerHTML=tabs+skeletonRows(5);
   try{
     var rows=[], key=(lbTab==='week')?'week_xp':'xp';
     if(lbTab==='friends'){
@@ -4754,7 +4953,7 @@ async function renderLeaderboard(){
     var list=rows.map(function(p,i){ var me=(sbUser&&p.user_id===sbUser.id); var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
       var nudgeBtn=(!me && lbTab==='friends')?'<button class="btn" title="Enviar ánimo" style="padding:4px 9px;font-size:.95rem;" onclick="openNudge(\''+p.user_id+'\',\''+String(p.name||'amigo').replace(/[\\\'"<>]/g,"")+'\')">👋</button>':'';
       return '<div style="display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;'+(me?'background:#eef3ff;':'')+'border-bottom:1px solid #f0f3fa;"><div style="width:26px;text-align:center;font-weight:800;">'+medal+'</div><div style="flex:1;'+(me?'font-weight:800;color:var(--blue);':'')+'">'+(p.name||'—')+(me?' (tú)':'')+'</div><div style="font-size:.82rem;color:var(--muted);white-space:nowrap;">⭐'+(p.ulevel||1)+' · 🔥'+(p.streak||0)+'</div><div style="width:60px;text-align:right;font-weight:800;color:var(--blue);">'+(p[key]||0)+' XP</div>'+nudgeBtn+'</div>'; }).join('');
-    host.innerHTML=tabs+(lbTab==='friends'?friendsPanel():'')+(list||'<p class="note">Aún no hay datos. ¡Gana XP para aparecer! 🐙</p>');
+    host.innerHTML=tabs+(lbTab==='friends'?friendsPanel():'')+(list||emptyState('🐙🏆',T('emRankT'),T('emRankD'),'',''));
     if(lbTab==='friends') setTimeout(drawFriendQR,50);
   }catch(e){ host.innerHTML=tabs+'<p class="note">No se pudo cargar (¿ya creaste la tabla <b>leaderboard</b> en Supabase?).</p>'; }
 }
@@ -4835,6 +5034,106 @@ function weekCalHTML(){
   }
   return '<div class="card"><h2>'+T('weekT')+'</h2><div style="display:flex;justify-content:space-between;gap:4px;">'+cells+'</div><p class="note" style="margin:8px 0 0;">'+T('streakNow')+' 🔥 '+streak.count+' '+T('dayP')+'. '+T('dontBreak')+'</p></div>';
 }
+/* ===== MILO WRAPPED — estadísticas bonitas estilo Spotify Wrapped ===== */
+function wrappedHTML(){
+  var dias=(store.get('activeDays',[])||[]).length;
+  var temas=0; try{ var ud=store.get('unitDone',{}); temas=Object.keys(ud).filter(function(k){return ud[k];}).length; }catch(e){}
+  var palabras=0; try{ var col=store.get('collected',{}); palabras=Object.keys(col).length; }catch(e){}
+  var ulv=(typeof userLevel==='function')?userLevel().lvl:1;
+  var st=store.get('skillTotals',{}); var reading=st.reading||0, listening=st.listening||0, writing=st.writing||0, speaking=st.speaking||0;
+  var mx=Math.max(1,reading,listening,writing,speaking);
+  function stat(n,l){ return '<div style="flex:1;min-width:78px;text-align:center;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.7rem;color:#fff;line-height:1.1;">'+n+'</div><div style="color:rgba(255,255,255,.82);font-size:.72rem;">'+l+'</div></div>'; }
+  function bar(lbl,ico,v,color){ var w=Math.round(v/mx*100); return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:.78rem;color:rgba(255,255,255,.9);margin-bottom:3px;"><span>'+ico+' '+lbl+'</span><span style="font-weight:800;">'+v+'</span></div><div style="background:rgba(255,255,255,.18);border-radius:99px;height:8px;overflow:hidden;"><div style="background:'+color+';height:100%;width:'+w+'%;border-radius:99px;transition:width .8s var(--spring);"></div></div></div>'; }
+  return '<div class="card" style="background:linear-gradient(150deg,#5b21b6,#7c3aed 55%,#ec4899);border:none;color:#fff;">'
+    +'<h2 style="color:#fff;">✨ '+T('wrapT')+'</h2>'
+    +'<p class="note" style="color:rgba(255,255,255,.82);margin:0 0 12px;">'+T('wrapLead')+'</p>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">'
+      +stat(xp,T('wrapXp'))+stat(dias,T('wrapDays'))+stat('⭐'+ulv,T('wrapLevel'))+stat(temas,T('wrapTopics'))+stat(palabras,T('wrapWords'))
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.10);border-radius:16px;padding:14px;">'
+      +'<div style="font-weight:700;font-size:.82rem;margin-bottom:8px;color:#fff;">'+T('wrapSkills')+'</div>'
+      +bar(T('skReading'),'📕',reading,'#60a5fa')
+      +bar(T('skListening'),'🎧',listening,'#34d399')
+      +bar(T('skWriting'),'✍️',writing,'#fbbf24')
+      +bar(T('skSpeaking'),'🎙️',speaking,'#f472b6')
+    +'</div></div>';
+}
+/* ===== ANILLOS (donas) de progreso — gráficos bonitos ===== */
+function donut(pct,label,val,color){
+  pct=Math.max(0,Math.min(100,pct||0));
+  var r=34, c=2*Math.PI*r, off=c*(1-pct/100);
+  return '<div style="text-align:center;flex:1;min-width:96px;">'
+    +'<svg viewBox="0 0 84 84" width="88" height="88" style="transform:rotate(-90deg);">'
+      +'<circle cx="42" cy="42" r="'+r+'" fill="none" stroke="var(--card2)" stroke-width="9"></circle>'
+      +'<circle cx="42" cy="42" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+c.toFixed(1)+'" style="transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1);" data-off="'+off.toFixed(1)+'"></circle>'
+      +'<text x="42" y="42" text-anchor="middle" dominant-baseline="central" transform="rotate(90 42 42)" style="font:800 15px Poppins,sans-serif;fill:var(--ink);">'+Math.round(pct)+'%</text>'
+    +'</svg>'
+    +'<div style="font-weight:800;font-size:.9rem;margin-top:2px;">'+val+'</div>'
+    +'<div class="note" style="margin:0;font-size:.76rem;">'+label+'</div></div>';
+}
+function donutRingsHTML(){
+  var hoy=Math.round(Math.min(100,(todayXP()/Math.max(1,dailyGoalXP()))*100));
+  var niv=(typeof levelPct==='function')?levelPct(curLevel):0;
+  var cur=(typeof totalPct==='function')?totalPct():0;
+  return '<div class="card"><h2>'+T('ringsT')+'</h2>'
+    +'<div style="display:flex;gap:10px;justify-content:space-around;flex-wrap:wrap;margin-top:6px;">'
+    +donut(hoy,T('ringToday'),todayXP()+' XP','#22c55e')
+    +donut(niv,T('ringLevel'),curLevel,'#4c6fff')
+    +donut(cur,T('ringCourse'),'A1→C1','#0ea5e9')
+    +'</div></div>';
+}
+/* activa la animación de los anillos cuando ya están en el DOM */
+function animateDonuts(){ try{ document.querySelectorAll('#progresoContent circle[data-off]').forEach(function(c){ setTimeout(function(){ c.setAttribute('stroke-dashoffset', c.getAttribute('data-off')); },60); }); }catch(e){} }
+/* ===== CALENDARIO MENSUAL de estudio (motivación visual) ===== */
+function monthCalHTML(){
+  var act={}; (store.get('activeDays',[])||[]).forEach(function(s){act[s]=1;});
+  var now=new Date(), y=now.getFullYear(), m=now.getMonth();
+  var months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var monthsEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var mname=(nlang()==='en'?monthsEN:months)[m];
+  var first=new Date(y,m,1); var startDow=(first.getDay()+6)%7; /* lunes=0 */
+  var dim=new Date(y,m+1,0).getDate();
+  var dnames=(nlang()==='en'?['M','T','W','T','F','S','S']:['L','M','X','J','V','S','D']);
+  var head=dnames.map(function(d){return '<div style="text-align:center;font-size:.68rem;color:#8493ad;font-weight:700;">'+d+'</div>';}).join('');
+  var cells='';
+  for(var i=0;i<startDow;i++){ cells+='<div></div>'; }
+  var todayS=todayStr(), cnt=0;
+  for(var day=1;day<=dim;day++){
+    var ds=new Date(Date.UTC(y,m,day)).toISOString().slice(0,10);
+    var on=!!act[ds]; if(on)cnt++;
+    var isToday=(ds===todayS);
+    var bg=on?'linear-gradient(135deg,#22c55e,#15a34a)':(isToday?'#ffd166':'#eef2f9');
+    var fg=on?'#fff':'#5a6b8c';
+    cells+='<div style="aspect-ratio:1;border-radius:9px;background:'+bg+';color:'+fg+';display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;'+(isToday&&!on?'box-shadow:inset 0 0 0 2px #d97706;':'')+'">'+day+'</div>';
+  }
+  return '<div class="card"><h2>📅 '+mname+' '+y+'</h2>'
+    +'<p class="note" style="margin:0 0 8px;">'+T('monthDays1')+' <b>'+cnt+'</b> '+T('monthDays2')+'</p>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;">'+head+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">'+cells+'</div></div>';
+}
+/* ===== PALABRAS OLVIDADAS (las que más fallas) ===== */
+function logForgot(word){
+  if(!word)return; var w=String(word).trim(); if(!w||w.length>40)return;
+  var fw=store.get('forgotWords',{}); fw[w]=(fw[w]||0)+1; store.set('forgotWords',fw);
+}
+function forgotTop(n){
+  var fw=store.get('forgotWords',{}); return Object.keys(fw).sort(function(a,b){return fw[b]-fw[a];}).slice(0,n||25).map(function(k){return {w:k,c:fw[k]};});
+}
+function forgotWordsHTML(){
+  var arr=forgotTop(25); if(!arr.length) return '';
+  var chips=arr.slice(0,12).map(function(o){return '<span onclick="speak(\''+String(o.w).replace(/'/g,"\\'")+'\')" style="cursor:pointer;background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:.84rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;">'+o.w+' 🔊</span>';}).join(' ');
+  return '<div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,#fffbeb,#ffffff);"><h2 style="color:#b45309;">🧩 '+T('forgotT')+'</h2>'
+    +'<p class="note" style="margin:0 0 10px;">'+T('forgotLead')+'</p>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;">'+chips+'</div>'
+    +'<button class="btn primary" onclick="practiceForgot()">'+T('forgotPractice')+'</button></div>';
+}
+function practiceForgot(){
+  var arr=forgotTop(12); if(arr.length<4){toast('Aún no hay suficientes palabras. ¡Practica un poco más! 🐙');return;}
+  /* construye pares palabra→significado buscando en el vocabulario disponible */
+  var dict={}; try{ Object.keys(DATA).forEach(function(L){ (DATA[L].vocab||[]).forEach(function(v){ if(v&&v.w&&v.es){ dict[v.es]=enOnly(v.w); dict[enOnly(v.w)]=v.es; } }); }); }catch(e){}
+  var pairs=arr.map(function(o){ var other=dict[o.w]; return other?[o.w,other]:[o.w,o.w]; });
+  startVocabGame(pairs, T('forgotT'));
+}
 function wordOfDayHTML(){
   var d=DATA[curLevel]||DATA.A1; var v=pick(d.vocab);
   var exp=(typeof COLLOQUIAL!=='undefined')?pick(COLLOQUIAL):null;
@@ -4859,26 +5158,50 @@ function certificatesHTML(){
   var btns=p.map(function(L){return '<button class="btn" style="margin:3px;" onclick="showCertificate(\''+L+'\')">📜 Certificado '+L+'</button>';}).join('');
   return '<div class="card"><h2>📜 Tus certificados</h2><p class="note" style="margin:0 0 8px;">¡Aprobaste estos niveles! Descarga tu certificado y compártelo. 🐙</p>'+btns+'</div>';
 }
+function certCode(nm,L){ var s=(nm+'·'+L+'·MILO').toUpperCase(); var hh=0; for(var i=0;i<s.length;i++){hh=((hh<<5)-hh+s.charCodeAt(i))|0;} var x=Math.abs(hh).toString(36).toUpperCase(); while(x.length<6)x='0'+x; return 'MILO-'+L+'-'+x.slice(0,6); }
 function showCertificate(L){
   var nm=(profile&&profile.name)||'Estudiante';
   var d=new Date().toLocaleDateString();
+  var code=certCode(nm,L);
+  var lname=(typeof meta!=='undefined'&&meta[L])?meta[L].n:'';
   var ov=document.getElementById('certOv');
   if(!ov){ov=document.createElement('div');ov.id='certOv';ov.className='legal-ov';document.body.appendChild(ov);}
-  ov.innerHTML='<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;padding:0;overflow:hidden;">'
-    +'<div id="certArt" style="border:10px solid #2456d6;margin:14px;border-radius:12px;padding:26px 20px;text-align:center;background:linear-gradient(135deg,#f6f9ff,#fff);">'
-    +'<div style="font-size:2.6rem;">🐙</div>'
-    +'<div style="color:#16357f;font-weight:800;font-size:1.2rem;letter-spacing:1px;">MILO ENGLISH</div>'
-    +'<div style="color:#8493ad;font-size:.8rem;margin-bottom:14px;">Certificado de logro</div>'
-    +'<div style="color:#444;font-size:.9rem;">Se otorga el presente certificado a</div>'
-    +'<div style="color:#16357f;font-weight:800;font-size:1.5rem;margin:6px 0;">'+nm+'</div>'
-    +'<div style="color:#444;font-size:.9rem;">por aprobar satisfactoriamente el nivel</div>'
-    +'<div style="color:#2456d6;font-weight:800;font-size:2rem;margin:6px 0;">'+L+'</div>'
-    +'<div style="color:#8493ad;font-size:.82rem;margin-top:10px;">'+d+' · aprendeconmilo.com</div>'
-    +'<div style="color:#bbb;font-size:.7rem;margin-top:6px;">Certificado de práctica, no es un título oficial.</div>'
+  ov.innerHTML='<div style="background:#fff;border-radius:20px;max-width:580px;width:100%;padding:0;overflow:hidden;box-shadow:0 30px 80px rgba(4,10,40,.5);">'
+    +'<div id="certArt" style="position:relative;margin:16px;border-radius:14px;padding:34px 26px 28px;text-align:center;'
+      +'background:radial-gradient(circle at 50% 0%,#fffdf5,#fff 60%);'
+      +'border:2px solid #d4af37;box-shadow:inset 0 0 0 6px #fff, inset 0 0 0 8px #e9d9a0;overflow:hidden;">'
+    /* filigrana de esquinas */
+    +'<div style="position:absolute;inset:14px;border:1px solid #e6d59a;border-radius:8px;pointer-events:none;"></div>'
+    +'<div style="position:absolute;top:-40px;left:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.18),transparent 70%);"></div>'
+    +'<div style="position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.18),transparent 70%);"></div>'
+    /* sello medallón */
+    +'<div style="width:66px;height:66px;margin:0 auto 6px;border-radius:50%;background:linear-gradient(135deg,#f5d97a,#d4af37);display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 8px 20px rgba(212,175,55,.45);border:3px solid #fff;">🐙</div>'
+    +'<div style="color:#16357f;font-weight:800;font-size:1.15rem;letter-spacing:3px;font-family:\'Poppins\',sans-serif;">MILO</div>'
+    +'<div style="color:#b8912e;font-size:.72rem;letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;">Certificate of Achievement</div>'
+    +'<div style="color:#666;font-size:.88rem;">'+T('certGrant')+'</div>'
+    +'<div style="color:#16357f;font-weight:800;font-size:1.7rem;margin:8px 0;font-family:\'Poppins\',sans-serif;border-bottom:2px solid #e9d9a0;display:inline-block;padding:0 18px 6px;">'+nm+'</div>'
+    +'<div style="color:#666;font-size:.88rem;margin-top:8px;">'+T('certFor')+'</div>'
+    +'<div style="color:#d4af37;font-weight:800;font-size:2.4rem;margin:2px 0;font-family:\'Poppins\',sans-serif;letter-spacing:2px;">'+L+'</div>'
+    +(lname?'<div style="color:#8493ad;font-size:.82rem;">'+lname+'</div>':'')
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;gap:10px;">'
+      +'<div style="text-align:left;"><div style="font-size:.7rem;color:#aaa;">'+T('certDate')+'</div><div style="font-weight:700;color:#444;font-size:.85rem;">'+d+'</div></div>'
+      +'<div style="text-align:center;"><div style="font-family:cursive;color:#16357f;font-size:1.1rem;">Milo 🐙</div><div style="border-top:1px solid #ccc;font-size:.68rem;color:#aaa;padding-top:2px;">aprendeconmilo.com</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:.7rem;color:#aaa;">'+T('certCode')+'</div><div style="font-weight:700;color:#444;font-size:.72rem;letter-spacing:.5px;">'+code+'</div></div>'
     +'</div>'
-    +'<div style="display:flex;gap:8px;justify-content:center;padding:0 16px 16px;"><button class="btn primary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button><button class="btn" onclick="document.getElementById(\'certOv\').style.display=\'none\'">Cerrar</button></div>'
+    +'<div style="color:#c9c0a5;font-size:.66rem;margin-top:12px;">'+T('certNote')+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;padding:0 16px 18px;flex-wrap:wrap;">'
+      +'<button class="btn primary" onclick="window.print()">🖨️ '+T('certPrint')+'</button>'
+      +'<button class="btn" onclick="shareCert(\''+L+'\',\''+code+'\')">🔗 '+T('certShare')+'</button>'
+      +'<button class="btn" onclick="document.getElementById(\'certOv\').style.display=\'none\'">'+T('close')+'</button></div>'
     +'</div>';
   ov.style.display='flex';
+}
+function shareCert(L,code){
+  var nm=(profile&&profile.name)||'Estudiante';
+  var txt='🐙 '+nm+' '+T('certShareMsg')+' '+L+' — Milo · aprendeconmilo.com ('+code+')';
+  try{ if(navigator.share){ navigator.share({title:'Milo · '+L,text:txt,url:'https://aprendeconmilo.com'}); return; } }catch(e){}
+  try{ navigator.clipboard.writeText(txt); toast('🔗 '+T('certCopied')); }catch(e){ toast(txt); }
 }
 function goalProgressHTML(){
   if(!profile||!profile.goal) return '';
@@ -4970,23 +5293,68 @@ function beep(type){
 }
 
 /* ===== MASCOTA: Milo (gatito estilo emoji) ===== */
-const ILLUS='<div class="illus" style="flex:0 0 112px;text-align:center;"><iconify-icon icon="twemoji:octopus" style="font-size:104px;line-height:1;"></iconify-icon><span style="display:none;font-size:96px;">🐙</span></div>';
+/* ===== AVATAR PERSONALIZABLE DE MILO (desbloquea accesorios con XP) ===== */
+var MILO_ITEMS=[
+  {id:'',emoji:'',name:{es:'Sin accesorio',en:'No accessory',pt:'Sem acessório',fr:'Aucun'},xp:0},
+  {id:'grad',emoji:'🎓',name:{es:'Gorro de graduación',en:'Graduation cap',pt:'Capelo',fr:'Toque de diplômé'},xp:50},
+  {id:'party',emoji:'🎉',name:{es:'Fiesta',en:'Party',pt:'Festa',fr:'Fête'},xp:150},
+  {id:'phones',emoji:'🎧',name:{es:'Audífonos',en:'Headphones',pt:'Fones',fr:'Casque'},xp:300},
+  {id:'glasses',emoji:'🕶️',name:{es:'Gafas cool',en:'Cool shades',pt:'Óculos',fr:'Lunettes'},xp:500},
+  {id:'crown',emoji:'👑',name:{es:'Corona',en:'Crown',pt:'Coroa',fr:'Couronne'},xp:1000},
+  {id:'wizard',emoji:'🎩',name:{es:'Sombrero de copa',en:'Top hat',pt:'Cartola',fr:'Haut-de-forme'},xp:1800},
+  {id:'star',emoji:'⭐',name:{es:'Estrella',en:'Star',pt:'Estrela',fr:'Étoile'},xp:3000}
+];
+function miloItem(id){ for(var i=0;i<MILO_ITEMS.length;i++){ if(MILO_ITEMS[i].id===id) return MILO_ITEMS[i]; } return MILO_ITEMS[0]; }
+function miloHatEmoji(){ var it=miloItem((profile&&profile.miloHat)||''); return it?it.emoji:''; }
+function buildIllus(){
+  var hat=miloHatEmoji();
+  return '<div class="illus" style="flex:0 0 112px;text-align:center;position:relative;">'
+    +(hat?'<span class="milo-hat" style="position:absolute;top:-4px;left:50%;transform:translateX(-52%);font-size:42px;z-index:3;line-height:1;">'+hat+'</span>':'')
+    +'<iconify-icon icon="twemoji:octopus" style="font-size:104px;line-height:1;"></iconify-icon><span style="display:none;font-size:96px;">🐙</span></div>';
+}
+var ILLUS=buildIllus();
+function setMiloHat(id){ var it=miloItem(id); if(xp<it.xp){ toast('🔒 Necesitas '+it.xp+' XP para desbloquear esto'); return; } profile.miloHat=id; store.set('profile',profile); ILLUS=buildIllus(); try{beep('good');confetti();}catch(e){} try{renderPerfil();}catch(e){} try{renderHome();}catch(e){} }
+function miloAvatarHTML(){
+  var cur=(profile&&profile.miloHat)||'';
+  var grid=MILO_ITEMS.map(function(it){
+    var on=xp>=it.xp, sel=(it.id===cur);
+    var label=it.name[nlang()]||it.name.es;
+    var face='<div style="font-size:2rem;position:relative;height:44px;">'+(it.emoji?'<span style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:1.1rem;">'+it.emoji+'</span>':'')+'🐙</div>';
+    return '<div onclick="'+(on?'setMiloHat(\''+it.id+'\')':'toast(\'🔒 '+it.xp+' XP\')')+'" style="cursor:pointer;text-align:center;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';border-radius:16px;padding:10px 6px;background:'+(sel?'var(--card2)':'var(--card)')+';'+(on?'':'opacity:.5;filter:grayscale(.6);')+'transition:transform .15s var(--spring);">'
+      +face
+      +'<div style="font-size:.72rem;font-weight:700;margin-top:2px;">'+label+'</div>'
+      +'<div class="note" style="margin:0;font-size:.66rem;">'+(on?(sel?'✓':' '):('🔒 '+it.xp+' XP'))+'</div></div>';
+  }).join('');
+  return '<div class="pf-list" style="padding:14px;"><div class="pf-title" style="padding:0 0 8px;">'+T('avatarT')+'</div>'
+    +'<p class="note" style="margin:0 0 10px;">'+T('avatarLead')+'</p>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;">'+grid+'</div></div>';
+}
 
 /* ===== MILO VIVO: mensajes contextuales ===== */
 function miloSays(){
   const dc=dailyCount(), nm=profile.name||'';
+  const hour=new Date().getHours();
+  const goalX=(typeof dailyGoalXP==='function')?dailyGoalXP():40;
+  const curX=(typeof todayXP==='function')?todayXP():0;
+  const rem=Math.max(0,goalX-curX);
+  const g=hour<12?'¡Buenos días':hour<19?'¡Buenas tardes':'¡Buenas noches';
+  /* 1) Se preocupa si abandonaste Dental English */
+  try{ var ld=store.get('lastDental',0); if(profile&&profile.career==='dentistry'&&ld){ var dd=Math.floor((Date.now()-ld)/86400000); if(dd>=5) return 'Hace '+dd+' días no practicas Dental English, '+nm+'. ¿Hacemos 5 minutos? 🦷'; } }catch(e){}
+  /* 2) Vuelve tras ausencia larga */
+  try{ var sl=store.get('streak',{last:''}); if(sl.last){ var gap=Math.floor((Date.now()-new Date(sl.last+'T12:00:00').getTime())/86400000); if(gap>=3) return '¡Te extrañé, '+nm+'! 😴→🤩 Han pasado '+gap+' días. Retomemos con algo cortito, ¿va? 🐙'; } }catch(e){}
+  /* 3) Meta de hoy cumplida / en progreso */
+  if(dc>=4 || (goalX>0&&curX>=goalX)) return '¡Completaste tu meta de hoy, '+nm+'! Chócala con mis 8 brazos. 🐙🏆';
+  if(curX>0 && rem>0) return '¡Vas '+curX+'/'+goalX+' XP hoy, '+nm+'! Solo te faltan '+rem+' para tu meta. 🎯';
+  /* 4) Racha */
+  if(streak.count>=2) return g+', '+nm+'! 🔥 Llevas '+streak.count+' días seguidos. ¡No rompas tu racha!';
+  if(dc>0 && dc<4) return 'Te faltan '+(4-dc)+' de 4 prácticas hoy, '+nm+'. ¡Yo te acompaño! 🐙🎯';
+  /* 5) Saludo por hora + variedad */
   const tips=[
-    'Soy Milo 🐙 y con mis 8 brazos te ayudo: di los verbos en voz alta, no solo los leas. 🗣️',
-    '¿Sabías que el pulpo es súper inteligente? Tú también: 5 min hoy valen más que 1 hora el domingo. ⏰',
-    'Equivocarte es aprender. Yo cambié de color mil veces antes de acertar. ¡Sigue! 💪',
-    '¿Sabías? Repetir en voz alta fija el acento. Hazlo conmigo. 🎧',
-    'Usa hoy el inglés que aprendes hoy. Los pulpos resolvemos rápido. ✨',
-    'Toca 👄 para verme mover labios y lengua. Imítame y verás. 🐙'
+    g+', '+nm+'! Soy Milo 🐙. Di lo que aprendes en voz alta, no solo lo leas. 🗣️',
+    g+', '+nm+'! 5 minutos hoy valen más que 1 hora el domingo. ⏰',
+    g+', '+nm+'! Equivocarte es aprender. ¡Sigue conmigo! 💪',
+    '¡Hola, '+nm+'! Hagamos una práctica rápida, ¿te animas? 🐙'
   ];
-  if(dc===4) return '¡Completaste tu meta de hoy, '+nm+'! Chócala con mis 8 brazos. 🐙🏆';
-  if(streak.count>=2) return 'Llevas '+streak.count+' días seguidos. ¡No rompas la constancia, '+nm+'! 🔥';
-  if(dc>0 && dc<4) return 'Te faltan '+(4-dc)+' de 4 prácticas hoy. ¡Yo te acompaño! 🐙🎯';
-  if(streak.count<=1 && dc===0) return '¡Hola '+nm+'! Soy Milo 🐙. Hagamos una práctica rápida, ¿te animas?';
   return tips[Math.floor(Math.random()*tips.length)];
 }
 
@@ -5140,6 +5508,8 @@ function renderHome(){
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
   el.innerHTML=h;
+  try{ if(!document.body.getAttribute('data-sec')) document.body.setAttribute('data-sec','home'); }catch(e){}
+  try{ document.body.setAttribute('data-lang', (curTarget||'en')); }catch(e){}
   try{ checkUnlocks(); }catch(e){}
   if(!store.get('tourDone',false)) setTimeout(startTour,500);
 }
@@ -5167,7 +5537,11 @@ function renderProgreso(){
     +'<div class="stat"><div class="n">⚡ '+xp+'</div><div class="l">XP</div></div>'
     +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">'+T('prLevels')+'</div></div>'
     +'</div></div>';
+  try{ h+=donutRingsHTML(); }catch(e){}
+  try{ h+=wrappedHTML(); }catch(e){}
   h+=dailyGoalHTML()+weekCalHTML();
+  try{ h+=monthCalHTML(); }catch(e){}
+  try{ h+=forgotWordsHTML(); }catch(e){}
   h+='<div class="card"><h2>'+T('prAch')+'</h2><div class="ach-row">';
   ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
   h+='</div></div>';
@@ -5176,6 +5550,7 @@ function renderProgreso(){
   h+=hubItem('🏅',T('prColl'),T('prCollD'),T('prView'),"goTab('collections')");
   h+=premiumTeaserHTML();
   el.innerHTML=h;
+  try{ animateDonuts(); }catch(e){}
   try{renderLeaderboard();}catch(e){}
 }
 /* ===== PERFIL ===== */
@@ -5209,6 +5584,7 @@ function renderPerfil(){
       +'<span class="statpill">⚡ '+xp+' XP</span></div>'
     +'<div style="margin-top:12px;"><button class="btn" style="padding:7px 16px;background:rgba(255,255,255,.9);border:none;color:#2456d6;" onclick="document.getElementById(\'photoIn\').click()">📷 '+T('pfPhoto')+'</button></div>'
     +'</div>';
+  try{ h+=miloAvatarHTML(); }catch(e){}
   /* Cuenta / info + editar */
   h+='<div class="pf-list"><div class="pf-title">'+T('pfInfo')+'</div>'
     +pfRow('✏️',T('pfName'),nm,'editName()')
@@ -5250,6 +5626,80 @@ function renderPerfil(){
   el.innerHTML=h;
   try{renderAuth();}catch(e){}
 }
+/* ===== PREPARACIÓN TOEFL iBT (formato oficial ETS + estrategias + práctica IA) =====
+   Contenido original basado en el FORMATO público del examen. No reproduce materiales con derechos de autor. */
+function ensureTOEFL(){ if(document.getElementById('toeflOv'))return; var d=document.createElement('div'); d.id='toeflOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🎓 Preparación TOEFL iBT</h3><button class="legal-x" onclick="document.getElementById(\'toeflOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="toeflBody"></div></div>'; document.body.appendChild(d); }
+function openTOEFL(){ ensureTOEFL(); document.getElementById('toeflOv').style.display='flex'; renderTOEFL(); }
+function toeflSec(ico,t,meta,desc,tips,btnLabel,onclick){
+  return '<div class="skillbox"><div class="vhead"><span class="vico">'+ico+'</span><span class="vt">'+t+'</span></div>'
+    +'<p class="note" style="margin:2px 0 6px;"><b>'+meta+'</b></p>'
+    +'<p style="margin:0 0 6px;">'+desc+'</p>'
+    +'<ul style="margin:0 0 8px;">'+tips.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'
+    +(btnLabel?('<button class="btn primary" onclick="'+onclick+'">'+btnLabel+'</button>'):'')+'</div>';
+}
+function renderTOEFL(){
+  var b=document.getElementById('toeflBody'); if(!b)return;
+  var h='<div class="skillbox" style="background:linear-gradient(135deg,#eef3ff,#fff);border-color:#c9d9ff;">'
+    +'<h4 style="margin-top:0;">🎓 TOEFL iBT — visión general</h4>'
+    +'<p style="margin:0 0 6px;">El <b>TOEFL iBT</b> es el examen oficial de inglés académico creado y administrado por <b>ETS</b>. Mide 4 habilidades y se usa para admisión en universidades de habla inglesa.</p>'
+    +'<ul style="margin:0;"><li><b>4 secciones:</b> Reading · Listening · Speaking · Writing.</li>'
+    +'<li><b>Duración:</b> ~2 horas.</li>'
+    +'<li><b>Puntaje:</b> 0–30 por sección · <b>total 0–120</b>.</li>'
+    +'<li>Muchas universidades piden entre <b>80 y 100</b>.</li></ul></div>';
+  h+=toeflSec('📖','Reading','2 pasajes académicos · ~20 preguntas · ~35 min',
+      'Textos de nivel universitario con preguntas de idea principal, detalle, vocabulario, inferencia y resumen.',
+      ['Lee el primer párrafo con atención: suele traer la idea central.','No traduzcas todo: busca la respuesta escaneando (scanning).','En "vocabulary in context", tapa la opción y adivina por el contexto.'],
+      '📕 Practicar Reading','startTOEFLReading()');
+  h+=toeflSec('🎧','Listening','Conferencias y conversaciones · notas · ~36 min',
+      'Escuchas audios académicos una sola vez y respondes. Puedes tomar notas.',
+      ['Toma notas de la ESTRUCTURA: tema → puntos → ejemplos.','Atiende al tono y a las palabras de transición (however, therefore…).','Practica con conferencias reales (TED, podcasts académicos).'],
+      '🎧 Ir a Listening','document.getElementById(\'toeflOv\').style.display=\'none\';curSub=\'skills\';renderSub();renderContent();goTab(\'levels\');');
+  h+=toeflSec('🎙️','Speaking','4 tareas (1 independiente + 3 integradas) · ~16 min',
+      'Grabas respuestas habladas: das tu opinión y resumes lo que leíste/escuchaste.',
+      ['Estructura: opinión + 2 razones + ejemplo. Cronométrate (45–60 s).','Habla claro y con ritmo; mejor fluidez que perfección.','Usa Speak Now de Milo para practicar en voz alta.'],
+      '🎤 Practicar Speaking','document.getElementById(\'toeflOv\').style.display=\'none\';goTab(\'speak\');');
+  h+=toeflSec('✍️','Writing','2 tareas (integrada + academic discussion) · ~29 min',
+      'Escribes ensayos: uno combinando lectura + audio, y otro dando tu opinión argumentada.',
+      ['Plantea tesis clara → 2–3 párrafos con razones → conclusión.','Usa conectores (First, Moreover, In contrast, Therefore).','Escribe tu respuesta abajo y Milo (IA) te da feedback.'],
+      '✍️ Practicar Writing con IA','startTOEFLWriting()');
+  /* Bibliografía oficial (enlaces a la fuente oficial, sin reproducir su contenido) */
+  h+='<div class="skillbox"><h4>📚 Recursos oficiales (ETS)</h4>'
+    +'<p class="note" style="margin:0 0 6px;">La fuente oficial es <b>ETS</b>, creador del examen. Milo te prepara con práctica original basada en el formato; para material oficial acude a:</p>'
+    +'<ul style="margin:0;">'
+    +'<li><a class="link" href="https://www.ets.org/toefl.html" target="_blank" rel="noopener">ETS · TOEFL (sitio oficial)</a></li>'
+    +'<li><a class="link" href="https://www.ets.org/toefl/test-takers/ibt/prepare.html" target="_blank" rel="noopener">TOEFL iBT · Free Practice Test (ETS)</a></li>'
+    +'<li><i>The Official Guide to the TOEFL iBT</i> (ETS) — libro oficial.</li>'
+    +'<li><i>Official TOEFL iBT Tests Vol. 1 & 2</i> (ETS).</li></ul>'
+    +'<p class="note" style="margin:8px 0 0;">Nota: Milo no reproduce el contenido con derechos de autor de ETS; ofrece práctica original con el mismo formato y estrategias.</p></div>';
+  b.innerHTML=h;
+}
+function startTOEFLReading(){
+  var b=document.getElementById('toeflBody'); if(b)b.innerHTML='<p class="note">🐙 Milo está creando un pasaje estilo TOEFL...</p>';
+  if(!CHAT_ENDPOINT){ if(b)b.innerHTML='<p class="note">Activa la IA de Milo para generar prácticas. Mientras tanto, usa los recursos oficiales de ETS.</p><button class="btn" onclick="renderTOEFL()">← Volver</button>'; return; }
+  var p='Crea una práctica de READING estilo TOEFL iBT (contenido ORIGINAL, no copiado). Da: 1) un pasaje académico corto (120-150 palabras) en inglés sobre un tema de ciencia o historia; 2) tres preguntas de opción múltiple (idea principal, detalle, inferencia) con 4 opciones cada una; 3) al final las respuestas correctas. Formato claro en español para las instrucciones y en inglés el pasaje y preguntas.';
+  fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0.6,messages:[{role:'user',content:p}]})})
+    .then(function(r){return r.json();}).then(function(j){ var t=(j&&(j.reply||j.content))||''; if(b)b.innerHTML='<div class="skillbox" style="white-space:pre-wrap;line-height:1.55;">'+String(t).replace(/</g,'&lt;')+'</div><div style="text-align:center;"><button class="btn primary" onclick="startTOEFLReading()">🔄 Otro pasaje</button> <button class="btn" onclick="renderTOEFL()">← Volver</button></div>'; })
+    .catch(function(){ if(b)b.innerHTML='<p class="note">No se pudo generar. Intenta de nuevo.</p><button class="btn" onclick="renderTOEFL()">← Volver</button>'; });
+}
+function startTOEFLWriting(){
+  var b=document.getElementById('toeflBody'); if(!b)return;
+  b.innerHTML='<div class="skillbox"><h4>✍️ Writing estilo TOEFL — Independent task</h4>'
+    +'<p style="margin:0 0 8px;"><b>Prompt:</b> <i>"Do you agree or disagree: Technology has made people less social. Use reasons and examples to support your answer."</i></p>'
+    +'<textarea id="toeflW" placeholder="Write your essay here (aim for 250–300 words)..." style="min-height:150px;"></textarea>'
+    +'<button class="btn primary" style="margin-top:8px;" onclick="gradeTOEFLWriting()">✅ Revisar con Milo (IA)</button>'
+    +'<div id="toeflWres" style="margin-top:10px;"></div>'
+    +'<div style="margin-top:8px;"><button class="btn" onclick="renderTOEFL()">← Volver</button></div></div>';
+}
+function gradeTOEFLWriting(){
+  var t=(document.getElementById('toeflW')||{}).value||''; var res=document.getElementById('toeflWres');
+  if(!t.trim()){ toast('Escribe tu ensayo primero ✍️'); return; }
+  if(!CHAT_ENDPOINT){ if(res)res.innerHTML='<p class="note">Activa la IA de Milo para recibir feedback.</p>'; return; }
+  if(res)res.innerHTML='<p class="note">🐙 Milo está evaluando tu ensayo estilo TOEFL...</p>';
+  var p='Actúa como examinador TOEFL iBT. Evalúa este ensayo (independent writing) y responde en español: 1) puntaje estimado 0-5 y equivalente 0-30; 2) fortalezas; 3) 2-3 mejoras concretas (tesis, organización, gramática, vocabulario, conectores); 4) una versión corregida de una frase débil. Sé breve y útil. Ensayo: "'+t.replace(/"/g,"'")+'"';
+  fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0.3,messages:[{role:'user',content:p}]})})
+    .then(function(r){return r.json();}).then(function(j){ var x=(j&&(j.reply||j.content))||''; if(res)res.innerHTML='<div class="skillbox" style="white-space:pre-wrap;line-height:1.55;background:#faf7ff;">'+String(x).replace(/</g,'&lt;')+'</div>'; try{addXP(10);}catch(e){} })
+    .catch(function(){ if(res)res.innerHTML='<p class="note">No se pudo evaluar. Intenta de nuevo.</p>'; });
+}
 /* ===== PANEL DE ADMINISTRADOR (solo para el dueño) ===== */
 var ADMIN_EMAILS=['yeni.tapiaz32@gmail.com'];
 function isAdmin(){ try{ return !!(sbUser&&sbUser.email&&ADMIN_EMAILS.indexOf(String(sbUser.email).toLowerCase())>=0); }catch(e){ return false; } }
@@ -5258,7 +5708,7 @@ function openAdmin(){ if(!isAdmin()){alert('Acceso solo para administrador.');re
 function admStat(label,val,color){ return '<div style="flex:1;min-width:120px;background:var(--card2);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.7rem;font-weight:800;color:'+(color||'var(--blue)')+';">'+val+'</div><div class="note" style="margin:0;">'+label+'</div></div>'; }
 async function renderAdmin(){
   var b=document.getElementById('admBody'); if(!b)return;
-  b.innerHTML='<p class="note">Cargando métricas...</p>';
+  b.innerHTML=skeletonRows(5);
   if(!supa||!sbUser){ b.innerHTML='<p class="note">Inicia sesión.</p>'; return; }
   try{
     var lb=await supa.from('leaderboard').select('*').order('updated_at',{ascending:false}).limit(500);
@@ -5307,6 +5757,7 @@ function renderExplorar(){
   h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
   h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
   h+=hubItem('🇺🇸',T('exAccent'),T('exAccentD'),T('exView'),"goTab('accent')");
+  h+=hubItem('🎓','TOEFL iBT','Prepárate para el examen oficial: formato, estrategias y práctica.','Preparar','openTOEFL()');
   h+='<div class="card"><h2>'+T('exSettings')+'</h2>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="startTour()">'+T('exTour')+'</button>'
@@ -5323,6 +5774,13 @@ function hubItem(ico,title,desc,btn,action){
   return '<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px;"><div style="font-size:1.9rem;flex:0 0 auto;">'+ico+'</div>'
     +'<div style="flex:1;min-width:0;"><div style="font-weight:800;color:var(--blue);">'+title+'</div><div class="note" style="margin:0;">'+desc+'</div></div>'
     +'<button class="btn primary" style="flex:0 0 auto;padding:8px 14px;" onclick="'+action+'">'+btn+'</button></div>';
+}
+/* Skeleton loading (shimmer) — sensación premium mientras carga */
+function skeletonRows(n){ var h=''; for(var i=0;i<(n||4);i++){ h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;"><div class="sk" style="width:34px;height:34px;border-radius:50%;"></div><div style="flex:1;"><div class="sk" style="height:11px;width:'+(45+Math.random()*35).toFixed(0)+'%;margin-bottom:6px;"></div><div class="sk" style="height:9px;width:'+(25+Math.random()*25).toFixed(0)+'%;"></div></div><div class="sk" style="width:44px;height:12px;"></div></div>'; } return h; }
+/* Estado vacío con personalidad (Milo con emoción + mensaje + acción opcional) */
+function emptyState(em,title,text,btnLabel,onclick){
+  return '<div class="empty"><span class="em">'+em+'</span><h3>'+title+'</h3><p>'+text+'</p>'
+    +(btnLabel?('<button class="btn primary" onclick="'+onclick+'">'+btnLabel+'</button>'):'')+'</div>';
 }
 function saveName(){const v=document.getElementById('nameIn').value.trim();if(!v)return;profile.name=v;store.set('profile',profile);tickStreak();renderHome();}
 function chooseNative(code){profile.native=code;store.set('profile',profile);beep('good');try{applyUILang();}catch(e){}renderHome();}
