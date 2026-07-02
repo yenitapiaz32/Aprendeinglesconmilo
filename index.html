@@ -5383,8 +5383,15 @@ function monthCalHTML(){
     :cnt<5?('¡'+cnt+' '+(cnt===1?'estrella':'estrellas')+' ya! ⭐ Llega a 5 y este mes toma vuelo 🚀')
     :cnt<15?('¡'+cnt+' días este mes! 💪 ¿Te atreves a llegar a '+goal+'?')
     :('¡'+cnt+' días! Eres oficialmente imparable 🏆');
-  return '<div class="card"><h2>📅 '+mname+' '+y+'</h2>'
-    +'<p class="note" style="margin:0 0 8px;">'+T('monthDays1')+' <b>'+cnt+'</b> '+T('monthDays2')+'</p>'
+  /* opción de ocultar el mes (se recuerda tu preferencia) */
+  if(!store.get('showMonthCal',true)){
+    return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;">'
+      +'<div style="font-weight:700;">📅 '+mname+' · <span class="note" style="font-size:.85rem;">'+cnt+' '+T('monthDays2')+'</span></div>'
+      +'<button class="btn" style="padding:6px 14px;font-size:.8rem;min-height:36px;" onclick="store.set(\'showMonthCal\',true);renderProgreso();">Mostrar mes ▾</button></div>';
+  }
+  return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><h2 style="margin:0;">📅 '+mname+' '+y+'</h2>'
+    +'<button class="btn ghost" style="padding:4px 10px;font-size:.76rem;min-height:32px;" onclick="store.set(\'showMonthCal\',false);renderProgreso();">Ocultar ▴</button></div>'
+    +'<p class="note" style="margin:4px 0 8px;">'+T('monthDays1')+' <b>'+cnt+'</b> '+T('monthDays2')+'</p>'
     +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px;">'+head+'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">'+cells+'</div>'
     +'<div style="margin-top:10px;background:linear-gradient(135deg,#fef9c3,#fef3c7);border-radius:12px;padding:10px 14px;font-size:.86rem;font-weight:700;color:#92400e;text-align:center;">'+push+'</div></div>';
