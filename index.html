@@ -6004,6 +6004,9 @@ function renderHome(){
     if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
+  /* PARA TI: el Home continúa con descubrimientos — la página nunca "se acaba" */
+  try{ h+='<div style="display:flex;align-items:center;gap:8px;margin:20px 2px 10px;"><span class="sec-label" style="margin:0;">✨ Para ti</span><div style="flex:1;height:1px;background:var(--line);"></div></div>'
+    +'<div id="homeFeed">'+feedBatch(3)+'</div>'; }catch(e){}
   el.innerHTML=h;
   try{ if(!document.body.getAttribute('data-sec')) document.body.setAttribute('data-sec','home'); }catch(e){}
   try{ document.body.setAttribute('data-lang', (curTarget||'en')); }catch(e){}
@@ -6041,7 +6044,7 @@ function renderPracticar(){
   h+=hubItem('💬',T('pChat'),T('pChatD'),T('pChatBtn'),'openMiloChat()');
   h+=hubItem('🗣️',T('pPron'),T('pPronD'),T('pView'),"goTab('pron')");
   h+=hubItem('🎮',T('pGames'),T('pGamesD'),T('pPlay'),"goTab('games')");
-  h+=hubItem('🔮','Descubrir','Desliza y aprende sin darte cuenta: el feed inteligente de Milo.','Explorar','openFeed()');
+  h+=hubItem('🔮','Descubrir','Algo nuevo cada vez: palabras, retos y curiosidades elegidas para ti.','Explorar','openFeed()');
   if(review.length) h+=hubItem('🔁',T('pReview'),T('pReviewD')+' ('+review.length+').',T('pReviewBtn'),'renderRepaso()');
   el.innerHTML=h;
 }
@@ -6476,7 +6479,7 @@ function renderExplorar(){
   h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:14px;" onclick="openFeed()">'
     +'<div style="font-size:2.2rem;">🔮</div>'
     +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;">Descubrir</div>'
-    +'<div style="font-size:.85rem;color:#e9d5ff;">El scroll infinito del conocimiento: palabras, modismos, retos y curiosidades hechas para ti. Nunca sabes qué viene — siempre aprendes.</div></div>'
+    +'<div style="font-size:.85rem;color:#e9d5ff;">Palabras, retos, curiosidades y secretos del idioma, elegidos para ti. Aquí siempre hay algo nuevo.</div></div>'
     +'<div style="font-size:1.3rem;color:#e9d5ff;">›</div></div>';
   h+=wordOfDayHTML();
   h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
@@ -6759,6 +6762,7 @@ function alNext(){
    Dopamina POSITIVA: cada tarjeta enseña algo real, adaptado a ti.
    Sin dark patterns: recompensa = aprender, no permanecer.
    ============================================================ */
+function rpick(a){ return (a&&a.length)?a[Math.floor(Math.random()*a.length)]:null; }
 var CURIOSITIES=[
  '"Set" es la palabra con más significados del inglés: más de 430 definiciones en el Oxford Dictionary.',
  'El inglés no tiene academia oficial (como la RAE). El "dueño" del idioma es… la gente que lo habla.',
@@ -6810,7 +6814,7 @@ function feedAns(btn,ok){
 }
 function feedReveal(btn,i){ btn.outerHTML='<div style="font-weight:800;color:var(--green);font-size:1.05rem;">'+feedEsc(FEED_D[i].reveal)+'</div>'; try{ speak(FEED_D[i].say); }catch(e){} }
 /* — generadores de tarjetas (cada tipo enseña distinto) — */
-function fcWord(){ var d=DATA[feedLvl()]; var v=pick(d.vocab); if(!v)return '';
+function fcWord(){ var d=DATA[feedLvl()]; var v=rpick(d.vocab); if(!v)return '';
   var i=FEED_D.push({say:enOnly(v.w)})-1;
   return feedShell('📌','Palabra nueva','#4c6fff',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.3rem;font-weight:800;">'+feedEsc(v.w)+'</div>'
@@ -6819,7 +6823,7 @@ function fcWord(){ var d=DATA[feedLvl()]; var v=pick(d.vocab); if(!v)return '';
     +'<button class="btn" style="margin-right:6px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>'
     +'<button class="btn secondary" onclick="feedSave('+i+')">🌱 Plantar en mi jardín</button>');
 }
-function fcIdiom(){ var d=DATA[feedLvl()]; var it=pick(d.idioms); if(!it)return '';
+function fcIdiom(){ var d=DATA[feedLvl()]; var it=rpick(d.idioms); if(!it)return '';
   var i=FEED_D.push({say:enOnly(it[0])})-1;
   return feedShell('💬','Modismo real','#7c5cff',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
@@ -6827,23 +6831,23 @@ function fcIdiom(){ var d=DATA[feedLvl()]; var it=pick(d.idioms); if(!it)return 
     +(it[2]?'<p class="note" style="margin:6px 0 10px;">'+feedEsc(String(it[2]).split('|')[0])+'</p>':'')
     +'<button class="btn" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
 }
-function fcColloq(){ var c=pick(COLLOQUIAL); if(!c)return '';
+function fcColloq(){ var c=rpick(COLLOQUIAL); if(!c)return '';
   var i=FEED_D.push({say:enOnly(c[0])})-1;
   return feedShell('🇺🇸','Así hablan en la calle','#ec4899',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(c[0])+'</div>'
     +'<div class="es">'+feedEsc(c[1])+'</div>'
     +'<button class="btn" style="margin-top:8px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
 }
-function fcError(){ var e=pick(ERRORS_LATINOS); if(!e)return '';
+function fcError(){ var e=rpick(ERRORS_LATINOS); if(!e)return '';
   return feedShell('⚠️','Error que TODOS cometemos','#ef4444',
     '<div style="font-size:1.02rem;"><s style="color:var(--red)">'+feedEsc(e[0])+'</s></div>'
     +'<div style="font-weight:800;color:var(--green);font-size:1.05rem;margin:2px 0 4px;">✓ '+feedEsc(e[1])+'</div>'
     +'<p class="note" style="margin:0;">'+feedEsc(e[2])+'</p>');
 }
-function fcCurio(){ var c=pick(CURIOSITIES);
+function fcCurio(){ var c=rpick(CURIOSITIES);
   return feedShell('🤯','¿Sabías que…?','#f59e0b','<p style="margin:0;font-size:.98rem;line-height:1.55;">'+feedEsc(c)+'</p>');
 }
-function fcQuote(){ var q=pick(FEED_QUOTES);
+function fcQuote(){ var q=rpick(FEED_QUOTES);
   var i=FEED_D.push({say:q[0]})-1;
   return feedShell('✨','Frase célebre','#0ea5e9',
     '<div style="font-style:italic;font-size:1.02rem;">“'+feedEsc(q[0])+'”</div>'
@@ -6851,14 +6855,14 @@ function fcQuote(){ var q=pick(FEED_QUOTES);
     +'<div class="note" style="margin:0 0 8px;">— '+feedEsc(q[2])+'</div>'
     +'<button class="btn" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
 }
-function fcQuiz(){ var d=DATA[feedLvl()]; var q=pick(d.quiz); if(!q)return '';
+function fcQuiz(){ var d=DATA[feedLvl()]; var q=rpick(d.quiz); if(!q)return '';
   var opts=shuffle([q[1]].concat(q[2]||[]).filter(function(x,ix,a){return a.indexOf(x)===ix;}));
   return feedShell('🎯','Mini-reto (+4 XP)','#16a34a',
     '<div class="q" style="margin-bottom:8px;">'+feedEsc(q[0])+'</div><div class="opts">'
     +opts.map(function(o){ var ok=(o===q[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
 }
 function fcCareer(){ var items=(typeof careerItems==='function')?careerItems():[]; if(!items.length)return '';
-  var it=pick(items); var c=(typeof careerById==='function'&&profile.career)?careerById(profile.career):null;
+  var it=rpick(items); var c=(typeof careerById==='function'&&profile.career)?careerById(profile.career):null;
   var i=FEED_D.push({say:enOnly(it[0])})-1;
   return feedShell('💼','Para tu carrera'+(c?' · '+c.name:''),'#f97316',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.1rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
@@ -6867,16 +6871,17 @@ function fcCareer(){ var items=(typeof careerItems==='function')?careerItems():[
     +'<button class="btn secondary" style="margin-top:8px;" onclick="feedSave('+i+')">🌱 Plantar</button>');
 }
 function fcRevenge(){ if(!review||!review.length)return '';
-  var r=pick(review);
+  var r=rpick(review);
   var i=FEED_D.push({say:enOnly(r.a),reveal:r.a})-1;
   return feedShell('🧠','Tu revancha','#8b5cf6',
     '<p style="margin:0 0 8px;">Esta se te escapó una vez… ¿la recuerdas ahora?</p>'
     +'<div class="q" style="margin-bottom:10px;">'+feedEsc(r.q)+'</div>'
     +'<button class="btn primary" onclick="feedReveal(this,'+i+')">👀 Ver respuesta</button>');
 }
-function fcListen(){ var c=pick(COLLOQUIAL); if(!c)return '';
+function fcListen(){ var c=rpick(COLLOQUIAL); if(!c)return '';
   var i=FEED_D.push({say:enOnly(c[0])})-1;
-  var wrong=[]; while(wrong.length<2){ var o=pick(COLLOQUIAL); if(o&&o[1]!==c[1]&&wrong.indexOf(o[1])<0)wrong.push(o[1]); }
+  var wrong=[], tries=0; while(wrong.length<2&&tries<40){ tries++; var o=rpick(COLLOQUIAL); if(o&&o[1]!==c[1]&&wrong.indexOf(o[1])<0)wrong.push(o[1]); }
+  if(wrong.length<2) return fcColloq();
   var opts=shuffle([c[1]].concat(wrong));
   return feedShell('🎧','Escucha y adivina (+4 XP)','#14b8a6',
     '<button class="btn primary" style="margin-bottom:10px;" onclick="feedSpeak('+i+')">🔊 Escuchar la frase</button>'
@@ -6910,10 +6915,24 @@ function openFeed(){
   }
   FEED_D=[];
   var b=document.getElementById('feedBody');
-  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Desliza y descubre. Cada tarjeta te enseña algo — sin darte cuenta 🐙</p>'+feedBatch(6);
+  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Hecho para ti. Aquí abajo siempre hay algo nuevo 🐙</p>'+feedBatch(6);
   b.scrollTop=0;
   ov.style.display='flex';
 }
+/* --- EL HOME NUNCA SE ACABA: más descubrimientos al llegar abajo --- */
+window.addEventListener('scroll',function(){
+  try{
+    var hf=document.getElementById('homeFeed'); if(!hf)return;
+    var tab=document.getElementById('tab-home'); if(!tab||!tab.classList.contains('active'))return;
+    if(window._hfBusy)return;
+    if(window.innerHeight+window.scrollY>=document.body.scrollHeight-320){
+      window._hfBusy=true;
+      var d=document.createElement('div'); d.innerHTML=feedBatch(3);
+      while(d.firstChild)hf.appendChild(d.firstChild);
+      setTimeout(function(){window._hfBusy=false;},250);
+    }
+  }catch(e){}
+},{passive:true});
 /* --- EFECTO CURIOSIDAD: sorpresas espontáneas (máx. 2 por sesión, nunca invasivas) --- */
 var _curioShown=0;
 setInterval(function(){
@@ -6922,7 +6941,7 @@ setInterval(function(){
     if(document.hidden) return;
     if(Date.now()-miloLastActive>60000) return; /* solo si estás activa */
     _curioShown++;
-    miloReact('wink',pick(CURIOSITIES));
+    miloReact('wink',rpick(CURIOSITIES));
   }catch(e){}
 },300000);
 /* --- TEMPORADAS: Milo cambia con el calendario --- */
