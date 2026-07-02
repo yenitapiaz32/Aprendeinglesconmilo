@@ -3807,14 +3807,26 @@ function pushReview(it){
   review.push({q:it.q,a:it.a,opts:it.opts,box:0,ts:Date.now()});
   store.set('review',review);
 }
+/* REPETICIÓN ESPACIADA REAL (curva del olvido): cada acierto aleja el
+   próximo repaso (1→3→7→16 días); un fallo lo trae de vuelta a HOY.
+   La palabra reaparece justo cuando estás a punto de olvidarla. */
 function updateReview(it,good){
   const r=review.find(x=>x.q===it.q); if(!r) return;
-  if(good){r.box=(r.box||0)+1; if(r.box>=2){review=review.filter(x=>x.q!==it.q);}}
-  else{r.box=0;}
+  var IV=[1,3,7,16]; /* días hasta el próximo repaso según nivel de dominio */
+  if(good){
+    r.box=(r.box||0)+1;
+    if(r.box>=4){ review=review.filter(x=>x.q!==it.q); try{miloReact('win','🌸 ¡Palabra DOMINADA! "'+it.a+'" ya floreció en tu jardín');}catch(e){} }
+    else{ r.due=Date.now()+IV[Math.min(r.box,IV.length-1)]*86400000; }
+  } else { r.box=0; r.due=Date.now(); }
   store.set('review',review);
 }
 function startRepaso(){
-  const items=shuffle(review).slice(0,10).map(r=>({type:'mc',q:r.q,a:r.a,opts:shuffle(r.opts.slice())}));
+  /* primero lo que está a punto de olvidarse (vencido), nunca al azar */
+  var now=Date.now();
+  var ordered=review.slice().sort(function(a,b){ return ((a.due||0)-(b.due||0)); });
+  var due=ordered.filter(function(r){ return !r.due||r.due<=now; });
+  var pool=(due.length>=4?due:ordered);
+  const items=pool.slice(0,10).map(r=>({type:'mc',q:r.q,a:r.a,opts:shuffle(r.opts.slice())}));
   qState={host:'quizHost',items:items,i:0,score:0,isTest:false,mode:'repaso'};renderQ();
 }
 function renderRepaso(){
@@ -3845,8 +3857,17 @@ function ansQ(btn,choice){
   document.querySelectorAll('#'+qState.host+' .opt').forEach(b=>{b.disabled=true;if(!isExam && b.textContent===it.a)b.classList.add('correct');});
   const good=choice===it.a;
   if(isExam){ if(good)qState.score++; try{beep('good');}catch(e){} btn.style.opacity='.6'; fb.innerHTML='<span style="color:var(--muted)">Respuesta registrada ✓</span>'; }
-  else if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';}
-  else{btn.classList.add('wrong');beep('bad');fb.innerHTML='<span style="color:var(--red)">✗ Era: '+it.a+'</span>';}
+  else if(good){qState.score++;beep('good');fb.innerHTML='<span style="color:var(--green)">✓ ¡Correcto!</span>';qState.wrongRun=0;}
+  else{
+    btn.classList.add('wrong');beep('bad');fb.innerHTML='<span style="color:var(--red)">✗ Era: '+it.a+'</span>';
+    /* FLOW: 3 fallos seguidos → bajar revoluciones, nunca frustración */
+    qState.wrongRun=(qState.wrongRun||0)+1;
+    if(qState.wrongRun>=3){
+      qState.wrongRun=0;
+      try{ miloReact('bad','Respira 🌊 Esto no es un examen. Lee la frase EN VOZ ALTA antes de responder: tu oído sabe más que tus nervios.'); }catch(e){}
+      fb.innerHTML+='<br><span class="note">💡 Tip de Milo: di la respuesta correcta en voz alta 2 veces antes de seguir.</span>';
+    }
+  }
   if(qState.mode==='placement'&&it.lvl){qState.byLevel[it.lvl].t++;if(good)qState.byLevel[it.lvl].c++;}
   if(qState.mode==='placement'&&it.cat){qState.byCat=qState.byCat||{};qState.byCat[it.cat]=qState.byCat[it.cat]||{c:0,t:0};qState.byCat[it.cat].t++;if(good)qState.byCat[it.cat].c++;}
   if((qState.mode==='quiz'||qState.mode==='test'||qState.mode==='dentalquiz')&&!good)pushReview(it);
@@ -3899,6 +3920,7 @@ function finishQuiz(host){
     let msg=pct>=90?'🏆 ¡Dominado!':pct>=70?'💪 ¡Muy bien!':'📈 Repasa y reintenta.';
     h+='<p style="text-align:center;">'+msg+'</p><div style="text-align:center;"><button class="btn primary" onclick="reQuiz()">Otro intento</button></div>';
   }
+  try{ h+=reflectionHTML(); }catch(e){}
   try{ h+=tomorrowTeaserHTML(); }catch(e){}
   host.innerHTML=h;
 }
@@ -4891,6 +4913,8 @@ function addXP(n){
   markActiveDay(); addDailyXP(n); addWeeklyXP(n);
   /* Meta mínima: el primer ejercicio del día YA es victoria; lo demás es bonus */
   if(firstOfDay){ setTimeout(function(){ try{miloReact('good','Meta mínima del día: CUMPLIDA ✅ Todo lo que hagas ahora es bonus.');}catch(e){} },2200); }
+  /* Microvictorias REALES: reconocimiento basado en progreso verdadero */
+  try{ checkMicroWins(); }catch(e){}
   const nl=userLevel().lvl, prev=store.get('ulevel',1);
   if(nl>prev){store.set('ulevel',nl);setTimeout(function(){ try{celebrateLevelUp(nl);}catch(e){ confetti();beep('win');toast('⭐ ¡Subiste a Nivel '+nl+'!'); } },500);}
   try{schedulePublish();}catch(e){}
@@ -5827,7 +5851,27 @@ function renderHome(){
   try{ checkUnlocks(); }catch(e){}
   if(!store.get('tourDone',false)) setTimeout(startTour,500);
 }
-function continuarHoy(){ if(typeof openLevel==='function'){ openLevel(curLevel); } else { goTab('levels'); } }
+/* APRENDIZAJE ADAPTATIVO: "Continuar" decide POR TI qué toca hoy
+   (menos decisiones = menos fricción = más aprendizaje). Prioridad:
+   1) palabras a punto de olvidarse (repetición espaciada)
+   2) el reto diario si aún no lo hiciste y tu racha está en juego
+   3) tu siguiente lección del nivel */
+function continuarHoy(){
+  try{
+    var now=Date.now();
+    var due=(review||[]).filter(function(r){ return !r.due||r.due<=now; });
+    if(due.length>=5){
+      setTimeout(function(){ miloReact('wink','Elegí por ti: '+due.length+' palabras están a punto de escaparse de tu memoria. ¡Vamos a rescatarlas! 🧠'); },400);
+      renderRepaso(); return;
+    }
+    var challengeDone=store.get('challengeDate','')===todayStr();
+    if(!challengeDone && todayXP()===0 && streak.count>=3){
+      setTimeout(function(){ miloReact('streak','Tu racha de '+streak.count+' días está en juego: el reto de 3 minutos es el camino más corto 🔥'); },400);
+      goTab('challenge'); return;
+    }
+  }catch(e){}
+  if(typeof openLevel==='function'){ openLevel(curLevel); } else { goTab('levels'); }
+}
 /* ===== HUB: PRACTICAR ===== */
 function renderPracticar(){
   var el=document.getElementById('practicarContent'); if(!el)return;
@@ -5933,6 +5977,7 @@ function renderPerfil(){
     +'<div style="margin-top:12px;"><button class="btn" style="padding:7px 16px;background:rgba(255,255,255,.9);border:none;color:#2456d6;" onclick="document.getElementById(\'photoIn\').click()">📷 '+T('pfPhoto')+'</button></div>'
     +'</div>';
   try{ h+=miloCardHTML(); }catch(e){}
+  try{ h+=journalHTML(); }catch(e){}
   try{ h+=miloAvatarHTML(); }catch(e){}
   /* Cuenta / info + editar */
   h+='<div class="pf-list"><div class="pf-title">'+T('pfInfo')+'</div>'
@@ -5988,7 +6033,9 @@ function toeflSec(ico,t,meta,desc,tips,btnLabel,onclick){
 }
 function renderTOEFL(){
   var b=document.getElementById('toeflBody'); if(!b)return;
-  var h='<div class="skillbox" style="background:linear-gradient(135deg,#eef3ff,#fff);border-color:#c9d9ff;">'
+  var h='';
+  try{ h+=toeflScoreCardHTML(); }catch(e){}
+  h+='<div class="skillbox" style="background:linear-gradient(135deg,#eef3ff,#fff);border-color:#c9d9ff;">'
     +'<h4 style="margin-top:0;">🎓 TOEFL iBT — visión general</h4>'
     +'<p style="margin:0 0 6px;">El <b>TOEFL iBT</b> es el examen oficial de inglés académico creado y administrado por <b>ETS</b>. Mide 4 habilidades y se usa para admisión en universidades de habla inglesa.</p>'
     +'<ul style="margin:0;"><li><b>4 secciones:</b> Reading · Listening · Speaking · Writing.</li>'
@@ -6106,7 +6153,8 @@ function renderExplorar(){
   h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
   h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
   h+=hubItem('🇺🇸',T('exAccent'),T('exAccentD'),T('exView'),"goTab('accent')");
-  h+=hubItem('🎓','TOEFL iBT','Prepárate para el examen oficial: formato, estrategias y práctica.','Preparar','openTOEFL()');
+  h+=hubItem('🎓','TOEFL iBT','Prepárate para el examen oficial: formato, estrategias, puntaje estimado y práctica.','Preparar','openTOEFL()');
+  h+=hubItem('📚','Biblioteca de recursos','Lo mejor de internet para aprender, curado por Milo: ETS, YouTube, podcasts y diccionarios.','Explorar','openBiblioteca()');
   h+='<div class="card"><h2>'+T('exSettings')+'</h2>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="startTour()">'+T('exTour')+'</button>'
@@ -6251,6 +6299,112 @@ function jardinHTML(){
       +(thirsty?('<button class="btn primary" style="width:100%;" onclick="renderRepaso()">💧 Regar ahora — '+thirsty+' palabra'+(thirsty>1?'s':'')+' con sed</button>'):'<p class="note" style="text-align:center;margin:0;">Todas tus plantas están felices hoy 🌸</p>')
       +'</div>';
   }catch(e){ return ''; }
+}
+/* --- REFLEXIÓN: metacognición al cerrar (aprender a aprender) --- */
+function reflectionHTML(){
+  try{ if(store.get('reflexDate','')===todayStr()) return ''; }catch(e){}
+  return '<div style="margin-top:14px;background:var(--card2);border:1.5px dashed var(--line);border-radius:16px;padding:14px 16px;">'
+    +'<div style="font-weight:800;font-family:\'Poppins\',sans-serif;font-size:.92rem;">📓 Antes de irte… ¿qué te llevas hoy?</div>'
+    +'<p class="note" style="margin:4px 0 8px;">Escribirlo con tus palabras hace que tu cerebro lo guarde el doble de tiempo. Una frase basta.</p>'
+    +'<textarea id="reflexIn" style="min-height:56px;" placeholder="Hoy aprendí que…"></textarea>'
+    +'<button class="btn primary" style="width:100%;margin-top:8px;" onclick="saveReflection()">Guardar en mi diario 📓</button></div>';
+}
+function saveReflection(){
+  try{
+    var v=(document.getElementById('reflexIn')||{}).value||''; v=v.trim();
+    if(!v){ toast('Escribe una frasecita primero ✍️'); return; }
+    var j=store.get('journal',[]); j.push({d:todayStr(),t:v.slice(0,300)}); if(j.length>200)j=j.slice(-200);
+    store.set('journal',j); store.set('reflexDate',todayStr());
+    miloReact('wink','Guardado en tu diario 📓 Tu yo del futuro va a disfrutar leerlo.');
+    var el=document.getElementById('reflexIn'); if(el&&el.parentElement) el.parentElement.innerHTML='<div style="text-align:center;font-weight:700;color:var(--green);">📓 Guardado en tu diario ✓</div>';
+  }catch(e){}
+}
+function journalHTML(){
+  var j=store.get('journal',[]); if(!j.length) return '';
+  var last=j.slice(-3).reverse().map(function(e){
+    return '<div style="border-left:3px solid var(--accent);padding:6px 10px;margin-bottom:8px;background:var(--card2);border-radius:0 10px 10px 0;">'
+      +'<div class="note" style="margin:0;font-size:.7rem;">'+e.d+'</div>'
+      +'<div style="font-size:.88rem;">'+String(e.t).replace(/</g,'&lt;')+'</div></div>';
+  }).join('');
+  return '<div class="pf-list" style="padding:14px;"><div class="pf-title" style="padding:0 0 8px;">📓 Tu diario de aprendizaje ('+j.length+')</div>'+last+'</div>';
+}
+/* --- MICROVICTORIAS REALES: hitos de progreso verdadero, no XP vacío --- */
+function checkMicroWins(){
+  var mw=store.get('microwins',{});
+  function win(key,msg){ if(!mw[key]){ mw[key]=1; store.set('microwins',mw); setTimeout(function(){ try{miloReact('win',msg);}catch(e){} },3400); return true; } return false; }
+  try{
+    var nWords=Object.keys(store.get('collected',{})).length;
+    if(nWords>=100){ if(win('w100','📚 ¡100 PALABRAS en tu jardín! Eso ya es un vocabulario de viajero experto.')) return; }
+    else if(nWords>=50){ if(win('w50','📚 ¡50 palabras vivas! La mitad de camino a tu primer centenar.')) return; }
+    else if(nWords>=25){ if(win('w25','📚 ¡25 palabras coleccionadas! Tu jardín ya se ve verde 🌱')) return; }
+    else if(nWords>=10){ if(win('w10','📚 ¡Tus primeras 10 palabras! Así empieza toda fluidez.')) return; }
+    var st=store.get('skillTotals',{});
+    if((st.speaking||0)>=10){ if(win('sp10','🎤 ¡10 prácticas de speaking! Tu boca ya piensa en inglés.')) return; }
+    else if((st.speaking||0)>=1){ if(win('sp1','🎤 ¡Hablaste en inglés por primera vez con Milo! Este es EL paso que la mayoría nunca da.')) return; }
+    if((st.listening||0)>=10){ if(win('li10','🎧 ¡10 listenings! Tu oído está cambiando de idioma.')) return; }
+    var days=(store.get('activeDays',[])||[]).length;
+    if(days>=30){ if(win('d30','🗓️ ¡30 días de estudio acumulados! Esto ya no es un intento: es un hábito.')) return; }
+    else if(days>=7){ if(win('d7','🗓️ ¡7 días acumulados! Tu cerebro ya reserva espacio para el inglés.')) return; }
+  }catch(e){}
+}
+/* --- BIENESTAR: premiar constancia, no maratones --- */
+var _sessionStart=Date.now(), _wellShown=false;
+setInterval(function(){
+  try{
+    if(_wellShown) return;
+    if(Date.now()-_sessionStart>25*60000 && todayXP()>0){
+      _wellShown=true;
+      miloReact('wink','Llevas 25 minutos y tu meta está cumplida 🌙 La memoria ama el descanso: lo de hoy ya quedó sembrado. ¡Nos vemos mañana!');
+    }
+  }catch(e){}
+},60000);
+/* --- BIBLIOTECA DE RECURSOS (curada, solo enlaces oficiales/públicos) --- */
+var BIBLIO=[
+ {c:'🎓 TOEFL oficial (ETS)',items:[
+   ['TOEFL iBT Free Practice Test','https://www.ets.org/toefl/test-takers/ibt/prepare/tests.html','Examen de práctica oficial y gratuito de ETS.','B1+','Simulacro real','~2 h','Es EL formato real, directo de la fuente.'],
+   ['TOEFL TestReady','https://www.ets.org/toefl/test-takers/ibt/prepare.html','Portal oficial de preparación de ETS.','B1+','Plan oficial','Variable','Materiales del creador del examen.']]},
+ {c:'📺 YouTube (gratis)',items:[
+   ['BBC Learning English','https://www.youtube.com/@bbclearningenglish','Lecciones cortas de gramática, vocabulario y pronunciación.','A1–C1','Inglés general','6 min/video','Calidad de la BBC, videos diarios.'],
+   ["Rachel's English",'https://www.youtube.com/@rachelsenglish','La referencia en pronunciación AMERICANA.','A2–C1','Acento americano','10-15 min','Explica la boca, el ritmo y la música del inglés.'],
+   ['TST Prep TOEFL','https://www.youtube.com/@TSTPrepTOEFL','Estrategias y simulacros de TOEFL explicados.','B1+','TOEFL','15-30 min','Práctico y directo al examen.']]},
+ {c:'🎧 Podcasts y listening',items:[
+   ['VOA Learning English','https://learningenglish.voanews.com','Noticias leídas LENTO en inglés claro.','A2–B2','Listening diario','10 min','Velocidad reducida perfecta para entrenar el oído.'],
+   ['News in Levels','https://www.newsinlevels.com','La misma noticia en 3 niveles de dificultad.','A1–B2','Reading+Listening','5 min','Subes de nivel con el mismo texto.']]},
+ {c:'📖 Diccionarios y herramientas',items:[
+   ['Cambridge Dictionary','https://dictionary.cambridge.org','Diccionario con audio americano y británico.','Todos','Consulta','1 min','Definiciones simples + nivel CEFR de cada palabra.'],
+   ['YouGlish','https://youglish.com','Escucha cualquier palabra dicha en MILES de videos reales.','A2+','Pronunciación real','2 min','La palabra en contexto real, no de laboratorio.'],
+   ['Forvo','https://forvo.com','Pronunciaciones grabadas por hablantes nativos.','Todos','Pronunciación','1 min','Voces humanas reales de cada país.']]}
+];
+function openBiblioteca(){
+  var ov=document.getElementById('biblioOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='biblioOv'; ov.className='legal-ov'; document.body.appendChild(ov); }
+  var h='<div class="legal-card"><div class="legal-head"><h3>📚 Biblioteca de recursos</h3><button class="legal-x" onclick="document.getElementById(\'biblioOv\').style.display=\'none\'">✕</button></div><div class="legal-body">';
+  h+='<p class="note" style="margin:0 0 10px;">Recursos externos que Milo recomienda para complementar tu estudio. Todos oficiales o públicos — organizados por Milo, creados por sus autores.</p>';
+  BIBLIO.forEach(function(cat){
+    h+='<h4>'+cat.c+'</h4>';
+    cat.items.forEach(function(r){
+      h+='<div style="border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;">'
+        +'<a class="link" href="'+r[1]+'" target="_blank" rel="noopener" style="font-weight:800;">'+r[0]+' ↗</a>'
+        +'<div style="font-size:.86rem;margin:3px 0;">'+r[2]+'</div>'
+        +'<div class="note" style="margin:0;font-size:.74rem;">Nivel: <b>'+r[3]+'</b> · Objetivo: '+r[4]+' · Tiempo: '+r[5]+'<br>💡 '+r[6]+'</div></div>';
+    });
+  });
+  h+='</div></div>';
+  ov.innerHTML=h; ov.style.display='flex';
+}
+/* --- TOEFL: puntaje estimado según tu nivel y plan de enfoque --- */
+function toeflScoreCardHTML(){
+  var band={A1:'~20–35',A2:'~35–45',B1:'~46–71',B2:'~72–94',C1:'~95–113'}[curLevel]||'~46–71';
+  var st=store.get('skillTotals',{});
+  var skills=[['reading','Reading','📖'],['listening','Listening','🎧'],['speaking','Speaking','🎤'],['writing','Writing','✍️']];
+  skills.sort(function(a,b){ return (st[a[0]]||0)-(st[b[0]]||0); });
+  var weak=skills[0];
+  return '<div class="skillbox" style="background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;">'
+    +'<h4 style="margin-top:0;color:#fff;">🎯 Tu puntaje TOEFL estimado</h4>'
+    +'<div style="font-family:\'Poppins\',sans-serif;font-size:1.8rem;font-weight:800;">'+band+' <span style="font-size:.9rem;font-weight:600;opacity:.8;">/ 120</span></div>'
+    +'<p style="margin:4px 0 8px;color:#c7d2fe;font-size:.85rem;">Estimado según tu nivel '+curLevel+' del curso (equivalencia CEFR↔TOEFL). Sube de nivel en Milo y esta banda sube contigo.</p>'
+    +'<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:8px 12px;font-size:.85rem;">'
+    +'💡 <b>Tu plan de esta semana:</b> tu sección con menos práctica es <b>'+weak[2]+' '+weak[1]+'</b>. Dedícale 2 sesiones y el estimado se vuelve más sólido.</div></div>';
 }
 /* --- El chat de Milo usa lo que aprendiste (ecosistema conectado) --- */
 function recentWordsForChat(){
