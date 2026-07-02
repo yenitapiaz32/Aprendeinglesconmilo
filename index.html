@@ -680,6 +680,8 @@
   .mcard .mc-share{ border:none; background:rgba(255,255,255,.95); color:#5b34e0; font-weight:800; font-size:.82rem;
     border-radius:12px; padding:9px 14px; cursor:pointer; transition:transform .15s var(--spring),filter .2s; font-family:'Poppins',sans-serif; }
   .mcard .mc-share:hover{ transform:translateY(-1px); filter:brightness(1.03); }
+  /* pulso de la tarjeta de repaso urgente */
+  @keyframes repasoPulse{ 0%,100%{box-shadow:0 10px 24px rgba(124,58,237,.32);} 50%{box-shadow:0 16px 38px rgba(236,72,153,.5);} }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -6002,9 +6004,25 @@ function renderHome(){
     +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\')">'
       +'<div style="font-size:2rem;line-height:1;">📊</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">'+p+'% del curso</div>'
       +'<div class="note" style="margin:0;font-size:.74rem;">Mira cuánto has crecido</div></div>'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'achAnchor\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
+      +'<div style="font-size:2rem;line-height:1;">🏅</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Logros</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">'+unlockedAch.length+' de '+ACHS.length+' desbloqueados</div></div>'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="openMiPlan()">'
+      +'<div style="font-size:2rem;line-height:1;">🎯</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Mi plan</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">Hecho a tu medida</div></div>'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;grid-column:1/-1;" onclick="openAventura()">'
+      +'<div style="font-size:2rem;line-height:1;">🗺️</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Tu aventura</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">Cada día de estudio desbloquea algo nuevo</div></div>'
     +'</div>';
-  /* repaso solo si hay pendientes (es urgente para la memoria) */
-  if(review.length){ h+='<button class="btn" style="width:100%;margin-bottom:10px;" onclick="renderRepaso()">'+T('reviewFailed')+' ('+review.length+')</button>'; }
+  /* repaso solo si hay pendientes — tarjeta llamativa: es urgente para la memoria */
+  if(review.length){
+    h+='<div onclick="renderRepaso()" style="cursor:pointer;margin:0 0 12px;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#7c3aed,#ec4899);animation:repasoPulse 2.4s ease-in-out infinite;transition:transform .15s var(--spring);" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'
+      +'<div style="font-size:2.1rem;line-height:1;animation:wiggle 2.4s ease-in-out infinite;">🧠</div>'
+      +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;font-size:1.02rem;">¡Rescata tus palabras!</div>'
+      +'<div style="font-size:.8rem;color:#fbe8ff;">Están a punto de escaparse de tu memoria</div></div>'
+      +'<div style="background:rgba(255,255,255,.28);border-radius:99px;min-width:40px;text-align:center;padding:7px 12px;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums;">'+review.length+'</div>'
+    +'</div>';
+  }
   /* 4) TODO lo demás vive plegado: quien quiera más, lo pide */
   var simple=store.get('homeSimple',true);
   if(simple){
@@ -6025,10 +6043,7 @@ function renderHome(){
     /* ritmo semanal + curiosidad de mañana */
     try{ h+=homeRhythmHTML(); }catch(e){}
     try{ if(todayXP()>0){ h+=tomorrowTeaserHTML(); } }catch(e){}
-    h+=programTaskHTML();
     try{ h+=mentorInsightHTML(); }catch(e){}
-    try{ h+=adventureHTML(); }catch(e){}
-    h+=miPlanCardHTML();
     if(lastAch){ h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;"><div style="font-size:1.7rem;">'+lastAch.ico+'</div><div><div style="font-weight:800;color:var(--blue);font-size:.92rem;">'+T('achiev')+': '+lastAch.t+'</div><div class="note" style="margin:0;">'+lastAch.d+'</div></div></div>'; }
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
@@ -6054,6 +6069,15 @@ function continuarHoy(){
       setTimeout(function(){ miloReact('wink','Elegí por ti: '+due.length+' palabras están a punto de escaparse de tu memoria. ¡Vamos a rescatarlas! 🧠'); },400);
       renderRepaso(); return;
     }
+    /* TU PLAN PERSONALIZADO va integrado en Continuar: si tienes plan y no
+       hiciste la tarea de hoy, Continuar te lleva directo a ella */
+    var pr=store.get('miProgram',null);
+    if(pr&&pr.tasks&&pr.tasks.length&&pr.ptr<pr.tasks.length&&pr.lastDay!==todayStr()){
+      var task=pr.tasks[pr.ptr], act=PLAN_ACT[task.action]||PLAN_ACT.aprender;
+      setTimeout(function(){ miloReact('wink','Tu plan de hoy ('+T('planDay')+' '+(pr.ptr+1)+'): '+act.ico+' '+(task.label||act.label)+'. Cuando termines, márcala en el Home ✅'); },500);
+      try{ eval(act.go); }catch(e){ goTab('levels'); }
+      return;
+    }
     var challengeDone=store.get('challengeDate','')===todayStr();
     if(!challengeDone && todayXP()===0 && streak.count>=3){
       setTimeout(function(){ miloReact('streak','Tu racha de '+streak.count+' días está en juego: el reto de 3 minutos es el camino más corto 🔥'); },400);
@@ -6061,6 +6085,15 @@ function continuarHoy(){
     }
   }catch(e){}
   if(typeof openLevel==='function'){ openLevel(curLevel); } else { goTab('levels'); }
+}
+/* Tu aventura en ventana propia (desde la tarjeta del Home) */
+function openAventura(){
+  var ov=document.getElementById('aventOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='aventOv'; ov.className='legal-ov';
+    ov.innerHTML='<div class="legal-card" style="max-width:480px;"><div class="legal-head"><h3>🗺️ Tu aventura</h3><button class="legal-x" onclick="document.getElementById(\'aventOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="aventBody" style="background:var(--bg);"></div></div>';
+    document.body.appendChild(ov); }
+  try{ document.getElementById('aventBody').innerHTML=adventureHTML()||'<p class="note">Empieza a estudiar y tu aventura aparecerá aquí 🐙</p>'; }catch(e){}
+  ov.style.display='flex';
 }
 /* ===== HUB: PRACTICAR ===== */
 function renderPracticar(){
@@ -6092,7 +6125,7 @@ function renderProgreso(){
   h+=dailyGoalHTML()+weekCalHTML();
   try{ h+=monthCalHTML(); }catch(e){}
   try{ h+=forgotWordsHTML(); }catch(e){}
-  h+='<div class="card"><h2>'+T('prAch')+'</h2><div class="ach-row">';
+  h+='<div class="card" id="achAnchor" style="scroll-margin-top:70px;"><h2>'+T('prAch')+'</h2><div class="ach-row">';
   ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
   h+='</div></div>';
   h+=certificatesHTML();
@@ -6916,11 +6949,24 @@ function fcListen(){ var c=rpick(COLLOQUIAL); if(!c)return '';
     +'<p class="note" style="margin:0 0 8px;">¿Qué significa lo que escuchaste?</p><div class="opts">'
     +opts.map(function(o){ var ok=(o===c[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
 }
+function fcPlan(){
+  try{
+    var pr=store.get('miProgram',null);
+    if(!pr||!pr.tasks||!pr.tasks.length||pr.ptr>=pr.tasks.length||pr.lastDay===todayStr()) return '';
+    var task=pr.tasks[pr.ptr], act=PLAN_ACT[task.action]||PLAN_ACT.aprender;
+    return feedShell('🎯','Tu plan de hoy','#4c6fff',
+      '<div style="font-family:\'Poppins\',sans-serif;font-size:1.05rem;font-weight:800;">'+act.ico+' '+feedEsc(task.label||act.label)+'</div>'
+      +'<p class="note" style="margin:4px 0 10px;">'+T('planDay')+' '+(pr.ptr+1)+' de '+pr.tasks.length+' · diseñado para tu meta</p>'
+      +'<button class="btn primary" style="margin-right:6px;" onclick="'+act.go.replace(/"/g,'&quot;')+'">Hacerla ahora</button>'
+      +'<button class="btn secondary" onclick="markProgramDone()">✅ Ya la hice</button>');
+  }catch(e){ return ''; }
+}
 /* — motor del feed: mezcla adaptativa, nunca sabes qué viene, siempre aprendes — */
 function feedBatch(n){
   var gens=[fcWord,fcWord,fcIdiom,fcColloq,fcError,fcCurio,fcQuiz,fcQuiz,fcQuote,fcListen];
   if(review&&review.length) gens.push(fcRevenge,fcRevenge);
   if(profile&&profile.career&&profile.career!=='other') gens.push(fcCareer,fcCareer);
+  try{ var pr=store.get('miProgram',null); if(pr&&pr.tasks&&pr.tasks.length&&pr.ptr<pr.tasks.length&&pr.lastDay!==todayStr()) gens.push(fcPlan,fcPlan); }catch(e){}
   var h='';
   for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)]()||''; }catch(e){} }
   return h;
@@ -7168,7 +7214,11 @@ function miloReact(type,msg){
     mw.classList.add(type==='bad'?'milo-sad':type==='wink'?'milo-wink':type==='streak'?'milo-streak':'milo-happy');
     el.classList.add('show');
     buzz(type==='good'?12:type==='win'?[14,40,14]:type==='bad'?[8,30,8]:12);
-    clearTimeout(mrTimer); mrTimer=setTimeout(function(){ el.classList.remove('show'); }, (type==='win'||type==='streak')?2400:1500);
+    /* tiempo de lectura según el largo del mensaje (60 ms por letra, entre 2.8 y 7 s) */
+    var txt=el.querySelector('.mr-b').textContent||'';
+    var dur=Math.min(7000,Math.max(2800,1200+txt.length*60));
+    if(type==='win'||type==='streak') dur=Math.max(dur,4000);
+    clearTimeout(mrTimer); mrTimer=setTimeout(function(){ el.classList.remove('show'); }, dur);
   }catch(e){}
 }
 /* enganche: cada beep dispara la reacción (good/bad/win) */
