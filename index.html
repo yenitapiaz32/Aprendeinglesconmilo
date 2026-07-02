@@ -5903,6 +5903,7 @@ function renderPracticar(){
   h+=hubItem('💬',T('pChat'),T('pChatD'),T('pChatBtn'),'openMiloChat()');
   h+=hubItem('🗣️',T('pPron'),T('pPronD'),T('pView'),"goTab('pron')");
   h+=hubItem('🎮',T('pGames'),T('pGamesD'),T('pPlay'),"goTab('games')");
+  h+=hubItem('🔮','Descubrir','Desliza y aprende sin darte cuenta: el feed inteligente de Milo.','Explorar','openFeed()');
   if(review.length) h+=hubItem('🔁',T('pReview'),T('pReviewD')+' ('+review.length+').',T('pReviewBtn'),'renderRepaso()');
   el.innerHTML=h;
 }
@@ -6334,6 +6335,11 @@ function editName(){
 function renderExplorar(){
   var el=document.getElementById('explorarContent'); if(!el)return;
   var h='<div class="card"><h2>'+T('exT')+'</h2><p class="lead">'+T('exLead')+'</p></div>';
+  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:14px;" onclick="openFeed()">'
+    +'<div style="font-size:2.2rem;">🔮</div>'
+    +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;">Descubrir</div>'
+    +'<div style="font-size:.85rem;color:#e9d5ff;">El scroll infinito del conocimiento: palabras, modismos, retos y curiosidades hechas para ti. Nunca sabes qué viene — siempre aprendes.</div></div>'
+    +'<div style="font-size:1.3rem;color:#e9d5ff;">›</div></div>';
   h+=wordOfDayHTML();
   h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
   h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
@@ -6485,6 +6491,190 @@ function jardinHTML(){
       +'</div>';
   }catch(e){ return ''; }
 }
+/* ============================================================
+   FEED INTELIGENTE DE DESCUBRIMIENTO — el scroll infinito del conocimiento
+   Dopamina POSITIVA: cada tarjeta enseña algo real, adaptado a ti.
+   Sin dark patterns: recompensa = aprender, no permanecer.
+   ============================================================ */
+var CURIOSITIES=[
+ '"Set" es la palabra con más significados del inglés: más de 430 definiciones en el Oxford Dictionary.',
+ 'El inglés no tiene academia oficial (como la RAE). El "dueño" del idioma es… la gente que lo habla.',
+ 'La palabra más larga en inglés con las letras en orden alfabético es "almost".',
+ '"Good" no tiene superlativo propio: por eso existe "best", que viene de otra palabra antigua.',
+ 'Los americanos dicen "fall" (caída) para otoño porque las hojas CAEN. Los británicos dicen "autumn".',
+ 'Shakespeare inventó más de 1.700 palabras que hoy son normales: "lonely", "gossip", "bedroom".',
+ '"I am" es la oración completa más corta del inglés. Dos letras y ya comunicaste algo.',
+ 'El sonido "th" (think, this) no existe en español — por eso es EL delator del acento latino. Dominarlo te hace sonar 40% más nativa.',
+ 'En inglés americano, "quite good" = bastante bueno. En inglés británico puede significar "más o menos". ¡El mismo idioma!',
+ '"Queue" (fila) se pronuncia igual que la letra Q. Las otras 4 letras están… haciendo fila.',
+ 'La palabra "OK" es la más entendida del planeta. Se usa en casi todos los idiomas del mundo.',
+ 'Un hablante nativo promedio usa solo 3.000 palabras en su día a día. Con 1.000 bien elegidas entiendes el 85% de las conversaciones.',
+ '"Dreamt" es la única palabra común del inglés que termina en "-mt".',
+ 'El plural de "octopus" puede ser "octopuses" u "octopi". Milo prefiere que digas "amigos". 🐙',
+ 'En inglés, el orden de los adjetivos tiene regla secreta: opinion-size-age-color. Por eso "big old red house" suena bien y "red old big house" suena rarísimo.',
+ '"Gh" puede sonar como F (laugh), como G (ghost) o como NADA (through). El inglés no pide perdón.'
+];
+var FEED_QUOTES=[
+ ['The only way to do great work is to love what you do.','La única forma de hacer un gran trabajo es amar lo que haces.','Steve Jobs'],
+ ['Practice makes perfect.','La práctica hace al maestro.','Proverbio'],
+ ['Well done is better than well said.','Bien hecho vale más que bien dicho.','Benjamin Franklin'],
+ ['If you can dream it, you can do it.','Si puedes soñarlo, puedes hacerlo.','Walt Disney'],
+ ['Little by little, one travels far.','Poco a poco se llega lejos.','Proverbio'],
+ ['Knowledge is power.','El conocimiento es poder.','Francis Bacon'],
+ ['Actions speak louder than words.','Las acciones hablan más fuerte que las palabras.','Proverbio'],
+ ['The best time to plant a tree was 20 years ago. The second best time is now.','El mejor momento para plantar un árbol fue hace 20 años. El segundo mejor es ahora.','Proverbio']
+];
+var FEED_D=[]; /* datos de tarjetas interactivas (por índice, evita problemas de comillas) */
+function feedEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function feedLvl(){ try{ var u=unlocked&&unlocked.length?unlocked:['A1']; return u[Math.floor(Math.random()*u.length)]; }catch(e){ return 'A1'; } }
+function feedShell(ico,label,color,inner){
+  return '<div class="card" style="margin-bottom:14px;border-top:4px solid '+color+';">'
+    +'<div style="display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,'+color+' 12%,transparent);color:'+color+';font-weight:800;font-size:.7rem;letter-spacing:.5px;text-transform:uppercase;border-radius:99px;padding:4px 12px;margin-bottom:10px;">'+ico+' '+label+'</div>'
+    +inner+'</div>';
+}
+function feedSpeak(i){ try{ speak(FEED_D[i].say); }catch(e){} }
+function feedSave(i){
+  try{
+    var w=FEED_D[i].say||FEED_D[i].w; var col=collectedSet(); var key='feed_'+w;
+    if(!col[key]){ col[key]=true; store.set('collected',col); addXP(3); beep('good'); toast('🌱 "'+w+'" plantada en tu jardín'); }
+    else toast('Ya está en tu jardín 🌸');
+  }catch(e){}
+}
+function feedAns(btn,ok){
+  var box=btn.parentElement; box.querySelectorAll('button').forEach(function(b){ b.disabled=true; });
+  if(ok){ btn.classList.add('correct'); beep('good'); try{addXP(4);}catch(e){} }
+  else{ btn.classList.add('wrong'); beep('bad'); var c=box.querySelector('[data-ok="1"]'); if(c)c.classList.add('correct'); }
+}
+function feedReveal(btn,i){ btn.outerHTML='<div style="font-weight:800;color:var(--green);font-size:1.05rem;">'+feedEsc(FEED_D[i].reveal)+'</div>'; try{ speak(FEED_D[i].say); }catch(e){} }
+/* — generadores de tarjetas (cada tipo enseña distinto) — */
+function fcWord(){ var d=DATA[feedLvl()]; var v=pick(d.vocab); if(!v)return '';
+  var i=FEED_D.push({say:enOnly(v.w)})-1;
+  return feedShell('📌','Palabra nueva','#4c6fff',
+    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.3rem;font-weight:800;">'+feedEsc(v.w)+'</div>'
+    +'<div class="es" style="font-size:.95rem;">'+feedEsc(v.es)+'</div>'
+    +(v.ex&&v.ex[0]?'<p class="note" style="margin:6px 0 10px;">'+feedEsc(String(v.ex[0]).split('|')[0])+'</p>':'')
+    +'<button class="btn" style="margin-right:6px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>'
+    +'<button class="btn secondary" onclick="feedSave('+i+')">🌱 Plantar en mi jardín</button>');
+}
+function fcIdiom(){ var d=DATA[feedLvl()]; var it=pick(d.idioms); if(!it)return '';
+  var i=FEED_D.push({say:enOnly(it[0])})-1;
+  return feedShell('💬','Modismo real','#7c5cff',
+    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
+    +'<div class="es">'+feedEsc(it[1])+'</div>'
+    +(it[2]?'<p class="note" style="margin:6px 0 10px;">'+feedEsc(String(it[2]).split('|')[0])+'</p>':'')
+    +'<button class="btn" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
+}
+function fcColloq(){ var c=pick(COLLOQUIAL); if(!c)return '';
+  var i=FEED_D.push({say:enOnly(c[0])})-1;
+  return feedShell('🇺🇸','Así hablan en la calle','#ec4899',
+    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(c[0])+'</div>'
+    +'<div class="es">'+feedEsc(c[1])+'</div>'
+    +'<button class="btn" style="margin-top:8px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
+}
+function fcError(){ var e=pick(ERRORS_LATINOS); if(!e)return '';
+  return feedShell('⚠️','Error que TODOS cometemos','#ef4444',
+    '<div style="font-size:1.02rem;"><s style="color:var(--red)">'+feedEsc(e[0])+'</s></div>'
+    +'<div style="font-weight:800;color:var(--green);font-size:1.05rem;margin:2px 0 4px;">✓ '+feedEsc(e[1])+'</div>'
+    +'<p class="note" style="margin:0;">'+feedEsc(e[2])+'</p>');
+}
+function fcCurio(){ var c=pick(CURIOSITIES);
+  return feedShell('🤯','¿Sabías que…?','#f59e0b','<p style="margin:0;font-size:.98rem;line-height:1.55;">'+feedEsc(c)+'</p>');
+}
+function fcQuote(){ var q=pick(FEED_QUOTES);
+  var i=FEED_D.push({say:q[0]})-1;
+  return feedShell('✨','Frase célebre','#0ea5e9',
+    '<div style="font-style:italic;font-size:1.02rem;">“'+feedEsc(q[0])+'”</div>'
+    +'<div class="es" style="margin:4px 0;">'+feedEsc(q[1])+'</div>'
+    +'<div class="note" style="margin:0 0 8px;">— '+feedEsc(q[2])+'</div>'
+    +'<button class="btn" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
+}
+function fcQuiz(){ var d=DATA[feedLvl()]; var q=pick(d.quiz); if(!q)return '';
+  var opts=shuffle([q[1]].concat(q[2]||[]).filter(function(x,ix,a){return a.indexOf(x)===ix;}));
+  return feedShell('🎯','Mini-reto (+4 XP)','#16a34a',
+    '<div class="q" style="margin-bottom:8px;">'+feedEsc(q[0])+'</div><div class="opts">'
+    +opts.map(function(o){ var ok=(o===q[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+}
+function fcCareer(){ var items=(typeof careerItems==='function')?careerItems():[]; if(!items.length)return '';
+  var it=pick(items); var c=(typeof careerById==='function'&&profile.career)?careerById(profile.career):null;
+  var i=FEED_D.push({say:enOnly(it[0])})-1;
+  return feedShell('💼','Para tu carrera'+(c?' · '+c.name:''),'#f97316',
+    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.1rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
+    +'<div class="es">'+feedEsc(it[1])+'</div>'
+    +'<button class="btn" style="margin-top:8px;margin-right:6px;" onclick="feedSpeak('+i+')">🔊</button>'
+    +'<button class="btn secondary" style="margin-top:8px;" onclick="feedSave('+i+')">🌱 Plantar</button>');
+}
+function fcRevenge(){ if(!review||!review.length)return '';
+  var r=pick(review);
+  var i=FEED_D.push({say:enOnly(r.a),reveal:r.a})-1;
+  return feedShell('🧠','Tu revancha','#8b5cf6',
+    '<p style="margin:0 0 8px;">Esta se te escapó una vez… ¿la recuerdas ahora?</p>'
+    +'<div class="q" style="margin-bottom:10px;">'+feedEsc(r.q)+'</div>'
+    +'<button class="btn primary" onclick="feedReveal(this,'+i+')">👀 Ver respuesta</button>');
+}
+function fcListen(){ var c=pick(COLLOQUIAL); if(!c)return '';
+  var i=FEED_D.push({say:enOnly(c[0])})-1;
+  var wrong=[]; while(wrong.length<2){ var o=pick(COLLOQUIAL); if(o&&o[1]!==c[1]&&wrong.indexOf(o[1])<0)wrong.push(o[1]); }
+  var opts=shuffle([c[1]].concat(wrong));
+  return feedShell('🎧','Escucha y adivina (+4 XP)','#14b8a6',
+    '<button class="btn primary" style="margin-bottom:10px;" onclick="feedSpeak('+i+')">🔊 Escuchar la frase</button>'
+    +'<p class="note" style="margin:0 0 8px;">¿Qué significa lo que escuchaste?</p><div class="opts">'
+    +opts.map(function(o){ var ok=(o===c[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+}
+/* — motor del feed: mezcla adaptativa, nunca sabes qué viene, siempre aprendes — */
+function feedBatch(n){
+  var gens=[fcWord,fcWord,fcIdiom,fcColloq,fcError,fcCurio,fcQuiz,fcQuiz,fcQuote,fcListen];
+  if(review&&review.length) gens.push(fcRevenge,fcRevenge);
+  if(profile&&profile.career&&profile.career!=='other') gens.push(fcCareer,fcCareer);
+  var h='';
+  for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)]()||''; }catch(e){} }
+  return h;
+}
+function openFeed(){
+  var ov=document.getElementById('feedOv');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='feedOv'; ov.className='legal-ov';
+    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3>🔮 Descubrir</h3><button class="legal-x" onclick="document.getElementById(\'feedOv\').style.display=\'none\'">✕</button></div>'
+      +'<div class="legal-body" id="feedBody" style="background:var(--bg);padding:14px;"></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('feedBody').addEventListener('scroll',function(){
+      var el=this;
+      if(el.scrollTop+el.clientHeight>=el.scrollHeight-200){
+        if(el._loading)return; el._loading=true;
+        var d=document.createElement('div'); d.innerHTML=feedBatch(4); while(d.firstChild)el.appendChild(d.firstChild);
+        setTimeout(function(){ el._loading=false; },300);
+      }
+    });
+  }
+  FEED_D=[];
+  var b=document.getElementById('feedBody');
+  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Desliza y descubre. Cada tarjeta te enseña algo — sin darte cuenta 🐙</p>'+feedBatch(6);
+  b.scrollTop=0;
+  ov.style.display='flex';
+}
+/* --- EFECTO CURIOSIDAD: sorpresas espontáneas (máx. 2 por sesión, nunca invasivas) --- */
+var _curioShown=0;
+setInterval(function(){
+  try{
+    if(_curioShown>=2) return;
+    if(document.hidden) return;
+    if(Date.now()-miloLastActive>60000) return; /* solo si estás activa */
+    _curioShown++;
+    miloReact('wink',pick(CURIOSITIES));
+  }catch(e){}
+},300000);
+/* --- TEMPORADAS: Milo cambia con el calendario --- */
+function seasonDecor(){
+  try{
+    var d=new Date(), m=d.getMonth(), day=d.getDate(), em='';
+    if(m===9) em='🎃'; else if(m===11) em='🎄'; else if(m===0&&day<=7) em='🎆';
+    else if(m===1&&day>=10&&day<=16) em='💘'; else if(m===3&&day===23) em='📖'; /* Día del Idioma */
+    if(!em) return;
+    var t=document.getElementById('appTitle');
+    if(t&&t.innerHTML.indexOf(em)<0) t.innerHTML+=' <span style="font-size:1rem;">'+em+'</span>';
+  }catch(e){}
+}
+try{ seasonDecor(); }catch(e){}
+
 /* --- REFLEXIÓN: metacognición al cerrar (aprender a aprender) --- */
 function reflectionHTML(){
   try{ if(store.get('reflexDate','')===todayStr()) return ''; }catch(e){}
