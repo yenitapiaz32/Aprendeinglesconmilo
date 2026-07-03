@@ -6077,6 +6077,8 @@ function renderHome(){
     +'</div></div>';
   /* 2) ÚNICA acción principal: CONTINUAR */
   h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">'+T('cont')+'</button>';
+  /* 2.5) MISIÓN DE HOY: cada día, un propósito de vida real */
+  try{ h+=missionCardHTML(); }catch(e){}
   /* 3) Motivación a un toque: ranking y progreso */
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">'
     +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
@@ -6126,7 +6128,7 @@ function renderHome(){
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
   /* PARA TI: el Home continúa con descubrimientos — la página nunca "se acaba" */
-  try{ _fcPlanShown=false; }catch(e){}
+  try{ _fcPlanShown=false; _fcMisShown=false; }catch(e){}
   try{ h+='<div style="display:flex;align-items:center;gap:8px;margin:20px 2px 10px;"><span class="sec-label" style="margin:0;">✨ Para ti</span><div style="flex:1;height:1px;background:var(--line);"></div></div>'
     +'<div id="homeFeed">'+feedBatch(3)+'</div>'; }catch(e){}
   el.innerHTML=h;
@@ -7066,6 +7068,7 @@ function feedBatch(n){
   var h='';
   /* la tarjeta del plan (si hay tarea pendiente) va UNA sola vez y de primera */
   try{ h+=fcPlan(); }catch(e){}
+  try{ h+=fcMission(); }catch(e){}
   for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)]()||''; }catch(e){} }
   return h;
 }
@@ -7128,7 +7131,7 @@ function openFeed(mode){
       }
     });
   }
-  FEED_D=[]; try{ _fcPlanShown=false; }catch(e){}
+  FEED_D=[]; try{ _fcPlanShown=false; _fcMisShown=false; }catch(e){}
   var b=document.getElementById('feedBody');
   var tt=document.getElementById('feedTitle');
   if(mode==='session'){
@@ -7465,6 +7468,64 @@ function openLearnLab(tab){
 }
 
 /* ============================================================
+   🎯 MISIONES — cada actividad tiene un propósito en la vida REAL
+   (las lecciones no cambian; cambia la narrativa: no "haz el módulo X",
+   sino "logra esto que te servirá mañana")
+   ============================================================ */
+var MISSIONS=[
+ {ico:'☕',t:'Pide un café sin errores',d:'Conversa con Milo: saluda, pide tu café y agradece. Como lo harás en la vida real.',go:"openMiloChat()"},
+ {ico:'✈️',t:'Sobrevive al aeropuerto',d:'Estudia el diálogo de viaje de tu nivel y dilo EN VOZ ALTA, papel por papel.',go:"curSub='dialog';try{renderSub();renderContent();}catch(e){};goTab('levels')"},
+ {ico:'💼',t:'Misión profesional',d:'Domina 5 frases del inglés de TU trabajo y aprueba el quiz del módulo.',go:"goTab('dental')"},
+ {ico:'🎓',t:'Misión TOEFL',d:'Resuelve un pasaje de Reading estilo examen. Cronómetro mental activado.',go:"openTOEFL()"},
+ {ico:'🎬',t:'Misión cultural',d:'Mira 3 minutos de un canal oficial en tu idioma meta y caza 1 palabra nueva.',go:"openMediaLib()"},
+ {ico:'🎤',t:'Misión de voz',d:'Speak Now: pronuncia 3 frases seguidas hasta que Milo te dé 80% o más.',go:"goTab('speak')"},
+ {ico:'🌱',t:'Misión de rescate',d:'Cinco palabras están a punto de olvidarse. Riega tu jardín y sálvalas.',go:"renderRepaso()"}
+];
+function todayMission(){
+  var doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  var pool=MISSIONS.slice();
+  /* personalización: sin repaso pendiente no hay misión de rescate; el TOEFL solo si aprendes inglés */
+  if(!(review&&review.length)) pool=pool.filter(function(m){return m.ico!=='🌱';});
+  if((profile.lang||'en')!=='en') pool=pool.filter(function(m){return m.ico!=='🎓';});
+  return pool[doy%pool.length];
+}
+function missionDoneToday(){ return store.get('missionDate','')===todayStr(); }
+function completeMission(){
+  if(missionDoneToday()){ toast('Ya cumpliste la misión de hoy 🎯'); return; }
+  store.set('missionDate',todayStr());
+  var n=store.get('missionsDone',0)+1; store.set('missionsDone',n);
+  try{ addXP(15); confetti(); beep('win'); }catch(e){}
+  try{ miloReact('streak','🎯 ¡MISIÓN CUMPLIDA! Van '+n+'. Mañana Milo tiene otra preparada para ti…'); }catch(e){}
+  try{ renderHome(); }catch(e){}
+}
+function missionCardHTML(){
+  var m=todayMission(); var done=missionDoneToday();
+  if(done) return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1.5px solid var(--green);background:linear-gradient(135deg,#f0fdf4,var(--card));">'
+    +'<div style="font-size:1.6rem;">🎯</div><div style="flex:1;font-weight:700;color:#166534;">Misión de hoy: cumplida ✅ <span class="note" style="font-weight:600;">('+store.get('missionsDone',0)+' en total)</span></div></div>';
+  return '<div class="card" style="padding:14px 16px;border:none;background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;">'
+    +'<div style="font-size:.68rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#7dd3fc;">🎯 Misión de hoy</div>'
+    +'<div style="display:flex;align-items:center;gap:12px;margin-top:6px;">'
+    +'<div style="font-size:2rem;">'+m.ico+'</div>'
+    +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+m.t+'</div>'
+    +'<div style="font-size:.8rem;color:#bae6fd;">'+m.d+'</div></div></div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px;">'
+    +'<button class="btn" style="flex:1;background:#fff;color:#0f172a;border:none;font-weight:800;" onclick="'+m.go.replace(/"/g,'&quot;')+'">▶️ A la misión</button>'
+    +'<button class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);" onclick="completeMission()">✅ La cumplí</button></div></div>';
+}
+/* misión también aparece en el scroll "Para ti" (una vez) */
+var _fcMisShown=false;
+function fcMission(){
+  try{
+    if(_fcMisShown||missionDoneToday()) return '';
+    _fcMisShown=true; var m=todayMission();
+    return feedShell('🎯','Misión de hoy','#0ea5e9',
+      '<div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.05rem;">'+m.ico+' '+feedEsc(m.t)+'</div>'
+      +'<p class="note" style="margin:4px 0 10px;">'+feedEsc(m.d)+'</p>'
+      +'<button class="btn primary" onclick="'+m.go.replace(/"/g,'&quot;')+'">▶️ A la misión</button>');
+  }catch(e){ return ''; }
+}
+
+/* ============================================================
    📺 VIDEOTECA LEGAL POR IDIOMA — solo contenido OFICIAL y gratuito
    (canales que publican sus propios episodios; enlazar es legal,
    nunca copiamos ni descargamos nada)
@@ -7538,14 +7599,23 @@ var KWORDS={
  colors:[{e:'🔴',en:'red',es:'rojo',pt:'vermelho',fr:'rouge'},{e:'🔵',en:'blue',es:'azul',pt:'azul',fr:'bleu'},{e:'🟢',en:'green',es:'verde',pt:'verde',fr:'vert'},{e:'🟡',en:'yellow',es:'amarillo',pt:'amarelo',fr:'jaune'}],
  animals:[{e:'🐶',en:'dog',es:'perro',pt:'cachorro',fr:'chien'},{e:'🐱',en:'cat',es:'gato',pt:'gato',fr:'chat'},{e:'🦁',en:'lion',es:'león',pt:'leão',fr:'lion'},{e:'🐦',en:'bird',es:'pájaro',pt:'pássaro',fr:'oiseau'},{e:'🐟',en:'fish',es:'pez',pt:'peixe',fr:'poisson'},{e:'🐘',en:'elephant',es:'elefante',pt:'elefante',fr:'éléphant'}],
  food:[{e:'🍎',en:'apple',es:'manzana',pt:'maçã',fr:'pomme'},{e:'🥛',en:'milk',es:'leche',pt:'leite',fr:'lait'},{e:'🍞',en:'bread',es:'pan',pt:'pão',fr:'pain'},{e:'🍌',en:'banana',es:'banano',pt:'banana',fr:'banane'}],
- numbers:[{e:'1️⃣',n:1,en:'one',es:'uno',pt:'um',fr:'un'},{e:'2️⃣',n:2,en:'two',es:'dos',pt:'dois',fr:'deux'},{e:'3️⃣',n:3,en:'three',es:'tres',pt:'três',fr:'trois'},{e:'4️⃣',n:4,en:'four',es:'cuatro',pt:'quatro',fr:'quatre'},{e:'5️⃣',n:5,en:'five',es:'cinco',pt:'cinco',fr:'cinq'}]
+ numbers:[{e:'1️⃣',n:1,en:'one',es:'uno',pt:'um',fr:'un'},{e:'2️⃣',n:2,en:'two',es:'dos',pt:'dois',fr:'deux'},{e:'3️⃣',n:3,en:'three',es:'tres',pt:'três',fr:'trois'},{e:'4️⃣',n:4,en:'four',es:'cuatro',pt:'quatro',fr:'quatre'},{e:'5️⃣',n:5,en:'five',es:'cinco',pt:'cinco',fr:'cinq'}],
+ body:[{e:'👀',en:'eyes',es:'ojos',pt:'olhos',fr:'yeux'},{e:'👃',en:'nose',es:'nariz',pt:'nariz',fr:'nez'},{e:'👂',en:'ears',es:'orejas',pt:'orelhas',fr:'oreilles'},{e:'🙌',en:'hands',es:'manos',pt:'mãos',fr:'mains'},{e:'🦶',en:'feet',es:'pies',pt:'pés',fr:'pieds'},{e:'👄',en:'mouth',es:'boca',pt:'boca',fr:'bouche'}]
 };
 /* Canciones ORIGINALES de Milo (letra propia, melodía = tu voz TTS + palmas) */
 var KSONGS=[
  {t:'Hello, Hello, Milo!',e:'👋',lines:[['Hello, hello, what do you say?','Hola, hola, ¿qué dices?'],['Hello, hello, let\'s play today!','¡Hola, hola, juguemos hoy!'],['I am Milo, I say hi!','Soy Milo, digo ¡hola!'],['Wave your hand and touch the sky!','¡Saluda con la mano y toca el cielo!']]},
  {t:'Colors of the Sea',e:'🌊',lines:[['Red like a crab, snap snap snap!','Rojo como un cangrejo, ¡clac clac clac!'],['Blue like the sea, splash with me!','Azul como el mar, ¡salpica conmigo!'],['Green like a turtle, slow slow slow.','Verde como una tortuga, lento lento.'],['Yellow like the sun, hello hello!','Amarillo como el sol, ¡hola hola!']]},
- {t:'Count with Milo',e:'🐙',lines:[['One, two, three — clap with me!','Uno, dos, tres — ¡aplaude conmigo!'],['Four and five — do a high five!','Cuatro y cinco — ¡choca esos cinco!'],['Count my arms, one two three!','Cuenta mis brazos, ¡uno dos tres!'],['Milo has eight — count and see!','Milo tiene ocho — ¡cuenta y ve!']]}
+ {t:'Count with Milo',e:'🐙',lines:[['One, two, three — clap with me!','Uno, dos, tres — ¡aplaude conmigo!'],['Four and five — do a high five!','Cuatro y cinco — ¡choca esos cinco!'],['Count my arms, one two three!','Cuenta mis brazos, ¡uno dos tres!'],['Milo has eight — count and see!','Milo tiene ocho — ¡cuenta y ve!']]},
+ {t:'The Body Boogie',e:'🕺',lines:[['Shake your hands, shake shake shake!','¡Sacude las manos, sacude sacude!'],['Stomp your feet, like an earthquake!','¡Zapatea fuerte, como un terremoto!'],['Touch your nose, touch your ears!','¡Toca tu nariz, toca tus orejas!'],['Blink your eyes — big smile appears!','¡Parpadea — y aparece una gran sonrisa!']]},
+ {t:'Yummy Yummy!',e:'🍎',lines:[['Apple, apple, crunch crunch crunch!','¡Manzana, manzana, cranch cranch!'],['Banana for my lunch lunch lunch!','¡Banano para mi almuerzo!'],['Milk and bread, yummy yummy!','¡Leche y pan, ñam ñam!'],['Thank you food, in my tummy!','¡Gracias comida, en mi pancita!']]}
 ];
+/* ¿Quieres pistas GRABADAS de verdad (música + voz humana)? Fácil:
+   1) crea una carpeta "audio" junto a index.html en GitHub;
+   2) sube tu mp3 (ej: audio/hello-milo.mp3);
+   3) agrega a la canción:  audio:'audio/hello-milo.mp3', times:[2,7,12,17]
+      (times = segundo en que empieza cada línea, para el karaoke).
+   Milo usará la pista real automáticamente; sin audio, usa el sintetizador. */
 /* Cuentos ORIGINALES interactivos */
 var KSTORIES=[
  {t:'Milo y el pez perdido',e:'🐟',pages:[
@@ -7565,7 +7635,19 @@ var KSTORIES=[
    {img:'😁✨',en:'"Open big!" says the dentist. Aaah!',es:'"¡Abre grande!" dice el dentista. ¡Aaah!'},
    {img:'🪥🎵',en:'Brush, brush, brush — up and down!',es:'Cepilla, cepilla — ¡arriba y abajo!'},
    {img:'🐙⭐',en:'"Great teeth, Milo!" What a star!',es:'"¡Qué buenos dientes, Milo!" ¡Toda una estrella!'}],
-  q:{ask:{en:'What do we use to brush?',es:'¿Con qué nos cepillamos?'},opts:['🪥','🍭','🧦'],ok:0}}
+  q:{ask:{en:'What do we use to brush?',es:'¿Con qué nos cepillamos?'},opts:['🪥','🍭','🧦'],ok:0}},
+ {t:'Milo y el cohete',e:'🚀',pages:[
+   {img:'🐙🚀',en:'Milo builds a rocket. Wow!',es:'Milo construye un cohete. ¡Guau!'},
+   {img:'🔢✨',en:'Five, four, three, two, one… GO!',es:'Cinco, cuatro, tres, dos, uno… ¡VAMOS!'},
+   {img:'🌕🐙',en:'The moon is big and white!',es:'¡La luna es grande y blanca!'},
+   {img:'⭐🐙⭐',en:'Milo dances with the stars!',es:'¡Milo baila con las estrellas!'}],
+  q:{ask:{en:'Where does Milo fly?',es:'¿A dónde vuela Milo?'},opts:['🌕','🏠','🌊'],ok:0}},
+ {t:'La merienda mágica',e:'🧺',pages:[
+   {img:'🐙🧺',en:'Milo makes a picnic. Yummy!',es:'Milo hace un picnic. ¡Ñam!'},
+   {img:'🍎🙏',en:'"An apple, please!" says the bird.',es:'"¡Una manzana, por favor!" dice el pájaro.'},
+   {img:'🥛😊',en:'"Thank you, Milo!" Milk for the cat.',es:'"¡Gracias, Milo!" Leche para el gato.'},
+   {img:'🐙💛',en:'Sharing food is sharing love!',es:'¡Compartir comida es compartir amor!'}],
+  q:{ask:{en:'What does the bird want?',es:'¿Qué quiere el pájaro?'},opts:['🍎','🧦','⚽'],ok:0}}
 ];
 /* Aventuras de Milo: historias jugables de 5-10 min */
 var KADV=[
@@ -7582,7 +7664,14 @@ var KADV=[
    {type:'move',en:'Walk like an elephant! Stomp, stomp!',es:'¡Camina como elefante! ¡Pum, pum!',img:'🐘'},
    {type:'tap',set:'animals',pick:4,en:'Who swims? Find the FISH!',es:'¿Quién nada? ¡Encuentra al PEZ!'},
    {type:'count',set:'animals',item:3,n:3,en:'How many birds are singing?',es:'¿Cuántos pájaros cantan?'},
-   {type:'end',img:'🦁🐘🐦🎉',en:'The animals love you! See you soon!',es:'¡Los animales te quieren! ¡Hasta pronto!'}]}
+   {type:'end',img:'🦁🐘🐦🎉',en:'The animals love you! See you soon!',es:'¡Los animales te quieren! ¡Hasta pronto!'}]},
+ {t:'Viaje al espacio',e:'🚀',scenes:[
+   {type:'talk',img:'🚀🐙',en:'Captain Milo needs YOUR help to fly to the moon!',es:'¡El capitán Milo necesita TU ayuda para volar a la luna!'},
+   {type:'count',set:'numbers',item:2,n:3,en:'Press the buttons! How many do you see?',es:'¡Presiona los botones! ¿Cuántos ves?'},
+   {type:'move',en:'Float like an astronaut! Slooow motion!',es:'¡Flota como astronauta! ¡En cámara leeenta!',img:'👨‍🚀'},
+   {type:'tap',set:'colors',pick:3,en:'Find the YELLOW star to light the way!',es:'¡Encuentra la estrella AMARILLA para iluminar el camino!'},
+   {type:'tap',set:'body',pick:0,en:'Aliens say hi with their EYES! Find the eyes!',es:'¡Los aliens saludan con los OJOS! ¡Encuéntralos!'},
+   {type:'end',img:'🌕🚀⭐',en:'You landed on the moon! Best astronaut ever!',es:'¡Llegaste a la luna! ¡El mejor astronauta del mundo!'}]}
 ];
 /* Kids TV: SOLO canales oficiales, enlazados (nunca copiados) */
 var KTV=[
@@ -7594,6 +7683,11 @@ var KTV=[
 function kStar(n){
   n=n||1; K.stars+=n; store.set('kidsStars',K.stars);
   try{ beep('good'); }catch(e){}
+  /* celebracion variada: nunca la misma dos veces seguidas */
+  try{ var fx=Math.random();
+    if(fx<0.25){ confetti(); }
+    else if(fx<0.45){ var N=K_NOTES; [[N.C5,0],[N.E5,.1],[N.G5,.2],[N.C5,.3]].forEach(function(x){kNote(x[0],x[1],0.15,'triangle',0.12);}); }
+  }catch(e){}
   try{ var s=document.createElement('div'); s.className='kw-star-fly'; s.textContent='⭐'; s.style.left=(40+Math.random()*40)+'%'; s.style.top='55%'; document.body.appendChild(s); setTimeout(function(){s.remove();},1100); }catch(e){}
   var el=document.getElementById('kwStars'); if(el)el.textContent='⭐ '+K.stars;
 }
@@ -7605,10 +7699,24 @@ function openKids(){
   var w=document.getElementById('kidsWorld');
   if(!w){ w=document.createElement('div'); w.id='kidsWorld'; document.body.appendChild(w); }
   w.classList.add('on');
+  if(!w._alive){ w._alive=true; w.addEventListener('pointerdown',function(){ K.lastTouch=Date.now(); K.helped=false; },{passive:true}); }
+  K.lastTouch=Date.now(); K.helped=false;
+  clearInterval(K.life);
+  K.life=setInterval(function(){
+    try{
+      var kw=document.getElementById('kidsWorld');
+      if(!kw||!kw.classList.contains('on')){ clearInterval(K.life); return; }
+      var idle=Date.now()-(K.lastTouch||0);
+      if(idle>25000 && !K.helped){ K.helped=true; kMiloGesture(); kSay(pickK(['Do you want help? We can do it together!','I am here with you! Jeje!','Take your time, friend!']),'en'); }
+      else if(Math.random()<0.35){ kMiloGesture(); if(Math.random()<0.3) kSay(pickK(['Jeje!','Mmm…','Ohhh!','Wow!']),'en'); }
+    }catch(e){}
+  },18000);
+  K.greeted=false; /* el saludo hablado suena UNA vez por visita, no en cada pantalla */
   clearInterval(K.timer); K.timer=setInterval(function(){ try{ store.set('kidsTime',(store.get('kidsTime',0)+10)); }catch(e){} },10000);
   if(!K.age){ kAgeScreen(); } else { kHome(); }
 }
 function kShell(inner,backFn){
+  try{ if(typeof kStopSong==='function')kStopSong(); }catch(e){}
   var w=document.getElementById('kidsWorld'); if(!w)return;
   w.innerHTML='<div class="kw-top">'
     +'<button class="kw-exit" onclick="kParentGate(function(){kExit();})">🔒 Salir</button>'
@@ -7616,7 +7724,7 @@ function kShell(inner,backFn){
     +'<div class="kw-body">'+(backFn?('<button class="kw-back" onclick="'+backFn+'">← Volver</button>'):'')+inner+'</div>';
   w.scrollTop=0;
 }
-function kExit(){ var w=document.getElementById('kidsWorld'); if(w)w.classList.remove('on'); clearInterval(K.timer); try{speechSynthesis.cancel();}catch(e){} }
+function kExit(){ var w=document.getElementById('kidsWorld'); if(w)w.classList.remove('on'); clearInterval(K.timer); clearInterval(K.life); try{kStopSong();}catch(e){} try{speechSynthesis.cancel();}catch(e){} }
 function kParentGate(fn){
   var a=2+Math.floor(Math.random()*7), b=3+Math.floor(Math.random()*6);
   var r=prompt('👨‍👩‍👧 Zona de adultos\n¿Cuánto es '+a+' + '+b+'?');
@@ -7634,8 +7742,20 @@ function kAgeScreen(){
 }
 function kHome(){
   var nm=(profile&&profile.name)||'';
-  var hi={en:'Hi'+(nm?' '+nm:'')+'! Let\'s play!',es:'¡Hola'+(nm?' '+nm:'')+'! ¡A jugar!',pt:'Oi'+(nm?' '+nm:'')+'! Vamos brincar!',fr:'Salut'+(nm?' '+nm:'')+'! On joue!'};
-  kShell('<div class="kw-milo"><div class="kw-bub">'+(hi[curTarget]||hi.en)+' 🎉</div><div>'+miloSVG(140)+'</div></div>'
+  var returning=store.get('kidsVisited',false); store.set('kidsVisited',true);
+  var his=returning?[
+    {en:'You came back'+(nm?', '+nm:'')+'! Yay!',es:'¡Volviste'+(nm?', '+nm:'')+'! ¡Yupi!'},
+    {en:'I was waiting for you! Jeje!',es:'¡Te estaba esperando! ¡Jeje!'},
+    {en:'Our adventure continues!',es:'¡Nuestra aventura continúa!'},
+    {en:'I did not forget your song!',es:'¡No olvidé tu canción!'}
+  ]:[
+    {en:'Hi'+(nm?' '+nm:'')+'! Let\'s play!',es:'¡Hola'+(nm?' '+nm:'')+'! ¡A jugar!'},
+    {en:'Woohoo! You are here!',es:'¡Yupi! ¡Llegaste!'},
+    {en:'I missed you! Ready for fun?',es:'¡Te extrañé! ¿Listos para jugar?'},
+    {en:'My eight arms want to play!',es:'¡Mis ocho brazos quieren jugar!'}
+  ];
+  var hi=his[Math.floor(Math.random()*his.length)];
+  kShell('<div class="kw-milo"><div class="kw-bub">'+(hi[kNat()==='es'?'es':'en'])+' 🎉</div><div>'+miloSVG(140)+'</div></div>'
     +'<div class="kw-grid">'
     +'<button class="kw-big c1" onclick="kSongs()"><span class="ki">🎵</span><span class="kt">Canciones</span></button>'
     +'<button class="kw-big c2" onclick="kStories()"><span class="ki">📖</span><span class="kt">Cuentos</span></button>'
@@ -7645,7 +7765,7 @@ function kHome(){
     +'<button class="kw-big c6" onclick="kTreeScreen()"><span class="ki">'+kTree()[0]+'</span><span class="kt">Mi arbolito</span></button>'
     +'</div>'
     +'<div style="text-align:center;margin-top:16px;"><button class="kw-back" onclick="kParentGate(function(){kParents();})">👨‍👩‍👧 Panel para padres</button></div>');
-  setTimeout(function(){ kSay(hi[curTarget]||hi.en); },400);
+  if(!K.greeted){ K.greeted=true; setTimeout(function(){ kSay(hi.en,'en'); },400); }
 }
 /* ---- CANCIONES: karaoke con tu voz + palmas ---- */
 function kSongs(){
@@ -7663,16 +7783,75 @@ function kSong(i){
     +'<button class="kw-say" onclick="kSongPlay('+i+')">▶️ Cantar con Milo</button>'
     +'<button class="kw-say orange" onclick="kSay(\'👏\');beep(\'good\')">👏 ¡Palmas!</button></div>','kSongs()');
 }
+/* ===== MÚSICA REAL para las canciones (sintetizador WebAudio: melodía + bajo + palmas) ===== */
+var K_NOTES={C4:261.6,D4:293.7,E4:329.6,G4:392,A4:440,C5:523.3,D5:587.3,E5:659.3,G5:784,A5:880};
+var kSongTimers=[];
+function kStopSong(){ kSongTimers.forEach(clearTimeout); kSongTimers=[]; try{stopSpeak();}catch(e){} try{speechSynthesis.cancel();}catch(e){} try{ if(K.audioEl){K.audioEl.pause();K.audioEl=null;} }catch(e){} }
+function kCtx(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended')actx.resume(); return actx; }
+function kNote(freq,at,dur,type,vol){
+  try{ var c=kCtx(),o=c.createOscillator(),g=c.createGain();
+    o.type=type||'triangle'; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+    var t=c.currentTime+at;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.16,t+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
+}
+function kClapAt(at){
+  try{ var c=kCtx(); var len=c.sampleRate*0.08; var buf=c.createBuffer(1,len,c.sampleRate);
+    var d=buf.getChannelData(0); for(var i=0;i<len;i++){ d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2); }
+    var src=c.createBufferSource(); src.buffer=buf;
+    var g=c.createGain(); g.gain.value=0.25; var f=c.createBiquadFilter(); f.type='highpass'; f.frequency.value=1200;
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start(c.currentTime+at);
+  }catch(e){}
+}
+/* riff alegre por línea (pentatónica de Do = siempre suena bien) */
+function kRiff(at){
+  var N=K_NOTES, seq=[[N.C5,0],[N.E5,.22],[N.G5,.44],[N.E5,.66],[N.C5,.9]];
+  seq.forEach(function(x){ kNote(x[0],at+x[1],0.22,'triangle',0.14); });
+  kNote(K_NOTES.C4,at,0.5,'sine',0.1); kNote(K_NOTES.G4,at+.5,0.5,'sine',0.09); /* bajo */
+  kClapAt(at+.22); kClapAt(at+.66);
+}
 function kSongPlay(i){
-  var s=KSONGS[i]; var li=0;
-  function line(){
-    if(li>0){ var p=document.getElementById('kwL'+(li-1)); if(p)p.classList.remove('now'); }
-    if(li>=s.lines.length){ kStar(2); kSay(kNat()==='es'?'¡Bravo! ¡Cantas precioso!':'Bravo! Beautiful singing!',kNat()); try{confetti();}catch(e){} return; }
-    var el=document.getElementById('kwL'+li); if(el){el.classList.add('now'); el.scrollIntoView({block:'center',behavior:'smooth'});}
-    kSay(s.lines[li][0],'en'); kHeard(s.lines[li][0]);
-    li++; setTimeout(line, 3400);
+  kStopSong();
+  var s=KSONGS[i];
+  /* PISTA REAL: si la canción tiene archivo de audio grabado, se usa ese */
+  if(s.audio){
+    try{
+      K.audioEl=new Audio(s.audio); K.audioEl.play();
+      (s.times||s.lines.map(function(_,li){return li*5;})).forEach(function(sec,li){
+        kSongTimers.push(setTimeout(function(){
+          var p=document.getElementById('kwL'+(li-1)); if(p)p.classList.remove('now');
+          var el=document.getElementById('kwL'+li); if(el){el.classList.add('now'); el.scrollIntoView({block:'center',behavior:'smooth'});}
+        },sec*1000));
+      });
+      K.audioEl.onended=function(){ kStar(2); try{confetti();}catch(e){} };
+      return;
+    }catch(e){}
   }
-  line();
+  var slot=5.2; /* segundos por línea: riff + voz */
+  /* intro: arpegio de bienvenida */
+  var N=K_NOTES; [[N.C4,0],[N.E4,.14],[N.G4,.28],[N.C5,.42],[N.E5,.56]].forEach(function(x){ kNote(x[0],x[1],0.3,'triangle',0.15); });
+  s.lines.forEach(function(l,li){
+    var at=1.1+li*slot;
+    /* música al inicio de cada línea */
+    kSongTimers.push(setTimeout(function(){ kRiff(0); },at*1000));
+    /* la voz canta la línea después del riff (voz natural de Google con respaldo) */
+    kSongTimers.push(setTimeout(function(){
+      var p=document.getElementById('kwL'+(li-1)); if(p)p.classList.remove('now');
+      var el=document.getElementById('kwL'+li); if(el){el.classList.add('now'); el.scrollIntoView({block:'center',behavior:'smooth'});}
+      try{ speak(l[0]); }catch(e){ kSay(l[0],'en'); }
+      kHeard(l[0]);
+    },(at+1.15)*1000));
+  });
+  /* final: acorde feliz + celebración */
+  kSongTimers.push(setTimeout(function(){
+    var p=document.getElementById('kwL'+(s.lines.length-1)); if(p)p.classList.remove('now');
+    [[N.C4,0],[N.E4,0],[N.G4,0],[N.C5,0],[N.E5,.18],[N.G5,.36]].forEach(function(x){ kNote(x[0],x[1],0.9,'triangle',0.12); });
+    kClapAt(.1); kClapAt(.35); kClapAt(.6);
+    kStar(2); try{confetti();}catch(e){}
+    setTimeout(function(){ kSay(kNat()==='es'?'¡Bravo! ¡Cantas precioso!':'Bravo! Beautiful singing!',kNat()); },900);
+  },(1.1+s.lines.length*slot)*1000));
 }
 /* ---- CUENTOS interactivos ---- */
 function kStories(){
@@ -7700,9 +7879,24 @@ function kStoryQ(i){
     +'<div class="kw-optrow">'+q.opts.map(function(o,oi){ return '<button class="kw-opt" onclick="kAnsK(this,'+(oi===q.ok?1:0)+')">'+o+'</button>'; }).join('')+'</div></div>','kStories()');
   setTimeout(function(){ kSay(q.ask.en,'en'); },300);
 }
+function kSparkle(){ try{ var N=K_NOTES; [[N.C5,0],[N.E5,.09],[N.G5,.18]].forEach(function(x){ kNote(x[0],x[1],0.18,'triangle',0.13); }); }catch(e){} }
+var K_YAY=['Woohoo!','Yay! Jeje!','Wow wow wow!','High five!','Yippee!','You did it!','Ohhh, amazing!','Super duper!'];
+function kFound(word){ return pickK([word+'! There it is!','We found '+word+' together!','Wooow! '+word+'!',word+'! It was hiding! Jeje!']); }
+function kMiloGesture(){ try{ var m=document.querySelector('#kidsWorld .milo-svg'); if(!m)return; var pp=m.parentElement; if(!pp)return; pp.classList.remove('milo-happy','milo-wink'); void pp.offsetWidth; pp.classList.add(Math.random()<0.5?'milo-happy':'milo-wink'); }catch(e){} }
+var K_TRY=['Mmm… let\'s look together! 🔍','Ooh, good idea! What about that one?','Almost! I\'m with you!','Hmm… I think it\'s hiding somewhere!'];
+function kNextTease(){
+  var t=pickK([
+    ['📖','Psst… I found another story! Want to see?','kStories()'],
+    ['🚀','I think the rocket needs help… come!','kAdvMenu()'],
+    ['🎵','My arms want to dance! One song?','kSongs()'],
+    ['🎮','Ohhh, I hid something in the games…','kGames()']
+  ]);
+  return '<button class="kw-say green" style="margin-top:10px;" onclick="kSay(\''+t[1]+'\',\'en\');setTimeout(function(){'+t[2]+'},1500);">'+t[0]+' ¿Y ahora…?</button>';
+}
 function kAnsK(btn,ok){
-  if(ok){ btn.classList.add('ok'); kStar(1); kSay(pickK(['Yes! Amazing!','Wonderful!','You did it!']),'en'); }
-  else{ btn.classList.add('no'); kSay(pickK(['Almost! Try again!','You can do it!']),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
+  if(ok){ btn.classList.add('ok'); kSparkle(); kStar(1); kMiloGesture(); kSay(pickK(K_YAY),'en');
+    try{ var card=btn.closest('.kw-card'); if(card&&!card.querySelector('.kw-say')) card.insertAdjacentHTML('beforeend','<div style="text-align:center;">'+kNextTease()+'</div>'); }catch(e){} }
+  else{ btn.classList.add('no'); kSay(pickK(K_TRY),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
 }
 function pickK(a){ return a[Math.floor(Math.random()*a.length)]; }
 /* ---- JUEGOS: rondas cortas por edad ---- */
@@ -7712,6 +7906,8 @@ function kGames(){
     +'<button class="kw-big c2" onclick="kGameTap(\'animals\')"><span class="ki">🦁</span><span class="kt">Animales</span></button>'
     +'<button class="kw-big c3" onclick="kGameTap(\'food\')"><span class="ki">🍎</span><span class="kt">Comida</span></button>'
     +'<button class="kw-big c4" onclick="kGameCount()"><span class="ki">🔢</span><span class="kt">Contar</span></button>'
+    +'<button class="kw-big c5" onclick="kGameTap(\'body\')"><span class="ki">🙌</span><span class="kt">Mi cuerpo</span></button>'
+    +'<button class="kw-big c6" onclick="kGameTap(\'numbers\')"><span class="ki">✋</span><span class="kt">Números</span></button>'
     +'</div>','kHome()');
 }
 function kGameTap(set,forced){
@@ -7719,7 +7915,7 @@ function kGameTap(set,forced){
   var target=(forced!=null)?pool[forced]:pool[Math.floor(Math.random()*pool.length)];
   var opts=shuffle(pool.filter(function(x){return x!==target;})).slice(0,n-1).concat([target]);
   opts=shuffle(opts);
-  var word=kT(target); kHeard(word);
+  var word=kT(target); kHeard(word); K.curWord=word;
   var showTxt=(kAgeBand()==='c'||kAgeBand()==='d');
   kShell('<div class="kw-card" style="text-align:center;">'
     +'<div style="font-weight:800;font-size:1.2rem;color:#3d405b;">'+(showTxt?word:'👂 Escucha…')+'</div>'
@@ -7728,9 +7924,10 @@ function kGameTap(set,forced){
   setTimeout(function(){ kSay(word); },350);
 }
 function kTapAns(btn,ok,set,isAdv){
-  if(ok){ btn.classList.add('ok'); kStar(1); kSay(pickK(['Yes!','Super!','Great job!']),'en');
-    if(isAdv){ setTimeout(function(){ kAdvNext(); },1100); } else { setTimeout(function(){ kGameTap(set); },1300); } }
-  else{ btn.classList.add('no'); kSay(pickK(['Almost!','Try again!']),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
+  if(ok){ btn.classList.add('ok'); kSparkle(); kStar(1); kMiloGesture();
+    kSay(kFound(K.curWord||''),'en'); /* companero: celebra el descubrimiento */
+    if(isAdv){ setTimeout(function(){ kAdvNext(); },1400); } else { setTimeout(function(){ kGameTap(set); },1600); } }
+  else{ btn.classList.add('no'); kSay(pickK(K_TRY),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
 }
 function kGameCount(forcedItem,forcedN,isAdv){
   var it=forcedItem||KWORDS.animals[Math.floor(Math.random()*KWORDS.animals.length)];
@@ -7821,6 +8018,16 @@ function kParents(){
     +'· Repita las mismas canciones: la repetición ES el aprendizaje infantil.<br>'
     +'· Canten y muévanse juntos: el idioma entra por el cuerpo (TPR).<br>'
     +'· Kids TV abre canales oficiales de YouTube: acompañe el visionado.</div>'
+    +'<div class="kw-card" style="font-size:.9rem;color:#5a6b8c;"><b>🏡 Juegos SIN pantalla para hoy:</b><br>'
+    +pickK([
+      '· "Veo veo" en inglés: "I see something… blue!" y el peque busca.<br>· Cuenten juntos los escalones de la casa en inglés.',
+      '· Toquen partes del cuerpo cantando: "touch your nose, touch your ears!".<br>· Nombren en inglés 3 cosas de la cocina durante la cena.',
+      '· Jueguen a las estatuas: "dance!" y "stop!" en inglés.<br>· Al guardar juguetes, digan el color de cada uno en inglés.'
+    ])+'</div>'
+    +'<div class="kw-card" style="font-size:.9rem;color:#5a6b8c;"><b>🖨️ Recursos gratuitos y legales para imprimir:</b><br>'
+    +'· <a class="link" href="https://supersimple.com/free-printables/" target="_blank" rel="noopener">Super Simple — fichas oficiales gratis</a><br>'
+    +'· <a class="link" href="https://learnenglishkids.britishcouncil.org" target="_blank" rel="noopener">British Council Kids — juegos y hojas oficiales</a><br>'
+    +'· <a class="link" href="https://www.storylineonline.net" target="_blank" rel="noopener">Storyline Online — cuentos leídos por actores</a></div>'
     +'<button class="kw-say" style="width:100%;" onclick="K.age=\'\';store.set(\'kidsAge\',\'\');kAgeScreen()">Cambiar edad del peque</button>'
     +'<div style="height:8px;"></div>'
     +'<button class="kw-say orange" style="width:100%;" onclick="kExit()">Salir de Milo Kids</button>','kHome()');
