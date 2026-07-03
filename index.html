@@ -682,6 +682,52 @@
   .mcard .mc-share:hover{ transform:translateY(-1px); filter:brightness(1.03); }
   /* pulso de la tarjeta de repaso urgente */
   @keyframes repasoPulse{ 0%,100%{box-shadow:0 10px 24px rgba(124,58,237,.32);} 50%{box-shadow:0 16px 38px rgba(236,72,153,.5);} }
+
+  /* ============================================================
+     🐙 MILO KIDS — mundo propio (paleta calmada y alegre, botones
+     enormes, casi sin lectura, todo con audio)
+     ============================================================ */
+  #kidsWorld{ position:fixed; inset:0; z-index:100200; display:none; flex-direction:column; overflow:auto;
+    background:linear-gradient(180deg,#fdf6ec 0%,#eaf7f4 60%,#dff0fb 100%); font-family:'Poppins','Inter',sans-serif; }
+  #kidsWorld.on{ display:flex; }
+  .kw-top{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 4px; }
+  .kw-exit{ border:none; background:#fff; border-radius:99px; padding:10px 16px; font-weight:800; color:#e07a5f;
+    box-shadow:0 4px 14px rgba(224,122,95,.25); cursor:pointer; font-size:.9rem; }
+  .kw-stars{ background:#fff; border-radius:99px; padding:10px 16px; font-weight:800; color:#f2a541;
+    box-shadow:0 4px 14px rgba(242,165,65,.25); font-size:1rem; font-variant-numeric:tabular-nums; }
+  .kw-body{ flex:1; max-width:560px; width:100%; margin:0 auto; padding:8px 16px 40px; }
+  .kw-milo{ text-align:center; position:relative; }
+  .kw-milo .milo-svg{ filter:drop-shadow(0 14px 22px rgba(146,102,204,.3)); }
+  .kw-bub{ display:inline-block; background:#fff; border-radius:20px; padding:12px 18px; font-weight:700; font-size:1.05rem;
+    color:#3d405b; box-shadow:0 8px 24px rgba(61,64,91,.12); margin-bottom:8px; max-width:340px; animation:riseIn .4s var(--spring) both; }
+  .kw-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  .kw-big{ border:none; border-radius:26px; padding:22px 10px; text-align:center; cursor:pointer; color:#3d405b;
+    background:#fff; box-shadow:0 8px 24px rgba(61,64,91,.1); transition:transform .18s var(--spring),box-shadow .2s; }
+  .kw-big:active{ transform:scale(.95); }
+  .kw-big:hover{ transform:translateY(-3px) scale(1.02); box-shadow:0 14px 34px rgba(61,64,91,.16); }
+  .kw-big .ki{ font-size:2.8rem; line-height:1; display:block; animation:bob 3.2s ease-in-out infinite; }
+  .kw-big .kt{ font-weight:800; font-size:1.05rem; margin-top:8px; display:block; }
+  .kw-big.c1{ background:linear-gradient(160deg,#ffe8d6,#ffd7ba); } .kw-big.c2{ background:linear-gradient(160deg,#d8f3dc,#b7e4c7); }
+  .kw-big.c3{ background:linear-gradient(160deg,#dbeafe,#bfdbfe); } .kw-big.c4{ background:linear-gradient(160deg,#fde2e4,#fbc4cb); }
+  .kw-big.c5{ background:linear-gradient(160deg,#fff3b0,#ffe66d); } .kw-big.c6{ background:linear-gradient(160deg,#e2d5f8,#d0bdf4); }
+  .kw-card{ background:#fff; border-radius:26px; padding:20px; box-shadow:0 8px 24px rgba(61,64,91,.1); margin-bottom:14px; }
+  .kw-opt{ border:none; border-radius:22px; background:#fff; box-shadow:0 6px 18px rgba(61,64,91,.12); cursor:pointer;
+    font-size:3rem; padding:18px; transition:transform .15s var(--spring); line-height:1; }
+  .kw-opt:active{ transform:scale(.9); }
+  .kw-opt.ok{ background:#d8f3dc; animation:kwYay .5s var(--spring); }
+  .kw-opt.no{ animation:noShake .35s; }
+  @keyframes kwYay{ 0%{transform:scale(1);} 45%{transform:scale(1.18) rotate(6deg);} 100%{transform:scale(1);} }
+  .kw-optrow{ display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:12px; margin-top:14px; }
+  .kw-say{ border:none; border-radius:99px; background:#3d9be9; color:#fff; font-weight:800; font-size:1.05rem;
+    padding:14px 22px; cursor:pointer; box-shadow:0 8px 20px rgba(61,155,233,.35); font-family:'Poppins',sans-serif; }
+  .kw-say.green{ background:#43aa8b; box-shadow:0 8px 20px rgba(67,170,139,.35); }
+  .kw-say.orange{ background:#f2a541; box-shadow:0 8px 20px rgba(242,165,65,.35); }
+  .kw-line{ font-size:1.25rem; font-weight:800; color:#3d405b; padding:10px 14px; border-radius:16px; margin:6px 0; transition:background .3s; }
+  .kw-line.now{ background:#fff3b0; animation:kwYay .4s; }
+  .kw-back{ border:none; background:transparent; color:#8d99ae; font-weight:800; cursor:pointer; padding:8px 0; font-size:.95rem; }
+  .kw-star-fly{ position:fixed; z-index:100300; font-size:2rem; pointer-events:none; animation:floatUp 1.1s ease-out forwards; }
+  .kw-tree{ font-size:4.6rem; line-height:1; animation:bob 3s ease-in-out infinite; display:inline-block; }
+  .kw-page{ font-size:3.6rem; text-align:center; line-height:1.2; margin:8px 0; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -4015,7 +4061,8 @@ function renderQ(){
   if(qState.i>=qState.items.length){finishQuiz(host);return;}
   const it=qState.items[qState.i];
   var isExam=(qState.mode==='test'||qState.mode==='placement');
-  let h='<div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Pregunta '+(qState.i+1)+' de '+qState.items.length+(isExam?'':' · Aciertos: '+qState.score)+'</div>';
+  let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:.8rem;color:var(--muted);">Pregunta '+(qState.i+1)+' de '+qState.items.length+(isExam?'':' · Aciertos: '+qState.score)+'</span>'
+    +'<button onclick="whyThis(\''+(qState.mode==='repaso'?'repaso':'quiz')+'\')" title="¿Por qué este ejercicio?" style="border:none;background:var(--card2);border-radius:99px;width:30px;height:30px;cursor:pointer;font-size:1rem;">🧠</button></div>';
   if(!it.noicon && !isExam) h+='<div style="text-align:center;margin-bottom:6px;">'+iconHTML((it.a+' '+it.q).replace('___',it.a),'2.8rem')+'</div>';
   if(it.audio) h+='<div style="text-align:center;margin-bottom:6px;"><button class="btn primary" onclick="speak(\''+String(it.audio).replace(/'/g,"\\'")+'\')">🔊 Escuchar otra vez</button></div>';
   if(it.passage) h+='<div class="skillbox" style="text-align:left;max-height:170px;overflow:auto;font-size:.9rem;line-height:1.5;margin-bottom:8px;">📖 '+it.passage+'</div>';
@@ -5194,7 +5241,7 @@ async function buildProgram(lvl,goal,car,mins){
   try{renderHome();}catch(e){}
 }
 /* ===== PROGRAMA DIARIO (organiza la plataforma para cumplir el plan) ===== */
-var PLAN_ACT={ aprender:{ico:'📚',label:'Aprender tu nivel',go:"goTab('levels')"}, reto:{ico:'🔥',label:'Reto diario',go:"goTab('challenge')"}, hablar:{ico:'🎤',label:'Speak Now',go:"goTab('speak')"}, conversar:{ico:'💬',label:'Conversar con Milo',go:"openMiloChat()"}, profesion:{ico:'💼',label:'Inglés de tu profesión',go:"goTab('dental')"}, juego:{ico:'🎮',label:'Juegos',go:"goTab('games')"}, pronunciacion:{ico:'🗣️',label:'Pronunciación',go:"goTab('pron')"} };
+var PLAN_ACT={ aprender:{ico:'📚',label:'Aprender tu nivel',go:"planAprender()"}, reto:{ico:'🔥',label:'Reto diario',go:"goTab('challenge')"}, hablar:{ico:'🎤',label:'Speak Now',go:"goTab('speak')"}, conversar:{ico:'💬',label:'Conversar con Milo',go:"openMiloChat()"}, profesion:{ico:'💼',label:'Inglés de tu profesión',go:"goTab('dental')"}, juego:{ico:'🎮',label:'Juegos',go:"goTab('games')"}, pronunciacion:{ico:'🗣️',label:'Pronunciación',go:"goTab('pron')"} };
 function defaultProgram(){ var seq=['aprender','reto','hablar','aprender','profesion','juego','conversar']; var t=[]; for(var i=0;i<28;i++){var a=seq[i%seq.length]; t.push({label:PLAN_ACT[a].label,action:a});} return t; }
 function programTaskHTML(){
   var pr=store.get('miProgram',null); if(!pr||!pr.tasks||!pr.tasks.length) return '';
@@ -6071,6 +6118,7 @@ function renderHome(){
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
   /* PARA TI: el Home continúa con descubrimientos — la página nunca "se acaba" */
+  try{ _fcPlanShown=false; }catch(e){}
   try{ h+='<div style="display:flex;align-items:center;gap:8px;margin:20px 2px 10px;"><span class="sec-label" style="margin:0;">✨ Para ti</span><div style="flex:1;height:1px;background:var(--line);"></div></div>'
     +'<div id="homeFeed">'+feedBatch(3)+'</div>'; }catch(e){}
   el.innerHTML=h;
@@ -6562,6 +6610,11 @@ function editName(){
 function renderExplorar(){
   var el=document.getElementById('explorarContent'); if(!el)return;
   var h='<div class="card"><h2>'+T('exT')+'</h2><p class="lead">'+T('exLead')+'</p></div>';
+  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#fdf6ec,#dff0fb);border:2px solid #ffd7ba;display:flex;align-items:center;gap:14px;" onclick="openKids()">'
+    +'<div style="flex:0 0 auto;">'+miloSVG(54)+'</div>'
+    +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;color:#3d405b;">🐙 Milo Kids</div>'
+    +'<div style="font-size:.85rem;color:#8d99ae;">El mundo para los peques (2-13 años): canciones, cuentos, aventuras y juegos. Aprenden sin darse cuenta.</div></div>'
+    +'<div style="font-size:1.3rem;color:#f2a541;">›</div></div>';
   h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:14px;" onclick="openFeed()">'
     +'<div style="font-size:2.2rem;">🔮</div>'
     +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;">Descubrir</div>'
@@ -6572,6 +6625,8 @@ function renderExplorar(){
   h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
   h+=hubItem('🇺🇸',T('exAccent'),T('exAccentD'),T('exView'),"goTab('accent')");
   h+=hubItem('🎓','TOEFL iBT','Prepárate para el examen oficial: formato, estrategias, puntaje estimado y práctica.','Preparar','openTOEFL()');
+  h+=hubItem('🧠','Aprende a Aprender','El laboratorio: ciencia del aprendizaje, mitos, políglotas y experimentos para estudiar mejor.','Entrar','openLearnLab()');
+  h+=hubItem('📺','Series y canales gratis','Contenido oficial y legal en el idioma que aprendes: series, canales y episodios completos.','Ver','openMediaLib()');
   h+=hubItem('📚','Biblioteca de recursos','Lo mejor de internet para aprender, curado por Milo: ETS, YouTube, podcasts y diccionarios.','Explorar','openBiblioteca()');
   h+='<div class="card"><h2>'+T('exSettings')+'</h2>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
@@ -6980,10 +7035,13 @@ function fcListen(){ var c=rpick(COLLOQUIAL); if(!c)return '';
     +'<p class="note" style="margin:0 0 8px;">¿Qué significa lo que escuchaste?</p><div class="opts">'
     +opts.map(function(o){ var ok=(o===c[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
 }
+var _fcPlanShown=false;
 function fcPlan(){
   try{
+    if(_fcPlanShown) return '';
     var pr=store.get('miProgram',null);
     if(!pr||!pr.tasks||!pr.tasks.length||pr.ptr>=pr.tasks.length||pr.lastDay===todayStr()) return '';
+    _fcPlanShown=true;
     var task=pr.tasks[pr.ptr], act=PLAN_ACT[task.action]||PLAN_ACT.aprender;
     return feedShell('🎯','Tu plan de hoy','#4c6fff',
       '<div style="font-family:\'Poppins\',sans-serif;font-size:1.05rem;font-weight:800;">'+act.ico+' '+feedEsc(task.label||act.label)+'</div>'
@@ -6994,13 +7052,43 @@ function fcPlan(){
 }
 /* — motor del feed: mezcla adaptativa, nunca sabes qué viene, siempre aprendes — */
 function feedBatch(n){
-  var gens=[fcWord,fcWord,fcIdiom,fcColloq,fcError,fcCurio,fcQuiz,fcQuiz,fcQuote,fcListen];
+  var gens=[fcWord,fcWord,fcIdiom,fcColloq,fcError,fcCurio,fcQuiz,fcQuiz,fcQuote,fcListen,fcLabTip];
   if(review&&review.length) gens.push(fcRevenge,fcRevenge);
   if(profile&&profile.career&&profile.career!=='other') gens.push(fcCareer,fcCareer);
-  try{ var pr=store.get('miProgram',null); if(pr&&pr.tasks&&pr.tasks.length&&pr.ptr<pr.tasks.length&&pr.lastDay!==todayStr()) gens.push(fcPlan,fcPlan); }catch(e){}
   var h='';
+  /* la tarjeta del plan (si hay tarea pendiente) va UNA sola vez y de primera */
+  try{ h+=fcPlan(); }catch(e){}
   for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)]()||''; }catch(e){} }
   return h;
+}
+/* "Aprender tu nivel" del plan = ir DIRECTO a la lección donde quedaste */
+function alNextTopic(){
+  var d=DATA[curLevel]; var nT=(d.tenses||[]).length, nG=(d.grammar||[]).length;
+  if(!nT&&!nG) return null;
+  var n=store.get('alNext_'+curLevel,0)%(nT+nG);
+  return { kind:(n<nT?'tenses':'grammar'), idx:(n<nT?n:(n-nT)), n:n, total:nT+nG };
+}
+function planAprender(){
+  var t=alNextTopic();
+  if(t){ activeLesson(t.kind,t.idx); } else { goTab('levels'); }
+}
+/* Repaso vivo: un patrón que YA estudiaste vuelve como mini-reto (sin anunciarse como teoría) */
+function fcOldLesson(){
+  try{
+    var t=alNextTopic(); if(!t||t.n<1) return '';
+    var d=DATA[curLevel]; var all=(d.tenses||[]).concat(d.grammar||[]);
+    var pastIdx=Math.floor(Math.random()*Math.min(t.n,all.length));
+    var it=all[pastIdx]; if(!it||!it.form) return '';
+    var wrong=[]; for(var j=0;j<all.length&&wrong.length<2;j++){ if(j!==pastIdx&&all[j].form&&all[j].form!==it.form) wrong.push(all[j].form); }
+    if(wrong.length<2) return '';
+    var opts=shuffle([it.form].concat(wrong));
+    var e=String((it.ex&&it.ex[0])||'').split('|')[0].trim();
+    return feedShell('🔁','¿Lo recuerdas? (+4 XP)','#f59e0b',
+      '<p style="margin:0 0 4px;">Ya estudiaste <b>'+feedEsc(it.n||it.t)+'</b>. Mira la frase:</p>'
+      +'<div style="font-weight:700;margin-bottom:8px;">'+feedEsc(e)+'</div>'
+      +'<p class="note" style="margin:0 0 8px;">¿Cuál era su patrón?</p><div class="opts">'
+      +opts.map(function(o){ var ok=(o===it.form); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+  }catch(e){ return ''; }
 }
 /* La lección que te toca (encabeza tu sesión): tiempos primero, luego gramática */
 function fcLesson(){
@@ -7032,13 +7120,16 @@ function openFeed(mode){
       }
     });
   }
-  FEED_D=[];
+  FEED_D=[]; try{ _fcPlanShown=false; }catch(e){}
   var b=document.getElementById('feedBody');
   var tt=document.getElementById('feedTitle');
   if(mode==='session'){
     if(tt)tt.textContent='⚡ Tu sesión de hoy';
+    /* avanzar (tema nuevo) + repasar (patrón ya visto) en la misma sesión */
     b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Empieza por tu lección y sigue deslizando: cada tarjeta suma 🐙</p>'
-      +fcLesson()+feedBatch(5);
+      +fcLesson()
+      +(function(){ try{ return fcOldLesson(); }catch(e){ return ''; } })()
+      +feedBatch(4);
   } else {
     if(tt)tt.textContent='🔮 Descubrir';
     b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Hecho para ti. Aquí abajo siempre hay algo nuevo 🐙</p>'+feedBatch(6);
@@ -7208,6 +7299,523 @@ function recentWordsForChat(){
     var col=store.get('collected',{}); Object.keys(col).slice(-3).forEach(function(w){ if(out.indexOf(w)<0) out.push(w); });
     return out.slice(0,7).join(', ');
   }catch(e){ return ''; }
+}
+
+/* ============================================================
+   🧠 LEARNING LAB — Aprende a Aprender
+   Cada consejo: QUÉ hacer · POR QUÉ funciona (con su fuente) · CUÁNDO.
+   Ideas resumidas con palabras propias de investigadores y políglotas.
+   ============================================================ */
+var LAB_TIPS=[
+ {c:'🧠 Ciencia',t:'Estudia en sesiones cortas y espaciadas, no en maratones',w:'La curva del olvido (Ebbinghaus, 1885) muestra que olvidamos rápido lo recién aprendido; repasar justo antes de olvidar fija el recuerdo. 20 min hoy + 20 mañana > 60 min seguidos.',k:'Aplícalo: sesiones de 15-25 min con descansos. Resultados: 1-2 semanas.'},
+ {c:'🧠 Ciencia',t:'Ponte a prueba ANTES de sentirte listo',w:'La recuperación activa (testing effect; Roediger & Karpicke, 2006) demostró que intentar recordar fortalece la memoria mucho más que releer, incluso si fallas.',k:'Aplícalo: tapa la respuesta e intenta decirla antes de mirar. Evita: releer pasivamente.'},
+ {c:'🧠 Ciencia',t:'Fíjate en las estructuras, no solo entiendas el mensaje',w:'La Noticing Hypothesis (Richard Schmidt) propone que solo aprendemos lo que NOTAMOS conscientemente. Entender una frase no basta: hay que fijarse en cómo está construida.',k:'Aplícalo: al leer, subraya 1 estructura por texto y pregúntate por qué está ahí.'},
+ {c:'👂 Listening',t:'Escucha contenido que entiendas al 70-80%, no al 100% ni al 20%',w:'El input comprensible (Stephen Krashen) sostiene que adquirimos idiomas entendiendo mensajes UN POCO por encima de nuestro nivel (i+1). Muy fácil = no aprendes; muy difícil = ruido.',k:'Aplícalo: si entiendes casi todo pero con esfuerzo, es el nivel perfecto.'},
+ {c:'🎯 Vocabulario',t:'Aprende primero las 1.000 palabras más frecuentes',w:'Paul Nation (Univ. Victoria de Wellington) mostró que las 1.000 familias de palabras más comunes cubren ~85% de la conversación diaria. Frecuencia > palabras exóticas.',k:'Aplícalo: prioriza palabras que ves repetirse. Evita: listas de palabras raras.'},
+ {c:'🎯 Vocabulario',t:'Aprende palabras EN frases, nunca sueltas',w:'La memoria es contextual: los "chunks" (Michael Lewis, enfoque léxico) se recuerdan y se usan más rápido que palabras aisladas porque incluyen su gramática.',k:'Aplícalo: guarda "make a decision", no solo "decision".'},
+ {c:'🗣 Speaking',t:'Habla desde el día 1, aunque te equivoques',w:'Benny Lewis construyó su método en esto y la investigación en output (Merrill Swain) lo respalda: producir lengua te obliga a procesar la gramática, no solo reconocerla.',k:'Aplícalo: di en voz alta lo que aprendas HOY. El error es parte del método.'},
+ {c:'🗣 Speaking',t:'Piensa en el idioma en momentos muertos',w:'Luca Lampariello recomienda "narrar tu vida" mentalmente en el idioma. Es práctica de producción sin necesidad de interlocutor y crea el hábito de PENSAR en el idioma.',k:'Aplícalo: en la fila del súper, describe lo que ves en inglés.'},
+ {c:'🎙 Pronunciación',t:'Imita frases completas con su música, no palabras sueltas',w:'El shadowing (Alexander Argüelles) entrena ritmo y entonación, que pesan más para que te entiendan que los sonidos perfectos. El inglés es un idioma de ritmo, no de sílabas.',k:'Aplícalo: repite 10 seg de audio imitando TODO: pausas, subidas, bajadas.'},
+ {c:'📖 Reading',t:'Lee cosas que YA te interesan en tu vida',w:'Krashen llama "lectura voluntaria libre" al mayor predictor de vocabulario. La emoción y el interés activan la memoria (amígdala + hipocampo trabajan juntos).',k:'Aplícalo: si amas la cocina, lee recetas en inglés — no artículos aburridos.'},
+ {c:'✍ Writing',t:'Escribe un mini-diario de 3 frases al día',w:'La escritura obliga a recuperar vocabulario activamente y crea "output" con calma. 3 frases diarias superan a 1 ensayo mensual por el espaciado.',k:'Aplícalo: hoy, 3 frases sobre tu día. Milo te las puede corregir.'},
+ {c:'📚 Gramática',t:'Descubre la regla antes de leerla',w:'El efecto de generación: lo que intentas deducir tú misma se recuerda mejor que lo que te dan resuelto. Por eso las Lecciones Vivas de Milo te hacen adivinar el patrón primero.',k:'Aplícalo: ante ejemplos nuevos, pregúntate "¿cuál es el patrón?" antes de ver la regla.'},
+ {c:'🛌 Sueño',t:'Duerme bien la noche DESPUÉS de estudiar',w:'Durante el sueño profundo el cerebro reactiva y consolida lo aprendido (Walker, "Why We Sleep"). Estudiar y dormir mal = sembrar y no regar.',k:'Aplícalo: repasa 10 min antes de dormir; el sueño hace el resto.'},
+ {c:'⏱ Tiempo',t:'Engancha el estudio a un hábito que YA tienes',w:'James Clear (Hábitos Atómicos) llama a esto "habit stacking": el hábito nuevo se pega a uno existente y hereda su constancia.',k:'Aplícalo: "después de mi café de la mañana → 10 min de Milo".'},
+ {c:'⏱ Tiempo',t:'Baja la meta hasta que sea imposible fallar',w:'BJ Fogg (Stanford, Tiny Habits): la constancia nace de metas ridículamente pequeñas. Un ejercicio diario que SÍ haces vale más que 30 que planeas.',k:'Aplícalo: tu meta real es 1 ejercicio. Todo lo demás es bonus.'},
+ {c:'🌎 Inmersión',t:'Crea inmersión SIN viajar: cambia el idioma de tu entorno',w:'Steve Kaufmann (77+ años, 20 idiomas) insiste: la inmersión es cantidad de input, no geografía. Tu celular, tus series y tu música pueden ser tu Nueva York.',k:'Aplícalo: pon tu celular en inglés hoy. Resultados: verás ~50 palabras nuevas/semana en contexto.'},
+ {c:'🎬 Series',t:'Mira series con subtítulos EN INGLÉS, no en español',w:'Estudios de la Univ. de Barcelona (Birulés & Soto-Faraco) muestran que los subtítulos en el idioma original mejoran la percepción fonética; en tu idioma, la anulan.',k:'Aplícalo: serie conocida + subtítulos en inglés. Evita: doble subtítulo.'},
+ {c:'🧠 Errores',t:'Trata cada error como información, no como fracaso',w:'La práctica deliberada (Anders Ericsson) consiste en trabajar JUSTO en el borde del error. Si no fallas nunca, estás practicando lo que ya sabes.',k:'Aplícalo: tus palabras falladas en Milo son tu lista de oro — el repaso las prioriza.'},
+ {c:'🎓 TOEFL',t:'Simula las condiciones del examen, no solo el contenido',w:'La práctica específica del contexto (context-dependent memory) mejora el rendimiento: cronómetro, sin pausas, mismo formato.',k:'Aplícalo: usa el Speaking cronometrado de Milo (15s + 45s) tal como será el día real.'},
+ {c:'💼 Profesional',t:'Aprende primero los 50 términos de TU trabajo',w:'La motivación instrumental (Gardner & Lambert) predice éxito: lo que usarás mañana en tu consultorio se fija mejor que vocabulario genérico.',k:'Aplícalo: la sección Profesión de Milo existe exactamente para esto.'},
+ {c:'🧒 Niños',t:'Con niños: repetir lo MISMO muchas veces es correcto',w:'Los niños piden el mismo cuento 40 veces porque la repetición predecible construye los patrones del lenguaje (estadística del input). No es capricho: es su método.',k:'Aplícalo: en Milo Kids, repite las mismas canciones sin culpa.'}
+];
+var LAB_MYTHS=[
+ ['«Los adultos ya no pueden aprender idiomas»','La evidencia dice lo contrario: los adultos aprenden gramática y vocabulario MÁS RÁPIDO que los niños (Snow & Hoefnagel-Höhle). Los niños solo ganan en acento a largo plazo. Tu ventaja: estrategia y disciplina.'],
+ ['«Hay que vivir en otro país»','Lo que importa es la cantidad de input comprensible, no el pasaporte (Kaufmann aprendió chino en Canadá). Con internet, tu inmersión la construyes tú.'],
+ ['«Primero toda la gramática, después hablar»','Invertido: la gramática se fija USÁNDOLA. Los enfoques comunicativos superan al método tradicional en fluidez en casi todos los estudios comparativos.'],
+ ['«Existen personas sin talento para idiomas»','La "aptitud" influye poco comparada con horas de práctica bien diseñada (Ericsson). Todo cerebro sano ya aprendió UN idioma: el tuyo puede con otro.'],
+ ['«Si no entiendo todo, no estoy aprendiendo»','Entender el 100% significa que el material es demasiado fácil. El aprendizaje vive en el 70-80% de comprensión (zona i+1 de Krashen).']
+];
+var LAB_POLY=[
+ ['Steve Kaufmann 🇨🇦','20 idiomas','Input masivo: lee y escucha MUCHO contenido que le interesa. No estudia gramática al inicio; deja que los patrones emerjan. Su lema: el idioma se adquiere, no se estudia.'],
+ ['Luca Lampariello 🇮🇹','13 idiomas','Traducción bidireccional: traduce un texto al italiano y días después lo devuelve al idioma original, comparando. Y "narra su vida" mentalmente en el idioma que aprende.'],
+ ['Benny Lewis 🇮🇪','Fluent in 3 Months','Habla desde el día 1 con hablantes reales, aceptando errores como peaje. Misiones de 3 meses con metas concretas en vez de "algún día seré fluido".'],
+ ['Olly Richards 🇬🇧','8 idiomas','Aprende a través de HISTORIAS (StoryLearning): la trama te arrastra y la gramática entra por contexto. Nunca estudia listas: lee novelas graduadas por nivel.']
+];
+var LAB_EXP=[
+ ['🖼️ vs 📖 ¿Imágenes o lectura?','Semana 1: aprende 10 palabras con imágenes (colecciones de Milo). Semana 2: 10 palabras solo leyendo. Compara cuántas recuerdas de cada grupo. La teoría (dual coding, Paivio) predice que ganarán las imágenes — compruébalo TÚ.'],
+ ['🌙 vs ☀️ ¿Tu mejor hora?','3 días estudia en la mañana, 3 en la noche. Anota tu % de aciertos en quizzes. Descubre TU cronotipo de aprendizaje en vez de copiar el de otros.'],
+ ['🗣️ Hablar antes vs después','Esta semana, en cada lección Viva di tu hipótesis EN VOZ ALTA antes de responder. La próxima, respóndela en silencio. ¿En cuál recuerdas más al día siguiente? (La predicción: generation effect gana.)']
+];
+var LAB_CHALLENGES=[
+ 'Habla 5 minutos en voz alta cada día (aunque sea sola). Beneficio: automatizas la producción — la fluidez es un músculo.',
+ 'Escucha un podcast en inglés camino al trabajo toda la semana. Beneficio: tu oído se calibra con input real.',
+ 'Escribe 3 frases de diario cada noche. Beneficio: recuperación activa + repaso del día.',
+ 'Imita 10 segundos de un nativo cada día (shadowing). Beneficio: ritmo y entonación americanos.',
+ 'Piensa en inglés en un momento muerto del día. Beneficio: creas el interruptor mental del idioma.',
+ 'Cambia tu celular a inglés toda la semana. Beneficio: 50+ palabras en contexto real, gratis.'
+];
+/* — el porqué de cada ejercicio (tu firma: transparencia metodológica) — */
+var LAB_WHY={
+ quiz:'🧠 Este quiz entrena tu <b>recuperación activa</b>: intentar recordar (aunque falles) fortalece la memoria mucho más que releer. Evidencia: testing effect, Roediger & Karpicke 2006.',
+ repaso:'🧠 Esta palabra aparece HOY porque estás entrando en la zona donde normalmente se olvida. Es <b>repetición espaciada</b>: repasar justo antes de olvidar (curva de Ebbinghaus).',
+ hypo:'🧠 Te pedimos adivinar el patrón ANTES de mostrarte la regla por el <b>efecto de generación</b>: lo que deduces tú misma se recuerda mejor que lo que te dan resuelto.',
+ build:'🧠 Reconstruir la frase entrena tu <b>sintaxis productiva</b>: ordenar palabras obliga a procesar la gramática de verdad, no solo reconocerla.',
+ speak:'🧠 Decirlo en voz alta usa el <b>efecto de producción</b>: lo que pronuncias se codifica doble (motor + auditivo) y se recuerda más.',
+ fill:'🧠 Completar el hueco es <b>práctica deliberada</b>: trabajas justo en el punto exacto donde vive la dificultad.'
+};
+function whyThis(key){
+  var txt=LAB_WHY[key]||LAB_WHY.quiz;
+  var ov=document.getElementById('whyOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='whyOv'; ov.className='legal-ov'; document.body.appendChild(ov); }
+  ov.innerHTML='<div class="legal-card" style="max-width:380px;"><div class="legal-body" style="text-align:center;">'
+    +'<div style="display:flex;justify-content:center;">'+miloSVG(64)+'</div>'
+    +'<h4 style="margin:8px 0 6px;">¿Por qué estamos haciendo esto?</h4>'
+    +'<p style="font-size:.92rem;line-height:1.55;">'+txt+'</p>'
+    +'<p class="note" style="margin:8px 0 10px;">En Milo ningún ejercicio es al azar: hay ciencia detrás de cada uno.</p>'
+    +'<button class="btn primary" onclick="document.getElementById(\'whyOv\').style.display=\'none\'">¡Entendido! 🧠</button></div></div>';
+  ov.style.display='flex';
+}
+/* — consejo del día (determinista por fecha, nunca el mismo dos días seguidos) — */
+function labTipOfDay(){
+  var doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  return LAB_TIPS[doy%LAB_TIPS.length];
+}
+function labWeekChallenge(){
+  var wk=Math.floor(Date.now()/(7*86400000));
+  return LAB_CHALLENGES[wk%LAB_CHALLENGES.length];
+}
+/* — consejo INTELIGENTE según tu comportamiento — */
+function labSmartTip(){
+  try{
+    var h=new Date().getHours();
+    var st=store.get('skillTotals',{});
+    if((review||[]).length>=8) return LAB_TIPS[0]; /* mucho por repasar → espaciado */
+    if(h>=22) return LAB_TIPS[12]; /* estudia de noche → sueño */
+    if((st.listening||0)>(st.speaking||0)+5) return LAB_TIPS[6]; /* listening >> speaking */
+    if((st.speaking||0)===0&&xp>50) return LAB_TIPS[6];
+    if(streak.count===0&&xp>0) return LAB_TIPS[13]; /* sin racha → hábitos */
+    return labTipOfDay();
+  }catch(e){ return LAB_TIPS[0]; }
+}
+function labTipCardHTML(tip,label){
+  return '<div class="card" style="border-left:4px solid #0ea5e9;">'
+    +'<div style="font-size:.7rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#0ea5e9;">'+(label||'🧪 Del laboratorio')+' · '+tip.c+'</div>'
+    +'<div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin:4px 0;">'+tip.t+'</div>'
+    +'<p style="font-size:.88rem;margin:0 0 6px;">'+tip.w+'</p>'
+    +'<p class="note" style="margin:0;">'+tip.k+'</p></div>';
+}
+/* — tarjeta del Lab para el feed "Para ti" — */
+function fcLabTip(){
+  try{ var t=labSmartTip();
+    return feedShell('🧪','Aprende a aprender','#0ea5e9',
+      '<div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+feedEsc(t.t)+'</div>'
+      +'<p style="font-size:.86rem;margin:6px 0;">'+feedEsc(t.w)+'</p>'
+      +'<p class="note" style="margin:0 0 8px;">'+feedEsc(t.k)+'</p>'
+      +'<button class="btn ghost" onclick="openLearnLab()">Ver el laboratorio completo →</button>');
+  }catch(e){ return ''; }
+}
+/* — la sección completa — */
+function openLearnLab(tab){
+  tab=tab||'hoy';
+  var ov=document.getElementById('labOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='labOv'; ov.className='legal-ov'; document.body.appendChild(ov); }
+  function tabBtn(id,label){ return '<button class="'+(tab===id?'active':'')+'" onclick="openLearnLab(\''+id+'\')">'+label+'</button>'; }
+  var body='';
+  if(tab==='hoy'){
+    body=labTipCardHTML(labTipOfDay(),'📅 Consejo de hoy')
+      +'<div class="card" style="border-left:4px solid #f59e0b;"><div style="font-size:.7rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#b45309;">🏆 Desafío de la semana</div>'
+      +'<p style="font-weight:700;margin:6px 0 0;">'+labWeekChallenge()+'</p></div>'
+      +labTipCardHTML(labSmartTip(),'🎯 Para TI (según tu forma de estudiar)');
+  } else if(tab==='biblio'){
+    var cats={}; LAB_TIPS.forEach(function(t){ (cats[t.c]=cats[t.c]||[]).push(t); });
+    Object.keys(cats).forEach(function(c){
+      body+='<h4 style="margin:12px 0 6px;">'+c+'</h4>';
+      cats[c].forEach(function(t){
+        body+='<details style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px;"><summary style="font-weight:700;cursor:pointer;">'+t.t+'</summary><p style="font-size:.88rem;margin:8px 0 4px;">'+t.w+'</p><p class="note" style="margin:0;">'+t.k+'</p></details>';
+      });
+    });
+  } else if(tab==='mitos'){
+    LAB_MYTHS.forEach(function(m){
+      body+='<div class="card" style="border-left:4px solid #ef4444;"><div style="font-weight:800;">❌ '+m[0]+'</div><p style="font-size:.88rem;margin:6px 0 0;">✅ '+m[1]+'</p></div>';
+    });
+  } else if(tab==='poly'){
+    body='<p class="note">Estrategias de políglotas reconocidos, resumidas con nuestras palabras. Búscalos si quieres profundizar.</p>';
+    LAB_POLY.forEach(function(p){
+      body+='<div class="card"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+p[0]+' <span class="note" style="font-weight:600;">· '+p[1]+'</span></div><p style="font-size:.88rem;margin:6px 0 0;">'+p[2]+'</p></div>';
+    });
+  } else if(tab==='exp'){
+    body='<p class="note">Descubre qué funciona para TU cerebro: pequeños experimentos de 1-2 semanas.</p>';
+    LAB_EXP.forEach(function(x){
+      body+='<div class="card" style="border-left:4px solid #8b5cf6;"><div style="font-weight:800;">'+x[0]+'</div><p style="font-size:.88rem;margin:6px 0 0;">'+x[1]+'</p></div>';
+    });
+  }
+  ov.innerHTML='<div class="legal-card" style="max-width:560px;"><div class="legal-head"><h3>🧠 Aprende a Aprender</h3><button class="legal-x" onclick="document.getElementById(\'labOv\').style.display=\'none\'">✕</button></div>'
+    +'<div class="gate-tabs" style="margin:10px 14px 0;flex-wrap:wrap;">'+tabBtn('hoy','📅 Hoy')+tabBtn('biblio','📚 Biblioteca')+tabBtn('mitos','🚫 Mitos')+tabBtn('poly','🌍 Políglotas')+tabBtn('exp','🧪 Experimentos')+'</div>'
+    +'<div class="legal-body" style="background:var(--bg);">'+body+'</div></div>';
+  ov.style.display='flex';
+}
+
+/* ============================================================
+   📺 VIDEOTECA LEGAL POR IDIOMA — solo contenido OFICIAL y gratuito
+   (canales que publican sus propios episodios; enlazar es legal,
+   nunca copiamos ni descargamos nada)
+   ============================================================ */
+var MEDIA={
+ en:[
+  ['BBC Learning English','https://www.youtube.com/@bbclearningenglish','Canal oficial','A1-C1','Series propias como "The Grammar Show" y dramas por episodios, hechos PARA estudiantes.'],
+  ['VOA Learning English','https://learningenglish.voanews.com','Sitio oficial (dominio público EE.UU.)','A2-B2','Noticias, series y programas en inglés lento. Su contenido es de dominio público.'],
+  ['Storyline Online','https://storylineonline.net','Fundación SAG-AFTRA','A1-B1','Actores famosos leen cuentos completos en video, gratis y legal.'],
+  ['TED-Ed','https://www.youtube.com/@TEDEd','Canal oficial','B1-C1','Lecciones animadas de 5 min con subtítulos en inglés.'],
+  ['Peppa Pig (oficial)','https://www.youtube.com/@PeppaPigOfficial','Canal oficial','A1-A2','Episodios COMPLETOS publicados por el dueño de la serie. Inglés británico clarísimo.'],
+  ['Sesame Street (oficial)','https://www.youtube.com/@SesameStreet','Canal oficial','A1-A2','Segmentos y episodios oficiales. Inglés americano para empezar.'],
+  ['LibriVox','https://librivox.org','Dominio público','B1-C1','Audiolibros clásicos en inglés leídos por voluntarios. 100% libres.']],
+ es:[
+  ['Dreaming Spanish','https://www.youtube.com/@DreamingSpanish','Canal oficial','A1-C1','Cientos de videos de input comprensible por niveles, hechos para aprender español.'],
+  ['Peppa Pig en Español (oficial)','https://www.youtube.com/@PeppaPigEspanol','Canal oficial','A1-A2','Episodios completos oficiales en español claro.'],
+  ['Español con Juan','https://www.youtube.com/@EspanolconJuan','Canal oficial','B1-C1','Historias y humor 100% en español para estudiantes.'],
+  ['RTVE a la carta (gratis)','https://www.rtve.es/play/','TV pública española','B1-C1','Series y documentales de la televisión pública, gratis con anuncios.']],
+ pt:[
+  ['Turma da Mônica (oficial)','https://www.youtube.com/@TurmadaMonica','Canal oficial','A1-B1','Episodios completos oficiales del clásico brasileño.'],
+  ['Speaking Brazilian','https://www.youtube.com/@SpeakingBrazilian','Canal oficial','A2-C1','Lecciones y historias en portugués claro de Brasil.'],
+  ['Porta dos Fundos','https://www.youtube.com/@portadosfundos','Canal oficial','B2-C1','Humor brasileño real (para nivel alto). Todo publicado por ellos mismos.']],
+ fr:[
+  ['InnerFrench','https://www.youtube.com/@innerFrench','Canal oficial','B1-C1','Videos de input comprensible en francés lento y natural.'],
+  ['Peppa Pig Français (oficiel)','https://www.youtube.com/@PeppaPigFrancais','Canal oficial','A1-A2','Episodios completos oficiales en francés.'],
+  ['TV5MONDE Apprendre','https://apprendre.tv5monde.com','Sitio oficial gratuito','A1-C1','Plataforma pública con videos y ejercicios por nivel, hecha para aprender francés.'],
+  ['Français Authentique','https://www.youtube.com/@francaisauthentique','Canal oficial','A2-B2','Historias y explicaciones en francés claro.']]
+};
+function openMediaLib(lang){
+  lang=lang||curTarget||'en';
+  var ov=document.getElementById('mediaOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='mediaOv'; ov.className='legal-ov'; document.body.appendChild(ov); }
+  var TL={en:'🇺🇸 Inglés',es:'🇪🇸 Español',pt:'🇧🇷 Portugués',fr:'🇫🇷 Francés'};
+  var tabs=Object.keys(MEDIA).map(function(l){ return '<button class="'+(l===lang?'active':'')+'" onclick="openMediaLib(\''+l+'\')">'+TL[l]+'</button>'; }).join('');
+  var body='<p class="note" style="margin:0 0 10px;">Todo lo de esta lista es <b>oficial y gratuito</b>: canales que publican su propio contenido o material de dominio público. Milo solo te lleva a la fuente — nunca copia nada.</p>';
+  (MEDIA[lang]||[]).forEach(function(m){
+    body+='<div class="card" style="padding:14px 16px;">'
+      +'<a class="link" href="'+m[1]+'" target="_blank" rel="noopener" style="font-weight:800;font-size:1rem;">▶️ '+m[0]+' ↗</a>'
+      +'<div style="font-size:.86rem;margin:4px 0;">'+m[4]+'</div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">Nivel: <b>'+m[3]+'</b> · '+m[2]+'</div></div>';
+  });
+  ov.innerHTML='<div class="legal-card" style="max-width:560px;"><div class="legal-head"><h3>📺 Series y canales gratis</h3><button class="legal-x" onclick="document.getElementById(\'mediaOv\').style.display=\'none\'">✕</button></div>'
+    +'<div class="gate-tabs" style="margin:10px 14px 0;">'+tabs+'</div>'
+    +'<div class="legal-body" style="background:var(--bg);">'+body+'</div></div>';
+  ov.style.display='flex';
+}
+
+/* ============================================================
+   🐙 MILO KIDS — jugar es aprender (v1)
+   Ciencia aplicada: TPR (movimiento), aprendizaje musical (repetición
+   melódica), cuentos (memoria narrativa), juego libre (Montessori),
+   repetición amada por los niños, audio-primero (pre-lectores),
+   franjas de edad con experiencias distintas.
+   ============================================================ */
+var K={stars:store.get('kidsStars',0), age:store.get('kidsAge',''), scr:'home', timer:null};
+function kSay(text,lang){
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    var L=lang||curTarget||'en';
+    u.lang=L==='en'?'en-US':L==='pt'?'pt-BR':L==='fr'?'fr-FR':'es-ES';
+    u.rate=0.85; u.pitch=1.25; /* voz más dulce y lenta para niños */
+    try{ var v=pickVoice(u.lang); if(v)u.voice=v; }catch(e){}
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function kNat(){ return (profile&&profile.native)||'es'; }
+function kT(it){ return it[curTarget]||it.en; } /* palabra en el idioma que aprende */
+/* Vocabulario Kids en los 4 idiomas */
+var KWORDS={
+ colors:[{e:'🔴',en:'red',es:'rojo',pt:'vermelho',fr:'rouge'},{e:'🔵',en:'blue',es:'azul',pt:'azul',fr:'bleu'},{e:'🟢',en:'green',es:'verde',pt:'verde',fr:'vert'},{e:'🟡',en:'yellow',es:'amarillo',pt:'amarelo',fr:'jaune'}],
+ animals:[{e:'🐶',en:'dog',es:'perro',pt:'cachorro',fr:'chien'},{e:'🐱',en:'cat',es:'gato',pt:'gato',fr:'chat'},{e:'🦁',en:'lion',es:'león',pt:'leão',fr:'lion'},{e:'🐦',en:'bird',es:'pájaro',pt:'pássaro',fr:'oiseau'},{e:'🐟',en:'fish',es:'pez',pt:'peixe',fr:'poisson'},{e:'🐘',en:'elephant',es:'elefante',pt:'elefante',fr:'éléphant'}],
+ food:[{e:'🍎',en:'apple',es:'manzana',pt:'maçã',fr:'pomme'},{e:'🥛',en:'milk',es:'leche',pt:'leite',fr:'lait'},{e:'🍞',en:'bread',es:'pan',pt:'pão',fr:'pain'},{e:'🍌',en:'banana',es:'banano',pt:'banana',fr:'banane'}],
+ numbers:[{e:'1️⃣',n:1,en:'one',es:'uno',pt:'um',fr:'un'},{e:'2️⃣',n:2,en:'two',es:'dos',pt:'dois',fr:'deux'},{e:'3️⃣',n:3,en:'three',es:'tres',pt:'três',fr:'trois'},{e:'4️⃣',n:4,en:'four',es:'cuatro',pt:'quatro',fr:'quatre'},{e:'5️⃣',n:5,en:'five',es:'cinco',pt:'cinco',fr:'cinq'}]
+};
+/* Canciones ORIGINALES de Milo (letra propia, melodía = tu voz TTS + palmas) */
+var KSONGS=[
+ {t:'Hello, Hello, Milo!',e:'👋',lines:[['Hello, hello, what do you say?','Hola, hola, ¿qué dices?'],['Hello, hello, let\'s play today!','¡Hola, hola, juguemos hoy!'],['I am Milo, I say hi!','Soy Milo, digo ¡hola!'],['Wave your hand and touch the sky!','¡Saluda con la mano y toca el cielo!']]},
+ {t:'Colors of the Sea',e:'🌊',lines:[['Red like a crab, snap snap snap!','Rojo como un cangrejo, ¡clac clac clac!'],['Blue like the sea, splash with me!','Azul como el mar, ¡salpica conmigo!'],['Green like a turtle, slow slow slow.','Verde como una tortuga, lento lento.'],['Yellow like the sun, hello hello!','Amarillo como el sol, ¡hola hola!']]},
+ {t:'Count with Milo',e:'🐙',lines:[['One, two, three — clap with me!','Uno, dos, tres — ¡aplaude conmigo!'],['Four and five — do a high five!','Cuatro y cinco — ¡choca esos cinco!'],['Count my arms, one two three!','Cuenta mis brazos, ¡uno dos tres!'],['Milo has eight — count and see!','Milo tiene ocho — ¡cuenta y ve!']]}
+];
+/* Cuentos ORIGINALES interactivos */
+var KSTORIES=[
+ {t:'Milo y el pez perdido',e:'🐟',pages:[
+   {img:'🐙🌊',en:'Milo swims in the blue sea.',es:'Milo nada en el mar azul.'},
+   {img:'🐟💧',en:'A little fish is lost. "Help!"',es:'Un pececito está perdido. "¡Ayuda!"'},
+   {img:'🐙➡️🪸',en:'Milo says: "Follow me! Left, right!"',es:'Milo dice: "¡Sígueme! ¡Izquierda, derecha!"'},
+   {img:'🐟🐠🐡',en:'The fish finds his family. Hooray!',es:'El pez encuentra a su familia. ¡Hurra!'}],
+  q:{ask:{en:'What color is the sea?',es:'¿De qué color es el mar?'},opts:['🔵','🔴','🟡'],ok:0}},
+ {t:'La fiesta del zoológico',e:'🦁',pages:[
+   {img:'🦁🎉',en:'The lion has a party today!',es:'¡El león tiene una fiesta hoy!'},
+   {img:'🐘🎺',en:'The elephant plays the trumpet.',es:'El elefante toca la trompeta.'},
+   {img:'🐦🎶',en:'The bird sings: tweet tweet!',es:'El pájaro canta: ¡pío pío!'},
+   {img:'🐙💃',en:'And Milo dances with eight arms!',es:'¡Y Milo baila con ocho brazos!'}],
+  q:{ask:{en:'Who plays the trumpet?',es:'¿Quién toca la trompeta?'},opts:['🐘','🦁','🐟'],ok:0}},
+ {t:'Milo va al dentista',e:'🦷',pages:[
+   {img:'🐙🦷',en:'Milo visits the dentist. He is not afraid!',es:'Milo visita al dentista. ¡No tiene miedo!'},
+   {img:'😁✨',en:'"Open big!" says the dentist. Aaah!',es:'"¡Abre grande!" dice el dentista. ¡Aaah!'},
+   {img:'🪥🎵',en:'Brush, brush, brush — up and down!',es:'Cepilla, cepilla — ¡arriba y abajo!'},
+   {img:'🐙⭐',en:'"Great teeth, Milo!" What a star!',es:'"¡Qué buenos dientes, Milo!" ¡Toda una estrella!'}],
+  q:{ask:{en:'What do we use to brush?',es:'¿Con qué nos cepillamos?'},opts:['🪥','🍭','🧦'],ok:0}}
+];
+/* Aventuras de Milo: historias jugables de 5-10 min */
+var KADV=[
+ {t:'La isla del tesoro',e:'🏴‍☠️',scenes:[
+   {type:'talk',img:'🏝️🐙',en:'Ahoy! Milo found a treasure map!',es:'¡Ahoy! ¡Milo encontró un mapa del tesoro!'},
+   {type:'tap',set:'colors',pick:0,en:'Find the RED flower to open the path!',es:'¡Encuentra la flor ROJA para abrir el camino!'},
+   {type:'move',en:'Jump 3 times like a pirate!',es:'¡Salta 3 veces como pirata!',img:'🏴‍☠️'},
+   {type:'count',set:'food',item:3,n:4,en:'How many bananas do you see?',es:'¿Cuántos bananos ves?'},
+   {type:'tap',set:'numbers',pick:2,en:'The chest needs the number THREE!',es:'¡El cofre necesita el número TRES!'},
+   {type:'end',img:'💎👑💰',en:'You found the treasure! You are amazing!',es:'¡Encontraste el tesoro! ¡Eres increíble!'}]},
+ {t:'Un día en el zoológico',e:'🦁',scenes:[
+   {type:'talk',img:'🎟️🐙',en:'Welcome to the zoo! Let\'s meet the animals!',es:'¡Bienvenido al zoológico! ¡Conozcamos a los animales!'},
+   {type:'tap',set:'animals',pick:2,en:'Who says ROAR? Find the LION!',es:'¿Quién hace ROAR? ¡Encuentra al LEÓN!'},
+   {type:'move',en:'Walk like an elephant! Stomp, stomp!',es:'¡Camina como elefante! ¡Pum, pum!',img:'🐘'},
+   {type:'tap',set:'animals',pick:4,en:'Who swims? Find the FISH!',es:'¿Quién nada? ¡Encuentra al PEZ!'},
+   {type:'count',set:'animals',item:3,n:3,en:'How many birds are singing?',es:'¿Cuántos pájaros cantan?'},
+   {type:'end',img:'🦁🐘🐦🎉',en:'The animals love you! See you soon!',es:'¡Los animales te quieren! ¡Hasta pronto!'}]}
+];
+/* Kids TV: SOLO canales oficiales, enlazados (nunca copiados) */
+var KTV=[
+ {c:'🎵 Canciones',items:[['Super Simple Songs','https://www.youtube.com/@SuperSimpleSongs','2-7','Inglés claro y lento'],['Pinkfong (oficial)','https://www.youtube.com/@Pinkfong','2-6','Canciones y fonética'],['Toy Cantando (es)','https://www.youtube.com/@ToyCantando','2-6','Canciones en español']]},
+ {c:'📖 Historias',items:[['Sesame Street (oficial)','https://www.youtube.com/@SesameStreet','3-7','Historias y valores'],['StoryBots (oficial)','https://www.youtube.com/@StoryBots','4-8','Curiosidad y ciencia']]},
+ {c:'🔤 Fonética y lectura',items:[['Alphablocks (oficial)','https://www.youtube.com/@officialalphablocks','4-8','Fonética BBC'],['Numberblocks (oficial)','https://www.youtube.com/@Numberblocks','4-8','Números BBC']]},
+ {c:'🌎 Mundo y ciencia',items:[['Nat Geo Kids (oficial)','https://www.youtube.com/@natgeokids','6-13','Naturaleza en inglés'],['Art for Kids Hub','https://www.youtube.com/@ArtforKidsHub','5-13','Dibujar siguiendo instrucciones en inglés']]}
+];
+function kStar(n){
+  n=n||1; K.stars+=n; store.set('kidsStars',K.stars);
+  try{ beep('good'); }catch(e){}
+  try{ var s=document.createElement('div'); s.className='kw-star-fly'; s.textContent='⭐'; s.style.left=(40+Math.random()*40)+'%'; s.style.top='55%'; document.body.appendChild(s); setTimeout(function(){s.remove();},1100); }catch(e){}
+  var el=document.getElementById('kwStars'); if(el)el.textContent='⭐ '+K.stars;
+}
+function kHeard(w){ try{ var s=store.get('kidsWords',{}); s[w]=1; store.set('kidsWords',s); }catch(e){} }
+function kTree(){ var s=K.stars; return s>=60?['🌲🌳🌲','¡Todo un BOSQUE!']:s>=30?['🌳','¡Un árbol fuerte!']:s>=15?['🪴','¡Tu planta crece!']:s>=5?['🌱','¡Ya brotó!']:['🌰','Una semillita con sueños']; }
+function kAgeBand(){ return K.age||'b'; }
+function kOptsN(){ return {a:2,b:3,c:4,d:4}[kAgeBand()]||3; }
+function openKids(){
+  var w=document.getElementById('kidsWorld');
+  if(!w){ w=document.createElement('div'); w.id='kidsWorld'; document.body.appendChild(w); }
+  w.classList.add('on');
+  clearInterval(K.timer); K.timer=setInterval(function(){ try{ store.set('kidsTime',(store.get('kidsTime',0)+10)); }catch(e){} },10000);
+  if(!K.age){ kAgeScreen(); } else { kHome(); }
+}
+function kShell(inner,backFn){
+  var w=document.getElementById('kidsWorld'); if(!w)return;
+  w.innerHTML='<div class="kw-top">'
+    +'<button class="kw-exit" onclick="kParentGate(function(){kExit();})">🔒 Salir</button>'
+    +'<div class="kw-stars" id="kwStars">⭐ '+K.stars+'</div></div>'
+    +'<div class="kw-body">'+(backFn?('<button class="kw-back" onclick="'+backFn+'">← Volver</button>'):'')+inner+'</div>';
+  w.scrollTop=0;
+}
+function kExit(){ var w=document.getElementById('kidsWorld'); if(w)w.classList.remove('on'); clearInterval(K.timer); try{speechSynthesis.cancel();}catch(e){} }
+function kParentGate(fn){
+  var a=2+Math.floor(Math.random()*7), b=3+Math.floor(Math.random()*6);
+  var r=prompt('👨‍👩‍👧 Zona de adultos\n¿Cuánto es '+a+' + '+b+'?');
+  if(parseInt(r,10)===a+b){ fn(); } else if(r!==null){ try{kSay(kNat()==='es'?'¡Sigamos jugando!':'Let\'s keep playing!',kNat());}catch(e){} }
+}
+window.kExit=kExit;
+function kAgeScreen(){
+  kShell('<div class="kw-milo">'+miloSVG(130)+'</div>'
+    +'<div style="text-align:center;font-weight:800;font-size:1.2rem;color:#3d405b;margin:8px 0 4px;">¿Cuántos años tiene el peque?</div>'
+    +'<p style="text-align:center;color:#8d99ae;font-size:.85rem;margin:0 0 6px;">(Pregunta para el adulto — cada edad vive una experiencia distinta)</p>'
+    +'<div class="kw-grid">'
+    +[['a','🧸','2 – 4'],['b','🎨','5 – 7'],['c','🚀','8 – 10'],['d','🎧','11 – 13']].map(function(x){
+      return '<button class="kw-big c'+(['a','b','c','d'].indexOf(x[0])+1)+'" onclick="K.age=\''+x[0]+'\';store.set(\'kidsAge\',\''+x[0]+'\');kHome();"><span class="ki">'+x[1]+'</span><span class="kt">'+x[2]+' años</span></button>';
+    }).join('')+'</div>');
+}
+function kHome(){
+  var nm=(profile&&profile.name)||'';
+  var hi={en:'Hi'+(nm?' '+nm:'')+'! Let\'s play!',es:'¡Hola'+(nm?' '+nm:'')+'! ¡A jugar!',pt:'Oi'+(nm?' '+nm:'')+'! Vamos brincar!',fr:'Salut'+(nm?' '+nm:'')+'! On joue!'};
+  kShell('<div class="kw-milo"><div class="kw-bub">'+(hi[curTarget]||hi.en)+' 🎉</div><div>'+miloSVG(140)+'</div></div>'
+    +'<div class="kw-grid">'
+    +'<button class="kw-big c1" onclick="kSongs()"><span class="ki">🎵</span><span class="kt">Canciones</span></button>'
+    +'<button class="kw-big c2" onclick="kStories()"><span class="ki">📖</span><span class="kt">Cuentos</span></button>'
+    +'<button class="kw-big c3" onclick="kGames()"><span class="ki">🎮</span><span class="kt">Juegos</span></button>'
+    +'<button class="kw-big c4" onclick="kAdvMenu()"><span class="ki">🗺️</span><span class="kt">Aventuras</span></button>'
+    +'<button class="kw-big c5" onclick="kTV()"><span class="ki">🎬</span><span class="kt">Kids TV</span></button>'
+    +'<button class="kw-big c6" onclick="kTreeScreen()"><span class="ki">'+kTree()[0]+'</span><span class="kt">Mi arbolito</span></button>'
+    +'</div>'
+    +'<div style="text-align:center;margin-top:16px;"><button class="kw-back" onclick="kParentGate(function(){kParents();})">👨‍👩‍👧 Panel para padres</button></div>');
+  setTimeout(function(){ kSay(hi[curTarget]||hi.en); },400);
+}
+/* ---- CANCIONES: karaoke con tu voz + palmas ---- */
+function kSongs(){
+  kShell('<h2 style="text-align:center;color:#e07a5f;">🎵 Canciones de Milo</h2>'
+    +KSONGS.map(function(s,i){ return '<button class="kw-big c'+((i%3)+1)+'" style="width:100%;margin-bottom:12px;" onclick="kSong('+i+')"><span class="ki">'+s.e+'</span><span class="kt">'+s.t+'</span></button>'; }).join(''),'kHome()');
+}
+function kSong(i){
+  var s=KSONGS[i]; K.songLine=0;
+  var showTxt=kAgeBand()!=='a'; /* 2-4 años: solo audio y emoji */
+  kShell('<h2 style="text-align:center;color:#e07a5f;">'+s.e+' '+s.t+'</h2>'
+    +'<div class="kw-card" id="kwSong">'
+    +s.lines.map(function(l,li){ return '<div class="kw-line" id="kwL'+li+'">'+(showTxt?l[0]:'🎵🎵🎵')+(showTxt&&kAgeBand()!=='d'?'<div style="font-size:.8rem;font-weight:600;color:#8d99ae;">'+l[1]+'</div>':'')+'</div>'; }).join('')
+    +'</div>'
+    +'<div style="text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+    +'<button class="kw-say" onclick="kSongPlay('+i+')">▶️ Cantar con Milo</button>'
+    +'<button class="kw-say orange" onclick="kSay(\'👏\');beep(\'good\')">👏 ¡Palmas!</button></div>','kSongs()');
+}
+function kSongPlay(i){
+  var s=KSONGS[i]; var li=0;
+  function line(){
+    if(li>0){ var p=document.getElementById('kwL'+(li-1)); if(p)p.classList.remove('now'); }
+    if(li>=s.lines.length){ kStar(2); kSay(kNat()==='es'?'¡Bravo! ¡Cantas precioso!':'Bravo! Beautiful singing!',kNat()); try{confetti();}catch(e){} return; }
+    var el=document.getElementById('kwL'+li); if(el){el.classList.add('now'); el.scrollIntoView({block:'center',behavior:'smooth'});}
+    kSay(s.lines[li][0],'en'); kHeard(s.lines[li][0]);
+    li++; setTimeout(line, 3400);
+  }
+  line();
+}
+/* ---- CUENTOS interactivos ---- */
+function kStories(){
+  kShell('<h2 style="text-align:center;color:#43aa8b;">📖 Cuentos de Milo</h2>'
+    +KSTORIES.map(function(s,i){ return '<button class="kw-big c'+((i%3)+2)+'" style="width:100%;margin-bottom:12px;" onclick="kStory('+i+',0)"><span class="ki">'+s.e+'</span><span class="kt">'+s.t+'</span></button>'; }).join(''),'kHome()');
+}
+function kStory(i,pg){
+  var s=KSTORIES[i];
+  if(pg>=s.pages.length){ return kStoryQ(i); }
+  var p=s.pages[pg]; var showTxt=kAgeBand()!=='a';
+  kShell('<div class="kw-card" style="text-align:center;">'
+    +'<div class="kw-page">'+p.img+'</div>'
+    +(showTxt?('<div style="font-weight:800;font-size:1.15rem;color:#3d405b;">'+p.en+'</div><div style="color:#8d99ae;font-size:.9rem;margin-top:4px;">'+p.es+'</div>'):'')
+    +'<div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+    +'<button class="kw-say" onclick="kSay(KSTORIES['+i+'].pages['+pg+'].en,\'en\')">🔊 Milo lee</button>'
+    +'<button class="kw-say green" onclick="kStory('+i+','+(pg+1)+')">'+(pg<s.pages.length-1?'Siguiente →':'¿Y ahora? →')+'</button></div>'
+    +'<div style="margin-top:10px;color:#c9d2e3;font-weight:700;">'+(pg+1)+' / '+s.pages.length+'</div></div>','kStories()');
+  setTimeout(function(){ kSay(p.en,'en'); kHeard(p.en); },300);
+}
+function kStoryQ(i){
+  var s=KSTORIES[i]; var q=s.q;
+  kShell('<div class="kw-card" style="text-align:center;">'
+    +'<div style="font-weight:800;font-size:1.15rem;color:#3d405b;">'+q.ask.en+'</div>'
+    +'<div style="color:#8d99ae;font-size:.9rem;">'+q.ask.es+'</div>'
+    +'<div class="kw-optrow">'+q.opts.map(function(o,oi){ return '<button class="kw-opt" onclick="kAnsK(this,'+(oi===q.ok?1:0)+')">'+o+'</button>'; }).join('')+'</div></div>','kStories()');
+  setTimeout(function(){ kSay(q.ask.en,'en'); },300);
+}
+function kAnsK(btn,ok){
+  if(ok){ btn.classList.add('ok'); kStar(1); kSay(pickK(['Yes! Amazing!','Wonderful!','You did it!']),'en'); }
+  else{ btn.classList.add('no'); kSay(pickK(['Almost! Try again!','You can do it!']),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
+}
+function pickK(a){ return a[Math.floor(Math.random()*a.length)]; }
+/* ---- JUEGOS: rondas cortas por edad ---- */
+function kGames(){
+  kShell('<h2 style="text-align:center;color:#3d9be9;">🎮 Juegos</h2><div class="kw-grid">'
+    +'<button class="kw-big c1" onclick="kGameTap(\'colors\')"><span class="ki">🌈</span><span class="kt">Colores</span></button>'
+    +'<button class="kw-big c2" onclick="kGameTap(\'animals\')"><span class="ki">🦁</span><span class="kt">Animales</span></button>'
+    +'<button class="kw-big c3" onclick="kGameTap(\'food\')"><span class="ki">🍎</span><span class="kt">Comida</span></button>'
+    +'<button class="kw-big c4" onclick="kGameCount()"><span class="ki">🔢</span><span class="kt">Contar</span></button>'
+    +'</div>','kHome()');
+}
+function kGameTap(set,forced){
+  var pool=KWORDS[set]; var n=Math.min(kOptsN(),pool.length);
+  var target=(forced!=null)?pool[forced]:pool[Math.floor(Math.random()*pool.length)];
+  var opts=shuffle(pool.filter(function(x){return x!==target;})).slice(0,n-1).concat([target]);
+  opts=shuffle(opts);
+  var word=kT(target); kHeard(word);
+  var showTxt=(kAgeBand()==='c'||kAgeBand()==='d');
+  kShell('<div class="kw-card" style="text-align:center;">'
+    +'<div style="font-weight:800;font-size:1.2rem;color:#3d405b;">'+(showTxt?word:'👂 Escucha…')+'</div>'
+    +'<button class="kw-say" style="margin-top:8px;" onclick="kSay(\''+word.replace(/'/g,"\\'")+'\')">🔊 Otra vez</button>'
+    +'<div class="kw-optrow">'+opts.map(function(o){ var ok=(o===target); return '<button class="kw-opt" onclick="kTapAns(this,'+(ok?1:0)+',\''+set+'\','+(forced!=null?'true':'false')+')">'+o.e+'</button>'; }).join('')+'</div></div>','kGames()');
+  setTimeout(function(){ kSay(word); },350);
+}
+function kTapAns(btn,ok,set,isAdv){
+  if(ok){ btn.classList.add('ok'); kStar(1); kSay(pickK(['Yes!','Super!','Great job!']),'en');
+    if(isAdv){ setTimeout(function(){ kAdvNext(); },1100); } else { setTimeout(function(){ kGameTap(set); },1300); } }
+  else{ btn.classList.add('no'); kSay(pickK(['Almost!','Try again!']),'en'); setTimeout(function(){btn.classList.remove('no');},500); }
+}
+function kGameCount(forcedItem,forcedN,isAdv){
+  var it=forcedItem||KWORDS.animals[Math.floor(Math.random()*KWORDS.animals.length)];
+  var n=forcedN||(1+Math.floor(Math.random()*5));
+  var row=''; for(var i=0;i<n;i++)row+=it.e;
+  var numbers=KWORDS.numbers.slice(0,Math.max(5,n));
+  var opts=shuffle(numbers.slice()).slice(0,kOptsN());
+  if(!opts.some(function(o){return o.n===n;})) opts[0]=numbers[n-1];
+  opts=shuffle(opts);
+  kShell('<div class="kw-card" style="text-align:center;">'
+    +'<div style="font-weight:800;font-size:1.1rem;color:#3d405b;">How many? · ¿Cuántos hay?</div>'
+    +'<div class="kw-page">'+row+'</div>'
+    +'<div class="kw-optrow">'+opts.map(function(o){ var ok=(o.n===n); return '<button class="kw-opt" style="font-size:1.6rem;font-weight:800;" onclick="if('+(ok?1:0)+'){this.classList.add(\'ok\');kStar(1);kSay(\''+kT(numbers[n-1]).replace(/'/g,"\\'")+'\');setTimeout(function(){'+(isAdv?'kAdvNext()':'kGameCount()')+'},1300);}else{this.classList.add(\'no\');kSay(\'Try again!\',\'en\');var b=this;setTimeout(function(){b.classList.remove(\'no\');},500);}">'+o.e+' '+kT(o)+'</button>'; }).join('')+'</div></div>','kGames()');
+  setTimeout(function(){ kSay('How many?','en'); },350);
+}
+/* ---- AVENTURAS: historias jugables ---- */
+var kAdvState=null;
+function kAdvMenu(){
+  kShell('<h2 style="text-align:center;color:#9266cc;">🗺️ Aventuras de Milo</h2>'
+    +KADV.map(function(a,i){ return '<button class="kw-big c'+((i%3)+4)+'" style="width:100%;margin-bottom:12px;" onclick="kAdv('+i+')"><span class="ki">'+a.e+'</span><span class="kt">'+a.t+'</span></button>'; }).join(''),'kHome()');
+}
+function kAdv(i){ kAdvState={adv:i,sc:0}; kAdvScene(); }
+function kAdvNext(){ if(!kAdvState)return; kAdvState.sc++; kAdvScene(); }
+function kAdvScene(){
+  var a=KADV[kAdvState.adv]; var s=a.scenes[kAdvState.sc];
+  if(!s){ kAdvState=null; kHome(); return; }
+  var dots=a.scenes.map(function(_,di){ return '<span style="width:10px;height:10px;border-radius:50%;display:inline-block;margin:0 3px;background:'+(di<=kAdvState.sc?'#9266cc':'#e2d5f8')+';"></span>'; }).join('');
+  if(s.type==='talk'||s.type==='end'){
+    kShell('<div style="text-align:center;margin-bottom:6px;">'+dots+'</div>'
+      +'<div class="kw-card" style="text-align:center;">'
+      +'<div class="kw-page">'+s.img+'</div>'
+      +'<div style="font-weight:800;font-size:1.15rem;color:#3d405b;">'+s.en+'</div>'
+      +'<div style="color:#8d99ae;font-size:.9rem;">'+s.es+'</div>'
+      +'<button class="kw-say green" style="margin-top:14px;" onclick="'+(s.type==='end'?'kStar(3);try{confetti()}catch(e){};kAdvState=null;kHome()':'kAdvNext()')+'">'+(s.type==='end'?'🎉 ¡Lo logramos!':'¡Vamos! →')+'</button></div>','kAdvMenu()');
+    setTimeout(function(){ kSay(s.en,'en'); },350);
+  } else if(s.type==='move'){
+    kShell('<div style="text-align:center;margin-bottom:6px;">'+dots+'</div>'
+      +'<div class="kw-card" style="text-align:center;">'
+      +'<div class="kw-page">'+s.img+'</div>'
+      +'<div style="font-weight:800;font-size:1.2rem;color:#3d405b;">'+s.en+'</div>'
+      +'<div style="color:#8d99ae;">'+s.es+'</div>'
+      +'<button class="kw-say orange" style="margin-top:14px;" onclick="kStar(1);kAdvNext()">💪 ¡Lo hice!</button></div>','kAdvMenu()');
+    setTimeout(function(){ kSay(s.en,'en'); },350);
+  } else if(s.type==='tap'){
+    kSay(s.en,'en');
+    kGameTap(s.set,s.pick);
+    /* sobreescribe el volver para seguir en la aventura */
+  } else if(s.type==='count'){
+    kGameCount(KWORDS[s.set][s.item],s.n,true);
+  }
+}
+/* ---- KIDS TV: solo canales oficiales enlazados ---- */
+function kTV(){
+  var h='<h2 style="text-align:center;color:#f2a541;">🎬 Kids TV</h2>'
+    +'<p style="text-align:center;color:#8d99ae;font-size:.85rem;">Canales oficiales seleccionados por Milo. Se abren en YouTube — recomendado ver en familia 👨‍👩‍👧</p>';
+  KTV.forEach(function(cat){
+    h+='<div class="kw-card"><div style="font-weight:800;color:#3d405b;margin-bottom:8px;">'+cat.c+'</div>';
+    cat.items.forEach(function(it){
+      h+='<a href="'+it[1]+'" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#3d405b;padding:9px 4px;border-bottom:1px solid #f2f4f8;">'
+        +'<span style="font-size:1.4rem;">▶️</span><span style="flex:1;font-weight:700;">'+it[0]+'</span>'
+        +'<span style="font-size:.72rem;color:#8d99ae;">'+it[2]+' años · '+it[3]+'</span></a>';
+    });
+    h+='</div>';
+  });
+  kShell(h,'kHome()');
+}
+/* ---- MI ARBOLITO: el progreso que se cuida ---- */
+function kTreeScreen(){
+  var t=kTree();
+  kShell('<div class="kw-card" style="text-align:center;">'
+    +'<div class="kw-tree">'+t[0]+'</div>'
+    +'<div style="font-weight:800;font-size:1.2rem;color:#43aa8b;margin-top:8px;">'+t[1]+'</div>'
+    +'<p style="color:#8d99ae;">Tienes ⭐ '+K.stars+' estrellas. Cada canción, cuento y juego riega tu arbolito.</p>'
+    +'<div style="font-size:.85rem;color:#c9d2e3;font-weight:700;">🌰 → 🌱 5 → 🪴 15 → 🌳 30 → 🌲🌳🌲 60</div></div>','kHome()');
+  kSay(kNat()==='es'?'¡Mira cómo crece tu arbolito!':'Look how your tree grows!',kNat());
+}
+/* ---- PANEL PARA PADRES (tras el candado) ---- */
+function kParents(){
+  var mins=Math.round(store.get('kidsTime',0)/60);
+  var words=Object.keys(store.get('kidsWords',{})).length;
+  kShell('<h2 style="color:#3d405b;">👨‍👩‍👧 Panel para padres</h2>'
+    +'<div class="kw-card"><b>⏱️ Tiempo en Milo Kids:</b> '+mins+' min<br>'
+    +'<b>🗣️ Palabras y frases escuchadas:</b> '+words+'<br>'
+    +'<b>⭐ Estrellas ganadas:</b> '+K.stars+'<br>'
+    +'<b>🌱 Etapa del arbolito:</b> '+kTree()[1]+'</div>'
+    +'<div class="kw-card" style="font-size:.9rem;color:#5a6b8c;"><b>💡 Recomendaciones:</b><br>'
+    +'· Sesiones de 10-15 min rinden más que 1 hora seguida.<br>'
+    +'· Repita las mismas canciones: la repetición ES el aprendizaje infantil.<br>'
+    +'· Canten y muévanse juntos: el idioma entra por el cuerpo (TPR).<br>'
+    +'· Kids TV abre canales oficiales de YouTube: acompañe el visionado.</div>'
+    +'<button class="kw-say" style="width:100%;" onclick="K.age=\'\';store.set(\'kidsAge\',\'\');kAgeScreen()">Cambiar edad del peque</button>'
+    +'<div style="height:8px;"></div>'
+    +'<button class="kw-say orange" style="width:100%;" onclick="kExit()">Salir de Milo Kids</button>','kHome()');
 }
 
 /* ===== MODO SIN CONEXIÓN (PWA) =====
