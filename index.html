@@ -7589,16 +7589,28 @@ function openMediaLib(lang){
    franjas de edad con experiencias distintas.
    ============================================================ */
 var K={stars:store.get('kidsStars',0), age:store.get('kidsAge',''), scr:'home', timer:null};
+/* Voz de Milo Kids: usa la voz NATURAL de Google (la misma del resto de la app),
+   con respaldo del navegador en tono normal (nada de voz de ardilla) */
+var kAudio=null; /* (reservado) */
+/* kSay = LA MISMA voz que el resto de Milo (speak con Google + respaldo),
+   cambiando temporalmente el idioma del motor y restaurándolo después. */
 function kSay(text,lang){
   try{
-    speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
     var L=lang||curTarget||'en';
-    u.lang=L==='en'?'en-US':L==='pt'?'pt-BR':L==='fr'?'fr-FR':'es-ES';
-    u.rate=0.85; u.pitch=1.25; /* voz más dulce y lenta para niños */
-    try{ var v=pickVoice(u.lang); if(v)u.voice=v; }catch(e){}
-    speechSynthesis.speak(u);
-  }catch(e){}
+    var tl=(L==='en'||L==='es'||L==='pt'||L==='fr')?L:'es';
+    var prev=TTS_LANG;
+    TTS_LANG=tl;
+    try{ speak(text); }catch(e){}
+    /* restaurar el idioma cuando la frase ya arrancó (los textos kids son cortos) */
+    setTimeout(function(){ TTS_LANG=prev; }, 250);
+  }catch(e){
+    try{
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang=(lang==='en')?'en-US':(lang==='pt')?'pt-BR':(lang==='fr')?'fr-FR':'es-ES';
+      u.rate=0.9; u.pitch=1.05;
+      speechSynthesis.speak(u);
+    }catch(e2){}
+  }
 }
 function kNat(){ return (profile&&profile.native)||'es'; }
 function kT(it){ return it[curTarget]||it.en; } /* palabra en el idioma que aprende */
@@ -7794,7 +7806,7 @@ function kSong(i){
 /* ===== MÚSICA REAL para las canciones (sintetizador WebAudio: melodía + bajo + palmas) ===== */
 var K_NOTES={C4:261.6,D4:293.7,E4:329.6,G4:392,A4:440,C5:523.3,D5:587.3,E5:659.3,G5:784,A5:880};
 var kSongTimers=[];
-function kStopSong(){ kSongTimers.forEach(clearTimeout); kSongTimers=[]; try{stopSpeak();}catch(e){} try{speechSynthesis.cancel();}catch(e){} try{ if(K.audioEl){K.audioEl.pause();K.audioEl=null;} }catch(e){} }
+function kStopSong(){ kSongTimers.forEach(clearTimeout); kSongTimers=[]; try{stopSpeak();}catch(e){} try{speechSynthesis.cancel();}catch(e){} try{ if(K.audioEl){K.audioEl.pause();K.audioEl=null;} }catch(e){} try{ if(kAudio){kAudio.pause();kAudio=null;} }catch(e){} }
 function kCtx(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended')actx.resume(); return actx; }
 function kNote(freq,at,dur,type,vol){
   try{ var c=kCtx(),o=c.createOscillator(),g=c.createGain();
