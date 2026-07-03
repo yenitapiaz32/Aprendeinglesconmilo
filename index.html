@@ -682,6 +682,14 @@
   .mcard .mc-share:hover{ transform:translateY(-1px); filter:brightness(1.03); }
   /* pulso de la tarjeta de repaso urgente */
   @keyframes repasoPulse{ 0%,100%{box-shadow:0 10px 24px rgba(124,58,237,.32);} 50%{box-shadow:0 16px 38px rgba(236,72,153,.5);} }
+  /* ===== Header en celular: el título no choca con los botones 🔔 🌙 ===== */
+  @media(max-width:640px){
+    header{ text-align:left; padding:14px 96px 10px 16px; }
+    header h1{ font-size:1.02rem; line-height:1.25; }
+    header p{ font-size:.72rem; margin-top:2px; }
+    .toggle-dark{ top:12px; right:12px; width:34px; height:34px; font-size:1rem; }
+    .soundbtn{ top:12px; right:52px; width:34px; height:34px; font-size:.9rem; }
+  }
 
   /* ============================================================
      🐙 MILO KIDS — mundo propio (paleta calmada y alegre, botones
