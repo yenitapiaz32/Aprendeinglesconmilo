@@ -6128,7 +6128,7 @@ function renderHome(){
     if(FREE_MODE){ h+='<p class="note" style="text-align:center;margin:4px 0 0;">'+T('freeNote')+'<a href="#" style="color:var(--blue)" onclick="goTab(\'progreso\');return false;">'+T('premiumSoon')+'</a></p>'; }
   }
   /* PARA TI: el Home continúa con descubrimientos — la página nunca "se acaba" */
-  try{ _fcPlanShown=false; _fcMisShown=false; }catch(e){}
+  try{ _fcPlanShown=false; _fcMisShown=false; _fcLabShown=false; }catch(e){}
   try{ h+='<div style="display:flex;align-items:center;gap:8px;margin:20px 2px 10px;"><span class="sec-label" style="margin:0;">✨ Para ti</span><div style="flex:1;height:1px;background:var(--line);"></div></div>'
     +'<div id="homeFeed">'+feedBatch(3)+'</div>'; }catch(e){}
   el.innerHTML=h;
@@ -6768,11 +6768,15 @@ function jardinHTML(){
     var revSet={}; (review||[]).forEach(function(r){ if(r&&r.a) revSet[String(r.a).toLowerCase()]=1; });
     if(!words.length && !Object.keys(fw).length) return '';
     var plants=words.slice(-18).map(function(w){
-      var lw=String(w).toLowerCase();
-      var st = revSet[lw] ? ['🌿','necesita riego'] : (fw[w]>=2 ? ['💧','marchita — riégala'] : ['🌸','floreciendo']);
-      return '<div onclick="try{speak(\''+String(w).replace(/'/g,"\\'")+'\')}catch(e){}" title="'+st[1]+'" style="cursor:pointer;text-align:center;background:var(--card2);border-radius:12px;padding:8px 4px;transition:transform .15s var(--spring);">'
+      /* la clave interna puede traer prefijo (feed_, tema_): mostramos la palabra limpia */
+      var label=String(w); var us=label.indexOf('_'); if(us>=0) label=label.slice(us+1);
+      label=label.replace(/_/g,' ').trim();
+      var short=label.length>16?label.slice(0,15)+'…':label;
+      var lw=label.toLowerCase();
+      var st = revSet[lw] ? ['🌿','necesita riego'] : ((fw[label]>=2||fw[w]>=2) ? ['💧','marchita — riégala'] : ['🌸','floreciendo']);
+      return '<div onclick="try{speak(\''+label.replace(/'/g,"\\'")+'\')}catch(e){}" title="'+label.replace(/"/g,'')+' · '+st[1]+'" style="cursor:pointer;text-align:center;background:var(--card2);border-radius:12px;padding:8px 4px;transition:transform .15s var(--spring);">'
         +'<div style="font-size:1.4rem;line-height:1;">'+st[0]+'</div>'
-        +'<div style="font-size:.62rem;font-weight:700;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+w+'</div></div>';
+        +'<div style="font-size:.62rem;font-weight:700;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+short+'</div></div>';
     }).join('');
     var thirsty=(review||[]).length;
     return '<div class="card" style="background:linear-gradient(180deg,#f0fdf4,var(--card));border:1.5px solid #bbf7d0;">'
@@ -7131,7 +7135,7 @@ function openFeed(mode){
       }
     });
   }
-  FEED_D=[]; try{ _fcPlanShown=false; _fcMisShown=false; }catch(e){}
+  FEED_D=[]; try{ _fcPlanShown=false; _fcMisShown=false; _fcLabShown=false; }catch(e){}
   var b=document.getElementById('feedBody');
   var tt=document.getElementById('feedTitle');
   if(mode==='session'){
@@ -7417,8 +7421,12 @@ function labTipCardHTML(tip,label){
     +'<p class="note" style="margin:0;">'+tip.k+'</p></div>';
 }
 /* — tarjeta del Lab para el feed "Para ti" — */
+var _fcLabShown=false;
 function fcLabTip(){
-  try{ var t=labSmartTip();
+  try{
+    if(_fcLabShown) return '';
+    _fcLabShown=true;
+    var t=labSmartTip();
     return feedShell('🧪','Aprende a aprender','#0ea5e9',
       '<div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+feedEsc(t.t)+'</div>'
       +'<p style="font-size:.86rem;margin:6px 0;">'+feedEsc(t.w)+'</p>'
