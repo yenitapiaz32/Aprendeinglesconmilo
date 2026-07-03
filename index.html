@@ -3848,6 +3848,35 @@ function ownBoxHTML(L,key,name){
     +'<button class="btn primary" onclick="checkOwn(\''+L+'\',\''+key+'\')">'+T('reviewMine')+'</button>'
     +'<div id="ownres_'+L+'_'+key+'" style="margin-top:8px;"></div></div>';
 }
+/* Revisa TODAS las frases en UNA llamada, con rúbrica fija (consistente y sin rate-limit) */
+async function gradeBatch(tense, arr){
+  if(!CHAT_ENDPOINT) return null;
+  var list=''; var idxs=[];
+  for(var i=0;i<arr.length;i++){ if(arr[i]){ idxs.push(i); list+=(i+1)+'. "'+arr[i].replace(/"/g,"'")+'"\n'; } }
+  if(!idxs.length) return null;
+  var prompt='Eres un profesor de inglés ESTRICTO Y CONSISTENTE. El estudiante practica: "'+tense+'".\n'
+    +'Evalúa cada frase con esta RÚBRICA EXACTA (no cambies de criterio):\n'
+    +'- ✅ SOLO si la frase es gramaticalmente correcta Y usa exactamente la estructura "'+tense+'".\n'
+    +'- ❌ si tiene un error gramatical O usa otro tiempo/estructura distinta (aunque sea correcta en otro tiempo, es ❌ porque no practica el tema).\n'
+    +'FORMATO OBLIGATORIO — responde SOLO estas líneas, una por frase, nada más:\n'
+    +'1. ✅ Correcta. [motivo breve] | o bien | 1. ❌ Revisa: [error] → Corrección: [frase corregida en inglés]\n'
+    +'En español, sin saludos.\nFrases:\n'+list;
+  async function call(){
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',temperature:0,messages:[{role:'user',content:prompt}]})});
+    var j=await r.json(); return (j&&(j.reply||j.content))||null;
+  }
+  var txt=null;
+  try{ txt=await call(); }catch(e){}
+  if(!txt||/respiro|muy r[aá]pido/i.test(txt)){ /* reintento único tras una pausa */
+    await new Promise(function(ok){setTimeout(ok,1600);});
+    try{ txt=await call(); }catch(e){}
+  }
+  if(!txt||/respiro|muy r[aá]pido/i.test(txt)) return null;
+  /* parsear "N. ..." a su casilla; lo que no se pueda leer usa el respaldo local */
+  var out={}; var re=/^\s*(\d+)[\.\)]\s*(.+)$/gm, m;
+  while((m=re.exec(txt))!==null){ var n=parseInt(m[1],10)-1; if(n>=0&&n<arr.length&&arr[n]) out[n]=m[2].trim(); }
+  return Object.keys(out).length?out:null;
+}
 async function gradeSentence(tense, sentence){
   if(!CHAT_ENDPOINT) return null;
   try{
@@ -3880,16 +3909,13 @@ async function checkOwn(L,key){
   var res=document.getElementById('ownres_'+L+'_'+key); if(!res)return;
   var filled=arr.filter(function(x){return x;});
   if(!filled.length){ res.innerHTML='<p class="note">Escribe al menos una frase para que Milo la revise. ✍️</p>'; return; }
-  res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos a la vez...</p>';
-  /* Revisar TODAS las frases en paralelo (mucho más rápido que una por una) */
-  var jobs=[];
-  for(var j2=0;j2<arr.length;j2++){ if(!arr[j2]){jobs.push(null);continue;}
-    jobs.push(gradeSentence(name,arr[j2]).then(function(r){return r;}).catch(function(){return null;}));
-  }
-  var results=await Promise.all(jobs.map(function(p){return p||Promise.resolve(undefined);}));
+  res.innerHTML='<p class="note">🐙 Milo está revisando tus ejemplos...</p>';
+  /* UNA SOLA llamada con TODAS las frases: sin límites de velocidad y con el
+     mismo criterio para todas (notas consistentes entre intentos) */
+  var results=await gradeBatch(name,arr);
   var out='';
   for(var k=0;k<arr.length;k++){ if(!arr[k])continue;
-    var fb=results[k]; if(!fb) fb=heurCheck(name,arr[k]);
+    var fb=(results&&results[k])||heurCheck(name,arr[k]);
     out+='<div style="border-bottom:1px solid #eef1f8;padding:7px 0;"><div style="font-weight:700;">'+(k+1)+'. '+arr[k]+'</div><div class="note" style="margin:3px 0 0;">'+fb+'</div></div>';
   }
   out+='<p class="note" style="margin-top:8px;color:var(--green);font-weight:700;">💾 Guardado. ¡Buen trabajo escribiendo tus propias frases! +5 XP</p>';
@@ -6004,15 +6030,12 @@ function renderHome(){
     +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\')">'
       +'<div style="font-size:2rem;line-height:1;">📊</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">'+p+'% del curso</div>'
       +'<div class="note" style="margin:0;font-size:.74rem;">Mira cuánto has crecido</div></div>'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'achAnchor\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
-      +'<div style="font-size:2rem;line-height:1;">🏅</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Logros</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">'+unlockedAch.length+' de '+ACHS.length+' desbloqueados</div></div>'
     +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="openMiPlan()">'
       +'<div style="font-size:2rem;line-height:1;">🎯</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Mi plan</div>'
       +'<div class="note" style="margin:0;font-size:.74rem;">Hecho a tu medida</div></div>'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;grid-column:1/-1;" onclick="openAventura()">'
+    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="openAventura()">'
       +'<div style="font-size:2rem;line-height:1;">🗺️</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Tu aventura</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">Cada día de estudio desbloquea algo nuevo</div></div>'
+      +'<div class="note" style="margin:0;font-size:.74rem;">Algo nuevo cada día</div></div>'
     +'</div>';
   /* repaso solo si hay pendientes — tarjeta llamativa: es urgente para la memoria */
   if(review.length){
@@ -6084,6 +6107,8 @@ function continuarHoy(){
       goTab('challenge'); return;
     }
   }catch(e){}
+  /* SESIÓN INMEDIATA: nada de aterrizar en teoría — arranca el flujo interactivo ya */
+  try{ openFeed('session'); return; }catch(e){}
   if(typeof openLevel==='function'){ openLevel(curLevel); } else { goTab('levels'); }
 }
 /* Tu aventura en ventana propia (desde la tarjeta del Home) */
@@ -6712,6 +6737,7 @@ function activeLesson(kind,idx){
   if(!ov){ ov=document.createElement('div'); ov.id='alOv'; ov.className='legal-ov';
     ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3 id="alTitle">🎓 Lección</h3><button class="legal-x" onclick="document.getElementById(\'alOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="alBody" style="background:var(--bg);"></div></div>';
     document.body.appendChild(ov); }
+  try{ document.body.appendChild(ov); }catch(e){} /* siempre encima del scroll */
   ov.style.display='flex';
   document.getElementById('alTitle').textContent='🎓 '+alTitle(alItem());
   alRender();
@@ -6805,6 +6831,11 @@ function alFinish(mastered){
     }
   }catch(e){}
   try{ addXP(AL.xp+5); confetti(); beep('win'); }catch(e){}
+  /* avanza el puntero: la próxima sesión trae el siguiente tema */
+  try{ var d0=DATA[curLevel]; var nT=(d0.tenses||[]).length;
+    var cur=(AL.kind==='tenses'?AL.idx:nT+AL.idx);
+    if(store.get('alNext_'+curLevel,0)===cur) store.set('alNext_'+curLevel,cur+1);
+  }catch(e){}
   var b=document.getElementById('alBody');
   if(b) b.innerHTML=alDots()+alMilo(mastered?'¡Eso es DESCUBRIR un idioma! 🎉 No leíste una regla: la encontraste tú.':'Valiente respuesta 💜 Lo volveremos a ver juntos, tranquila.')
     +'<div class="card" style="text-align:center;"><div class="scorebig">+'+(AL.xp+5)+' XP</div>'
@@ -6971,11 +7002,25 @@ function feedBatch(n){
   for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)]()||''; }catch(e){} }
   return h;
 }
-function openFeed(){
+/* La lección que te toca (encabeza tu sesión): tiempos primero, luego gramática */
+function fcLesson(){
+  try{
+    var d=DATA[curLevel]; var nT=(d.tenses||[]).length, nG=(d.grammar||[]).length;
+    if(!nT&&!nG) return '';
+    var n=store.get('alNext_'+curLevel,0)%(nT+nG);
+    var kind=n<nT?'tenses':'grammar', idx=n<nT?n:(n-nT);
+    var it=(kind==='tenses'?d.tenses[idx]:d.grammar[idx]);
+    return feedShell('🎓','Tu lección de ahora','#7c3aed',
+      '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it.n||it.t)+'</div>'
+      +'<p class="note" style="margin:4px 0 10px;">Nada de leer teoría: la vas a descubrir tú, paso a paso.</p>'
+      +'<button class="btn primary" style="width:100%;" onclick="activeLesson(\''+kind+'\','+idx+')">▶️ Empezar (2 min)</button>');
+  }catch(e){ return ''; }
+}
+function openFeed(mode){
   var ov=document.getElementById('feedOv');
   if(!ov){
     ov=document.createElement('div'); ov.id='feedOv'; ov.className='legal-ov';
-    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3>🔮 Descubrir</h3><button class="legal-x" onclick="document.getElementById(\'feedOv\').style.display=\'none\'">✕</button></div>'
+    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3 id="feedTitle">🔮 Descubrir</h3><button class="legal-x" onclick="document.getElementById(\'feedOv\').style.display=\'none\'">✕</button></div>'
       +'<div class="legal-body" id="feedBody" style="background:var(--bg);padding:14px;"></div></div>';
     document.body.appendChild(ov);
     document.getElementById('feedBody').addEventListener('scroll',function(){
@@ -6989,7 +7034,15 @@ function openFeed(){
   }
   FEED_D=[];
   var b=document.getElementById('feedBody');
-  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Hecho para ti. Aquí abajo siempre hay algo nuevo 🐙</p>'+feedBatch(6);
+  var tt=document.getElementById('feedTitle');
+  if(mode==='session'){
+    if(tt)tt.textContent='⚡ Tu sesión de hoy';
+    b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Empieza por tu lección y sigue deslizando: cada tarjeta suma 🐙</p>'
+      +fcLesson()+feedBatch(5);
+  } else {
+    if(tt)tt.textContent='🔮 Descubrir';
+    b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">Hecho para ti. Aquí abajo siempre hay algo nuevo 🐙</p>'+feedBatch(6);
+  }
   b.scrollTop=0;
   ov.style.display='flex';
 }
