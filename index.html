@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EV83ZWFLYS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-EV83ZWFLYS');
-</script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +10,7 @@
 <title>Milo · Aprende inglés, español, portugués y francés</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2456d6">
@@ -744,6 +736,77 @@
   .kw-star-fly{ position:fixed; z-index:100300; font-size:2rem; pointer-events:none; animation:floatUp 1.1s ease-out forwards; }
   .kw-tree{ font-size:4.6rem; line-height:1; animation:bob 3s ease-in-out infinite; display:inline-block; }
   .kw-page{ font-size:3.6rem; text-align:center; line-height:1.2; margin:8px 0; }
+
+  /* ============================================================
+     FASE 2 — MILO ADULTOS: "Lyfe vivo" (morado + rosa + amarillo,
+     blobs suaves, tipografía Baloo 2). Solo repinta lo existente.
+     ============================================================ */
+  :root{
+    --blue:#8b3bf0; --blue-d:#6a24c4; --purple:#8b3bf0; --pink:#ff4bc0; --amber:#e08a12;
+    --accent:#8b3bf0; --accent-d:#6a24c4; --accent-2:#ff4bc0;
+  }
+  h1,h2,h3,.fc-w,.stat .n,.ring .pct,.hero h2,.cta,.land-hero h1,.land-cta h2,.pf-hero h2{ font-family:'Baloo 2',sans-serif; }
+  header{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; }
+  #miloSplash{ background:linear-gradient(160deg,#3a1f6b,#6a24c4 55%,#8b3bf0)!important; }
+  .auth-gate{ background:
+      radial-gradient(circle at 15% 12%, rgba(255,75,192,.35), transparent 42%),
+      radial-gradient(circle at 85% 8%, rgba(255,210,75,.30), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(139,59,240,.55), transparent 60%),
+      linear-gradient(160deg,#3a1f6b,#6a24c4 55%,#8b3bf0)!important; }
+  .land-top{ background:rgba(58,31,107,.6)!important; }
+  .land-cta{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; }
+  .land-top .btn{ background:#ffd24b!important; color:#3a1f6b!important; }
+  body{ background-image:
+    radial-gradient(circle at 10% 4%,rgba(139,59,240,.09),transparent 40%),
+    radial-gradient(circle at 92% 0%,rgba(255,75,192,.08),transparent 38%),
+    radial-gradient(circle at 50% 120%,rgba(255,210,75,.07),transparent 55%)!important;
+    background-attachment:fixed; }
+  body[data-sec="home"],body[data-sec="levels"]{ --accent:#8b3bf0; --accent-d:#6a24c4; --accent-2:#ff4bc0; }
+  body[data-sec="practicar"],body[data-sec="games"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
+  body[data-sec="progreso"]{ --accent:#37b6e9; --accent-d:#1e8fc0; --accent-2:#5ec8ff; }
+  body[data-sec="dental"]{ --accent:#ff9e2c; --accent-d:#c2540b; --accent-2:#ffb85c; }
+  body[data-sec="explorar"]{ --accent:#ff4bc0; --accent-d:#c9268f; --accent-2:#ff8fd8; }
+  body[data-sec="perfil"]{ --accent:#475569; --accent-d:#334155; --accent-2:#64748b; }
+  body[data-sec="pron"],body[data-sec="speak"]{ --accent:#9d5cff; --accent-d:#7a2ad0; --accent-2:#c3a0ff; }
+  body[data-sec="challenge"]{ --accent:#ffd24b; --accent-d:#c99a0a; --accent-2:#ffe08a; }
+  .hero{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; position:relative; overflow:hidden; }
+  .hero:before{ content:''; position:absolute; top:-30px; right:-24px; width:150px; height:120px; background:rgba(255,209,120,.22); border-radius:55% 60% 50% 65%; pointer-events:none; }
+  .hero:after{ content:''; position:absolute; bottom:-26px; left:-20px; width:100px; height:80px; background:rgba(255,75,192,.18); border-radius:60% 50% 65% 55%; pointer-events:none; }
+  .pf-hero{ background:linear-gradient(140deg,#8b3bf0,#6a24c4 60%,#ff4bc0)!important; }
+  .ring{ background:conic-gradient(#ffd24b calc(var(--p)*1%), rgba(255,255,255,.22) 0)!important; }
+  .ring .inner{ background:#6a24c4!important; }
+  nav button.active{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
+  .cta{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 40%,transparent)!important; }
+  .btn.primary{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
+  .land-badge{ background:rgba(255,255,255,.16)!important; }
+  .idiom{ border-left-color:#ff4bc0; background:#fff3fb; }
+  .idiom .en{ color:#c9268f; }
+  .es{ color:#8b3bf0; }
+  .tip{ border-left-color:#ffd24b; }
+  .tip b{ color:#c99a0a; }
+
+  /* ============================================================
+     FASE 2 — MILO KIDS: "Candy Pop" (rosa chicle + celeste + lima +
+     mandarina + morado, botones glossy, tipografía Fredoka/Baloo 2)
+     ============================================================ */
+  #kidsWorld{ background:linear-gradient(180deg,#fff0f7 0%,#eafaff 55%,#fffbe0 100%)!important; font-family:'Fredoka','Poppins',sans-serif!important; }
+  #kidsWorld .kw-exit{ color:#ff5ea8!important; box-shadow:0 4px 14px rgba(255,94,168,.28)!important; }
+  #kidsWorld .kw-stars{ color:#e08a12!important; box-shadow:0 4px 14px rgba(255,207,63,.3)!important; }
+  #kidsWorld .kw-bub{ font-family:'Fredoka',sans-serif; color:#7a2a52; }
+  #kidsWorld h2,#kidsWorld h3{ font-family:'Baloo 2',cursive!important; }
+  #kidsWorld .kw-big{ color:#3a2a4a; }
+  #kidsWorld .kw-big .kt{ font-family:'Baloo 2',cursive; }
+  #kidsWorld .kw-big.c1{ background:linear-gradient(160deg,#ffb3d9,#ff5ea8)!important; color:#fff; }
+  #kidsWorld .kw-big.c2{ background:linear-gradient(160deg,#c8f2a0,#b6e33a)!important; color:#3a5210; }
+  #kidsWorld .kw-big.c3{ background:linear-gradient(160deg,#8fe0ff,#37b6e9)!important; color:#0a3a52; }
+  #kidsWorld .kw-big.c4{ background:linear-gradient(160deg,#ffc98f,#ff9e2c)!important; color:#5a3200; }
+  #kidsWorld .kw-big.c5{ background:linear-gradient(160deg,#fff29c,#ffd24b)!important; color:#5a4a10; }
+  #kidsWorld .kw-big.c6{ background:linear-gradient(160deg,#c9a8ff,#9d5cff)!important; color:#fff; }
+  #kidsWorld .kw-say{ background:#9d5cff!important; box-shadow:0 8px 20px rgba(157,92,255,.4)!important; font-family:'Baloo 2',cursive!important; }
+  #kidsWorld .kw-say.green{ background:#37b6e9!important; box-shadow:0 8px 20px rgba(55,182,233,.35)!important; }
+  #kidsWorld .kw-say.orange{ background:#ff9e2c!important; box-shadow:0 8px 20px rgba(255,158,44,.35)!important; }
+  #kidsWorld .kw-opt.ok{ background:#d4f5a0!important; }
+  #kidsWorld .kw-line.now{ background:#ffe08a!important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -4686,12 +4749,11 @@ function renderDental(){
     let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
     h+='<div class="skillbox" style="text-align:center;"><div style="font-size:2.4rem;">'+c.emoji+'</div><h4>Inglés para '+c.name+'</h4>';
     window.VG_POOL=collectPairs(c.modules);
-    h+='<button class="btn" style="margin-top:6px;margin-right:6px;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border-color:rgba(0,0,0,.15);" onclick="openCareerFeed()">🔮 Modo scroll</button>';
     h+='<button class="btn primary" style="margin-top:6px;" onclick="startVocabGame(window.VG_POOL,\'Inglés para '+c.name.replace(/'/g,"")+'\')">🎮 Jugar con estas palabras</button></div>';
     (c.modules||[]).forEach(function(mod){
-      h+='<details class="skillbox" style="cursor:pointer;"><summary style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+mod.h+' <span class="note" style="font-weight:600;font-size:.76rem;">· toca para ver la lista ('+mod.items.length+')</span></summary><div style="margin-top:8px;">';
+      h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
       mod.items.forEach(function(it){h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
-      h+='</div></details>';
+      h+='</div>';
     });
     h+='<p class="note" style="text-align:center;">Pronto: más módulos, diálogos y práctica para '+c.name+'. 🚀</p>';
     el.innerHTML=h; return;
@@ -4704,15 +4766,11 @@ function renderDental(){
   h+='<div class="tip" style="border-left-color:#0ea5e9;background:#eff8ff;">📍 Estás estudiando: <b>'+d.code+' · '+d.name+'</b> — el contenido está aquí abajo 👇</div>';
   h+='<div class="badge b-'+d.code.replace('D-','')+'">'+d.code+' · '+d.name+'</div>';
   window.VG_POOL=collectPairs(d.modules);
-  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:12px;padding:16px;margin:8px 0;" onclick="openCareerFeed()">'
-    +'<div style="font-size:2rem;">🔮</div><div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Desliza y aprende</div>'
-    +'<div style="font-size:.8rem;color:#e9d5ff;">Tu inglés clínico en tarjetas: términos, retos de oído y frases reales. Sin listas aburridas.</div></div>'
-    +'<div style="font-size:1.3rem;color:#e9d5ff;">›</div></div>';
-  h+='<button class="btn primary" style="width:100%;margin:0 0 8px;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
+  h+='<button class="btn primary" style="width:100%;margin:8px 0;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
   d.modules.forEach(mod=>{
-    h+='<details class="skillbox" style="cursor:pointer;"><summary style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+mod.h+' <span class="note" style="font-weight:600;font-size:.76rem;">· toca para ver la lista ('+mod.items.length+')</span></summary><div style="margin-top:8px;">';
+    h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
     mod.items.forEach(it=>{h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
-    h+='</div></details>';
+    h+='</div>';
   });
   if(d.dialog){
     h+='<div class="skillbox"><h4>'+d.dialog.t+'</h4>';
@@ -5059,8 +5117,7 @@ let profile=store.get('profile',{name:'',start:Date.now()});
 let done=store.get('done',{});            // {"B1.tenses":true,...}
 let streak=store.get('streak',{count:0,last:''});
 const LESSONS=[['tenses','⏳','Tiempos verbales'],['grammar','📖','Gramática'],['vocab','💡','Vocabulario'],['dialog','🗨️','Diálogos'],['idioms','💬','Modismos'],['skills','🎯','Habilidades'],['quiz','📝','Quiz'],['fill','✏️','Rellenar'],['flash','🃏','Flashcards'],['test','🔓','Examen de nivel']];
-function dstr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function todayStr(){ return dstr(new Date()); } /* dia LOCAL: cambia a TU medianoche, no a las 7pm (antes usaba UTC) */
+function todayStr(){return new Date().toISOString().slice(0,10);}
 function tickStreak(){
   var t=todayStr();
   /* 1) marca HOY como día activo (esta es la fuente de verdad de tu racha) */
@@ -5068,8 +5125,8 @@ function tickStreak(){
   /* 1.5) PROTECTOR DE RACHA 🛡️: si ayer faltaste y tienes escudo, lo usa y la racha vive */
   try{
     var days0=store.get('activeDays',[]); var set0={}; days0.forEach(function(x){set0[x]=1;});
-    var yd=new Date(); yd.setDate(yd.getDate()-1); var yk=dstr(yd);
-    var byd=new Date(); byd.setDate(byd.getDate()-2); var bk=dstr(byd);
+    var yd=new Date(); yd.setDate(yd.getDate()-1); var yk=yd.toISOString().slice(0,10);
+    var byd=new Date(); byd.setDate(byd.getDate()-2); var bk=byd.toISOString().slice(0,10);
     var shields=store.get('shields',0);
     if(!set0[yk] && set0[bk] && shields>0){
       days0.push(yk); store.set('activeDays',days0);
@@ -5080,7 +5137,7 @@ function tickStreak(){
   /* 2) recalcula la racha contando días activos CONSECUTIVOS que terminan hoy (se auto-repara) */
   var days=store.get('activeDays',[]); var set={}; days.forEach(function(x){ set[x]=1; });
   var count=0, cur=new Date();
-  while(true){ var k=dstr(cur); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
+  while(true){ var k=cur.toISOString().slice(0,10); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
   var prevCount=(streak&&streak.count)||0;
   streak={count:count,last:t}; store.set('streak',streak);
   try{ if(count>prevCount&&count>=2){ setTimeout(function(){miloReact('streak','🔥 ¡'+count+' días seguidos! Imparable');},900); } }catch(e){}
@@ -5540,7 +5597,7 @@ function weekCalHTML(){
   var cells='';
   for(var i=0;i<7;i++){
     var d=new Date(monday); d.setDate(monday.getDate()+i);
-    var s=dstr(d);
+    var s=d.toISOString().slice(0,10);
     var isToday=(s===todayStr());
     var isFuture=(i>dow);
     var on=act.indexOf(s)>=0;
@@ -5624,7 +5681,7 @@ function monthCalHTML(){
   for(var i=0;i<startDow;i++){ cells+='<div></div>'; }
   var todayS=todayStr(), cnt=0;
   for(var day=1;day<=dim;day++){
-    var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    var ds=new Date(Date.UTC(y,m,day)).toISOString().slice(0,10);
     var on=!!act[ds]; if(on)cnt++;
     var isToday=(ds===todayS);
     var isFuture=(ds>todayS);
@@ -7204,93 +7261,6 @@ function seasonDecor(){
 }
 try{ seasonDecor(); }catch(e){}
 
-/* ============================================================
-   💼 MODO SCROLL DE TU CARRERA — el contenido profesional, deslizable
-   (mismas tarjetas adictivas-sanas del feed, solo con TU profesión)
-   ============================================================ */
-function careerPool(){
-  try{
-    if(profile.career==='dentistry'){ var a=[]; DENTAL_ACADEMY.forEach(function(d){ d.modules.forEach(function(m){ a=a.concat(m.items); }); }); return a; }
-    var c=careerById(profile.career); return (c&&c.modules)?collectPairs(c.modules):[];
-  }catch(e){ return []; }
-}
-function ccPick(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
-function ccWrong(pool,correct,idx,n){
-  var out=[],t=0; while(out.length<n&&t<60){ t++; var o=ccPick(pool); if(o&&o[idx]!==correct&&out.indexOf(o[idx])<0) out.push(o[idx]); }
-  return out;
-}
-function ccWord(pool){ var it=ccPick(pool); if(!it)return '';
-  var i=FEED_D.push({say:enOnly(it[0])})-1;
-  return feedShell('💼','Término de tu carrera','#f97316',
-    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
-    +'<div class="es">'+feedEsc(it[1])+'</div>'
-    +'<button class="btn" style="margin-top:8px;margin-right:6px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>'
-    +'<button class="btn secondary" style="margin-top:8px;" onclick="feedSave('+i+')">🌱 Plantar</button>');
-}
-function ccGuess(pool){ var it=ccPick(pool); if(!it)return '';
-  var wrong=ccWrong(pool,it[1],1,2); if(wrong.length<2)return ccWord(pool);
-  var opts=shuffle([it[1]].concat(wrong));
-  return feedShell('🎯','¿Qué significa? (+4 XP)','#16a34a',
-    '<div class="q" style="margin-bottom:8px;">'+feedEsc(it[0])+'</div><div class="opts">'
-    +opts.map(function(o){ var ok=(o===it[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
-}
-function ccSay(pool){ var it=ccPick(pool); if(!it)return '';
-  var wrong=ccWrong(pool,it[0],0,2); if(wrong.length<2)return ccWord(pool);
-  var opts=shuffle([it[0]].concat(wrong));
-  return feedShell('🗣️','¿Cómo se dice? (+4 XP)','#7c5cff',
-    '<div class="q" style="margin-bottom:8px;">'+feedEsc(it[1])+'</div><div class="opts">'
-    +opts.map(function(o){ var ok=(o===it[0]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
-}
-function ccListen(pool){ var it=ccPick(pool); if(!it)return '';
-  var wrong=ccWrong(pool,it[1],1,2); if(wrong.length<2)return ccWord(pool);
-  var i=FEED_D.push({say:enOnly(it[0])})-1;
-  var opts=shuffle([it[1]].concat(wrong));
-  return feedShell('🎧','Oído clínico (+4 XP)','#14b8a6',
-    '<button class="btn primary" style="margin-bottom:10px;" onclick="feedSpeak('+i+')">🔊 Escuchar el término</button>'
-    +'<p class="note" style="margin:0 0 8px;">¿Qué escuchaste?</p><div class="opts">'
-    +opts.map(function(o){ var ok=(o===it[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
-}
-function ccPhrase(pool){
-  var frases=pool.filter(function(x){ return String(x[0]).split(' ').length>=3; });
-  var it=frases.length?ccPick(frases):ccPick(pool); if(!it)return '';
-  var i=FEED_D.push({say:enOnly(it[0])})-1;
-  return feedShell('💬','Frase real de tu trabajo','#ec4899',
-    '<div style="font-weight:800;font-size:1.02rem;">'+feedEsc(it[0])+'</div>'
-    +'<div class="es" style="margin:4px 0 10px;">'+feedEsc(it[1])+'</div>'
-    +'<button class="btn" style="margin-right:6px;" onclick="feedSpeak('+i+')">🔊</button>'
-    +'<button class="btn secondary" onclick="feedSpeak('+i+');toast(\'Ahora dila tú en voz alta 🗣️\')">🗣️ Repetirla yo</button>');
-}
-function careerBatch(n){
-  var pool=careerPool(); if(!pool.length) return '<p class="note" style="text-align:center;">Elige tu carrera en Profesión para activar este modo 💼</p>';
-  var gens=[ccWord,ccWord,ccGuess,ccSay,ccListen,ccPhrase];
-  var h=''; for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)](pool)||''; }catch(e){} }
-  return h;
-}
-function openCareerFeed(){
-  var ov=document.getElementById('cfeedOv');
-  if(!ov){
-    ov=document.createElement('div'); ov.id='cfeedOv'; ov.className='legal-ov';
-    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3 id="cfeedTitle">💼 Tu carrera</h3><button class="legal-x" onclick="document.getElementById(\'cfeedOv\').style.display=\'none\'">✕</button></div>'
-      +'<div class="legal-body" id="cfeedBody" style="background:var(--bg);padding:14px;"></div></div>';
-    document.body.appendChild(ov);
-    document.getElementById('cfeedBody').addEventListener('scroll',function(){
-      var el=this;
-      if(el.scrollTop+el.clientHeight>=el.scrollHeight-200){
-        if(el._loading)return; el._loading=true;
-        var d=document.createElement('div'); d.innerHTML=careerBatch(4); while(d.firstChild)el.appendChild(d.firstChild);
-        setTimeout(function(){ el._loading=false; },300);
-      }
-    });
-  }
-  var c=(typeof careerById==='function'&&profile.career)?careerById(profile.career):null;
-  var tt=document.getElementById('cfeedTitle'); if(tt)tt.textContent='💼 '+(c?c.name:'Tu carrera')+' · desliza y domina';
-  FEED_D=FEED_D||[];
-  var b=document.getElementById('cfeedBody');
-  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">El inglés de TU trabajo, deslizable: términos, frases y retos sin fin 💼</p>'+careerBatch(6);
-  b.scrollTop=0;
-  ov.style.display='flex';
-}
-
 /* --- REFLEXIÓN: metacognición al cerrar (aprender a aprender) --- */
 function reflectionHTML(){
   try{ if(store.get('reflexDate','')===todayStr()) return ''; }catch(e){}
@@ -7692,26 +7662,31 @@ function openMediaLib(lang){
 var K={stars:store.get('kidsStars',0), age:store.get('kidsAge',''), scr:'home', timer:null};
 /* Voz de Milo Kids: usa la voz NATURAL de Google (la misma del resto de la app),
    con respaldo del navegador en tono normal (nada de voz de ardilla) */
-var kAudio=null; /* (reservado) */
-/* kSay = LA MISMA voz que el resto de Milo (speak con Google + respaldo),
-   cambiando temporalmente el idioma del motor y restaurándolo después. */
+var kAudio=null;
 function kSay(text,lang){
   try{
+    if(kAudio){ try{kAudio.pause();}catch(e){} kAudio=null; }
+    try{ speechSynthesis.cancel(); }catch(e){}
     var L=lang||curTarget||'en';
-    var tl=(L==='en'||L==='es'||L==='pt'||L==='fr')?L:'es';
-    var prev=TTS_LANG;
-    TTS_LANG=tl;
-    try{ speak(text); }catch(e){}
-    /* restaurar el idioma cuando la frase ya arrancó (los textos kids son cortos) */
-    setTimeout(function(){ TTS_LANG=prev; }, 250);
-  }catch(e){
-    try{
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang=(lang==='en')?'en-US':(lang==='pt')?'pt-BR':(lang==='fr')?'fr-FR':'es-ES';
-      u.rate=0.9; u.pitch=1.05;
-      speechSynthesis.speak(u);
-    }catch(e2){}
-  }
+    var tl=L==='en'?'en':L==='pt'?'pt':L==='fr'?'fr':'es';
+    var url='https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&q='+encodeURIComponent(text);
+    var a=new Audio(); try{a.referrerPolicy='no-referrer';}catch(e){}
+    a.src=url; kAudio=a;
+    var started=false;
+    a.onplaying=function(){ started=true; };
+    a.onerror=function(){ if(!started) kSayBrowser(text,L); };
+    a.play().catch(function(){ kSayBrowser(text,L); });
+    setTimeout(function(){ if(!started && kAudio===a){ try{a.pause();}catch(e){} kSayBrowser(text,L); } },1400);
+  }catch(e){ kSayBrowser(text,lang||'en'); }
+}
+function kSayBrowser(text,L){
+  try{
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang=L==='en'?'en-US':L==='pt'?'pt-BR':L==='fr'?'fr-FR':'es-ES';
+    u.rate=0.9; u.pitch=1.05; /* cálida pero natural */
+    try{ var v=pickVoice(u.lang); if(v)u.voice=v; }catch(e){}
+    speechSynthesis.speak(u);
+  }catch(e){}
 }
 function kNat(){ return (profile&&profile.native)||'es'; }
 function kT(it){ return it[curTarget]||it.en; } /* palabra en el idioma que aprende */
