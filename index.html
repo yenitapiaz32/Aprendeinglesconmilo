@@ -200,6 +200,10 @@
   .legal-body h4{color:#16357f;margin:14px 0 4px;}
   .legal-body p{margin:0 0 8px;}
   .legal-x{border:none;background:#eef1f8;border-radius:50%;width:32px;height:32px;cursor:pointer;}
+  .milo-alert-ov{position:fixed;inset:0;z-index:100010;background:rgba(8,16,40,.55);display:none;align-items:center;justify-content:center;padding:20px;}
+  .milo-alert-card{background:#fff;border-radius:22px;max-width:340px;width:100%;padding:22px 20px 18px;text-align:center;box-shadow:0 30px 70px rgba(4,10,40,.35);animation:modalIn .28s var(--spring) both;}
+  .milo-alert-card .maa-msg{font-size:.95rem;color:var(--ink);line-height:1.55;margin:8px 0 16px;white-space:pre-line;}
+  body.dark .milo-alert-card{background:var(--card);}
   .chat-ov{position:fixed;inset:0;z-index:100001;background:rgba(8,16,40,.6);display:none;align-items:center;justify-content:center;padding:12px;}
   .chat-card{background:#fff;border-radius:18px;max-width:560px;width:100%;height:86vh;display:flex;flex-direction:column;overflow:hidden;}
   .chat-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,#16357f,#2456d6);color:#fff;}
@@ -1042,8 +1046,6 @@
   <button class="soundbtn" id="soundBtn" onclick="toggleSound()" title="Sonidos">🔔</button>
   <button class="toggle-dark" id="darkBtn" onclick="toggleDark()" title="Modo oscuro">🌙</button>
 </header>
-<div class="vbar">🔊 Audio al instante · Traducción en cada ejemplo · Basado en CEFR / Cambridge.</div>
-
 <nav id="mainNav">
   <button class="active" data-tab="home">🏠 Inicio</button>
   <button data-tab="aprender">📚 Aprender</button>
@@ -1164,27 +1166,27 @@ async function sbInitSession(){
   renderGate(); renderAuth();
 }
 async function sbSignUp(){
-  initSupa(); if(!supa){alert('Necesitas conexión a internet para crear tu cuenta. Inténtalo de nuevo en un momento.');return;}
+  initSupa(); if(!supa){miloAlert('Necesitas conexión a internet para crear tu cuenta. Inténtalo de nuevo en un momento.');return;}
   var em=(document.getElementById('authEmail')||{}).value, pw=(document.getElementById('authPass')||{}).value, pw2=(document.getElementById('authPass2')||{}).value||'';
-  if(!em||!pw){alert('Escribe correo y contraseña.');return;}
-  if(pw.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}
-  if(pw!==pw2){alert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');return;}
+  if(!em||!pw){miloAlert('Escribe correo y contraseña.');return;}
+  if(pw.length<6){miloAlert('La contraseña debe tener al menos 6 caracteres.');return;}
+  if(pw!==pw2){miloAlert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');return;}
   try{ var r=await supa.auth.signUp({email:em,password:pw});
-    if(r.error){alert(r.error.message);return;}
-    if(r.data&&r.data.session){ sbUser=r.data.session.user; cloudReady=true; await saveCloud(); alert('¡Cuenta creada! Tu progreso se guardará en la nube.'); renderAuth(); }
-    else { alert('¡Cuenta creada! Revisa tu correo para confirmar y luego inicia sesión.'); }
-  }catch(e){alert('Error: '+e.message);}
+    if(r.error){miloAlert(r.error.message);return;}
+    if(r.data&&r.data.session){ sbUser=r.data.session.user; cloudReady=true; await saveCloud(); miloAlert('¡Cuenta creada! Tu progreso se guardará en la nube.'); renderAuth(); }
+    else { miloAlert('¡Cuenta creada! Revisa tu correo para confirmar y luego inicia sesión.'); }
+  }catch(e){miloAlert('Error: '+e.message);}
 }
 async function sbSignIn(){
-  initSupa(); if(!supa){alert('Necesitas conexión a internet para iniciar sesión. Inténtalo de nuevo en un momento.');return;}
+  initSupa(); if(!supa){miloAlert('Necesitas conexión a internet para iniciar sesión. Inténtalo de nuevo en un momento.');return;}
   var em=(document.getElementById('authEmail')||{}).value, pw=(document.getElementById('authPass')||{}).value;
-  if(!em||!pw){alert('Escribe correo y contraseña.');return;}
+  if(!em||!pw){miloAlert('Escribe correo y contraseña.');return;}
   try{ var r=await supa.auth.signInWithPassword({email:em,password:pw});
-    if(r.error){alert(r.error.message);return;}
+    if(r.error){miloAlert(r.error.message);return;}
     sbUser=r.data.user; await loadCloud();
-  }catch(e){alert('Error: '+e.message);}
+  }catch(e){miloAlert('Error: '+e.message);}
 }
-async function sbSignOut(){ if(!supa)return; try{ await saveCloud(); await supa.auth.signOut(); sbUser=null; try{sessionStorage.removeItem('cloudApplied');}catch(e){} renderGate(); renderAuth(); alert('Sesión cerrada. Tu progreso quedó guardado en la nube.'); }catch(e){} }
+async function sbSignOut(){ if(!supa)return; try{ await saveCloud(); await supa.auth.signOut(); sbUser=null; try{sessionStorage.removeItem('cloudApplied');}catch(e){} renderGate(); renderAuth(); miloAlert('Sesión cerrada. Tu progreso quedó guardado en la nube.'); }catch(e){} }
 function renderAuth(){
   var el=document.getElementById('authBox'); if(!el) return;
   if(sbUser){
@@ -1240,9 +1242,9 @@ async function wompiSignature(ref,amount,currency){
     return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join(''); }catch(e){ return ''; }
 }
 async function payWompi(plan){
-  if(FREE_MODE){ alert('🎉 ¡Por ahora Milo es GRATIS! Ya tienes TODO el contenido desbloqueado. Disfrútalo. 🐙'); return; }
+  if(FREE_MODE){ miloAlert('🎉 ¡Por ahora Milo es GRATIS! Ya tienes TODO el contenido desbloqueado. Disfrútalo. 🐙'); return; }
   initSupa();
-  if(!sbUser){ alert('Primero crea tu cuenta para activar tu suscripción. 🐙'); gateScroll('secAuth','up'); return; }
+  if(!sbUser){ miloAlert('Primero crea tu cuenta para activar tu suscripción. 🐙'); gateScroll('secAuth','up'); return; }
   if(!WOMPI_PUBLIC_KEY){ window.open(waLink('Hola Milo 🐙, quiero el plan '+(plan==='year'?'Premium ANUAL':'Premium MENSUAL')+'.'),'_blank'); return; }
   var amount=WOMPI_AMOUNTS[plan]||WOMPI_AMOUNTS.month, currency='COP';
   var reference='milo_'+sbUser.id+'_'+plan+'_'+Date.now();
@@ -1264,8 +1266,8 @@ async function checkWompiReturn(){
     var res=await fetch(wompiBase()+'/v1/transactions/'+id);
     var j=await res.json();
     var st=j&&j.data&&j.data.status;
-    if(st==='APPROVED'){ activatePremium(localStorage.getItem('pendingPlan')||'month'); alert('¡Pago aprobado! 🎉🐙 Ya eres Premium. ¡A aprender!'); }
-    else if(st){ alert('Tu pago quedó como: '+st+'. Si crees que es un error, escríbeme por WhatsApp.'); }
+    if(st==='APPROVED'){ activatePremium(localStorage.getItem('pendingPlan')||'month'); miloAlert('¡Pago aprobado! 🎉🐙 Ya eres Premium. ¡A aprender!'); }
+    else if(st){ miloAlert('Tu pago quedó como: '+st+'. Si crees que es un error, escríbeme por WhatsApp.'); }
   }catch(e){}
   try{localStorage.removeItem('pendingPlan');}catch(e){}
   try{history.replaceState({},'',location.pathname);}catch(e){}
@@ -1280,27 +1282,29 @@ function activatePremium(plan){
   try{renderAll();}catch(e){}
 }
 function startTrial(){
-  if(FREE_MODE){ alert('🎉 ¡Por ahora todo es gratis! No necesitas prueba: ya tienes acceso completo a Milo. 🐙'); return; }
+  if(FREE_MODE){ miloAlert('🎉 ¡Por ahora todo es gratis! No necesitas prueba: ya tienes acceso completo a Milo. 🐙'); return; }
   initSupa();
-  if(!sbUser){ alert('Primero crea tu cuenta para activar tu prueba gratis. 🐙'); gateScroll('secAuth','up'); return; }
-  if(profile.trialUsed){ alert('Ya usaste tu prueba gratis. Puedes suscribirte cuando quieras. 🐙'); gateScroll&&gateScroll('secPlanes'); return; }
-  if(!confirm('Prueba GRATIS de 7 días con acceso Premium completo.\n\nAl terminar, se cobra el plan mensual ('+PRICE_M+'/mes) salvo que canceles antes desde "Mi cuenta". ¿Comenzar?')) return;
-  var until=new Date(); until.setDate(until.getDate()+7);
-  profile.trialUntil=until.toISOString(); profile.trialUsed=true; profile.premiumCanceled=false; profile.plan='trial';
-  store.set('profile',profile);
-  alert('🎉 ¡Prueba activada! Tienes Premium gratis por 7 días. Recuerda: si no cancelas antes, se cobra el plan mensual.');
-  try{renderAll();}catch(e){}
+  if(!sbUser){ miloAlert('Primero crea tu cuenta para activar tu prueba gratis. 🐙'); gateScroll('secAuth','up'); return; }
+  if(profile.trialUsed){ miloAlert('Ya usaste tu prueba gratis. Puedes suscribirte cuando quieras. 🐙'); gateScroll&&gateScroll('secPlanes'); return; }
+  miloConfirm('Prueba GRATIS de 7 días con acceso Premium completo.\n\nAl terminar, se cobra el plan mensual ('+PRICE_M+'/mes) salvo que canceles antes desde "Mi cuenta". ¿Comenzar?', function(){
+    var until=new Date(); until.setDate(until.getDate()+7);
+    profile.trialUntil=until.toISOString(); profile.trialUsed=true; profile.premiumCanceled=false; profile.plan='trial';
+    store.set('profile',profile);
+    miloAlert('🎉 ¡Prueba activada! Tienes Premium gratis por 7 días. Recuerda: si no cancelas antes, se cobra el plan mensual.');
+    try{renderAll();}catch(e){}
+  });
 }
 function cancelPremium(){
   var msg = trialActive()
     ? '¿Cancelar tu prueba gratis? No se te cobrará nada. Perderás el acceso Premium al cancelar.'
     : '¿Cancelar tu suscripción? Conservarás el acceso Premium hasta el final del periodo que ya pagaste, y no se renovará.';
-  if(!confirm(msg)) return;
-  if(trialActive()){ profile.trialUntil=null; profile.plan=null; }
-  profile.premiumCanceled=true;
-  store.set('profile',profile);
-  alert('Listo, tu suscripción quedó cancelada. 🐙 Si tienes alguna duda, escríbeme por WhatsApp.');
-  try{renderAll();}catch(e){}
+  miloConfirm(msg, function(){
+    if(trialActive()){ profile.trialUntil=null; profile.plan=null; }
+    profile.premiumCanceled=true;
+    store.set('profile',profile);
+    miloAlert('Listo, tu suscripción quedó cancelada. 🐙 Si tienes alguna duda, escríbeme por WhatsApp.');
+    try{renderAll();}catch(e){}
+  });
 }
 function trialActive(){ try{ return !!(profile.trialUntil && new Date(profile.trialUntil)>new Date()); }catch(e){ return false; } }
 function isPremium(){ try{ if(trialActive()) return true; return !!(profile.premium && profile.premiumUntil && new Date(profile.premiumUntil)>new Date()); }catch(e){ return false; } }
@@ -1574,7 +1578,7 @@ function renderMiloChat(typing){
   b.innerHTML=h; b.scrollTop=b.scrollHeight;
 }
 async function sendMiloChat(){
-  if(limitsEnabled() && chatRemainingMs()<=0){ if(confirm('Se acabó tu tiempo de conversación con la IA ⏳.\nVuelve en '+fmtMs(chatWindowResetMs())+'.\n\n¿Quieres conversación ILIMITADA? Hazte Pro. ¿Ver Pro?')){try{notifyPremium();}catch(e){}} return; }
+  if(limitsEnabled() && chatRemainingMs()<=0){ miloConfirm('Se acabó tu tiempo de conversación con la IA ⏳.\nVuelve en '+fmtMs(chatWindowResetMs())+'.\n\n¿Quieres conversación ILIMITADA? Hazte Pro. ¿Ver Pro?', function(){try{notifyPremium();}catch(e){}}); return; }
   var inp=document.getElementById('chatIn'); if(!inp)return; var txt=inp.value.trim(); if(!txt)return;
   chatHistory.push({role:'user',content:txt}); inp.value=''; saveChat(); renderMiloChat(true);
   if(!CHAT_ENDPOINT){
@@ -1630,13 +1634,13 @@ function renderGate(){
 }
 function gv(id){var e=document.getElementById(id);return e?e.value.trim():'';}
 async function gateSignIn(){
-  initSupa(); if(!supa){alert('Necesitas conexión a internet para entrar. Inténtalo en un momento.');return;}
+  initSupa(); if(!supa){miloAlert('Necesitas conexión a internet para entrar. Inténtalo en un momento.');return;}
   var em=gv('gEmail'),pw=gv('gPass');
-  if(!em||!pw){alert('Escribe tu correo y contraseña.');return;}
+  if(!em||!pw){miloAlert('Escribe tu correo y contraseña.');return;}
   try{ var r=await supa.auth.signInWithPassword({email:em,password:pw});
-    if(r.error){alert(r.error.message);return;}
+    if(r.error){miloAlert(r.error.message);return;}
     sbUser=r.data.user; await loadCloud(); renderGate(); renderAll();
-  }catch(e){alert('Error: '+e.message);}
+  }catch(e){miloAlert('Error: '+e.message);}
 }
 /* ===== VERIFICACIÓN POR SMS (preparada; se activa cuando configures un proveedor) =====
    Para activarla: 1) en Supabase → Authentication → Providers → Phone, conecta Twilio (u otro);
@@ -1647,11 +1651,11 @@ function validPhone(p){ p=normPhone(p); return /^\+?[0-9]{10,15}$/.test(p); }
 async function smsSendCode(phone){
   try{
     var r=await supa.auth.signInWithOtp({phone:normPhone(phone)});
-    if(r.error){ alert('No se pudo enviar el SMS: '+r.error.message); return false; }
+    if(r.error){ miloAlert('No se pudo enviar el SMS: '+r.error.message); return false; }
     var box=document.getElementById('gSmsBox'); if(box)box.style.display='block';
     var h=document.getElementById('gSmsHint'); if(h){h.textContent='Código enviado a '+phone+' ✓';h.style.color='#16a34a';}
     return true;
-  }catch(e){ alert('Error enviando SMS: '+e.message); return false; }
+  }catch(e){ miloAlert('Error enviando SMS: '+e.message); return false; }
 }
 async function smsVerifyCode(){
   try{
@@ -1663,7 +1667,7 @@ async function smsVerifyCode(){
     if(h){h.textContent='✓ ¡Celular verificado!';h.style.color='#16a34a';}
     profile.phoneVerified=true; store.set('profile',profile);
     toast('📲 Celular verificado ✓');
-  }catch(e){ alert('Error: '+e.message); }
+  }catch(e){ miloAlert('Error: '+e.message); }
 }
 /* Aviso en vivo: ¿las contraseñas coinciden? */
 function pwMatchHint(aId,bId,hintId){
@@ -1676,14 +1680,14 @@ function pwMatchHint(aId,bId,hintId){
   }catch(e){}
 }
 async function gateSignUp(){
-  initSupa(); if(!supa){alert('Necesitas conexión a internet para crear tu cuenta. Inténtalo en un momento.');return;}
+  initSupa(); if(!supa){miloAlert('Necesitas conexión a internet para crear tu cuenta. Inténtalo en un momento.');return;}
   var nm=gv('gName'),em=gv('gEmail2'),pw=gv('gPass2'),pw2=gv('gPass2c'),ph=gv('gPhone');
-  if(!nm){alert('Escribe tu nombre o apodo.');return;}
-  if(!em||!pw){alert('Escribe tu correo y contraseña.');return;}
-  if(!ph){alert('Escribe tu número de celular (con el código de país, ej: +57...).');return;}
-  if(!validPhone(ph)){alert('⚠️ El celular no se ve válido. Usa el formato internacional, ej: +57 300 123 4567.');try{document.getElementById('gPhone').focus();}catch(e){}return;}
-  if(pw.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}
-  if(pw!==pw2){alert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');try{document.getElementById('gPass2c').focus();}catch(e){}return;}
+  if(!nm){miloAlert('Escribe tu nombre o apodo.');return;}
+  if(!em||!pw){miloAlert('Escribe tu correo y contraseña.');return;}
+  if(!ph){miloAlert('Escribe tu número de celular (con el código de país, ej: +57...).');return;}
+  if(!validPhone(ph)){miloAlert('⚠️ El celular no se ve válido. Usa el formato internacional, ej: +57 300 123 4567.');try{document.getElementById('gPhone').focus();}catch(e){}return;}
+  if(pw.length<6){miloAlert('La contraseña debe tener al menos 6 caracteres.');return;}
+  if(pw!==pw2){miloAlert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');try{document.getElementById('gPass2c').focus();}catch(e){}return;}
   /* guarda el celular en el perfil (y si el SMS está activo, verifica primero) */
   profile.phone=normPhone(ph); store.set('profile',profile);
   if(SMS_VERIFY && !profile.phoneVerified){
@@ -1691,17 +1695,17 @@ async function gateSignUp(){
     if(sent){ toast('📲 Verifica tu celular con el código y luego pulsa "Crear mi cuenta" de nuevo'); return; }
   }
   try{ var r=await supa.auth.signUp({email:em,password:pw});
-    if(r.error){alert(r.error.message);return;}
+    if(r.error){miloAlert(r.error.message);return;}
     if(r.data&&r.data.session){
       sbUser=r.data.session.user;
       profile.name=nm; store.set('profile',profile);
       cloudReady=true; await saveCloud();
       renderGate(); renderAll();
     } else {
-      alert('¡Cuenta creada! 📧 Revisa tu correo para confirmar la cuenta y luego inicia sesión.');
+      miloAlert('¡Cuenta creada! 📧 Revisa tu correo para confirmar la cuenta y luego inicia sesión.');
       gateTab('in');
     }
-  }catch(e){alert('Error: '+e.message);}
+  }catch(e){miloAlert('Error: '+e.message);}
 }
 
 /* ===== AUDIO INLINE (suena al instante, sin abrir pestañas) ===== */
@@ -3878,7 +3882,7 @@ function renderLevelBar(){
     const btn=document.createElement('button');
     btn.className=(l===curLevel?'active ':'')+(lock?'locked':'');
     btn.innerHTML=(lock?'🔒 ':meta[l].e+' ')+l+'<span class="sub">'+meta[l].n+'</span>';
-    btn.onclick=()=>{ if(lock){alert('🔒 Nivel bloqueado. Aprueba el Examen del nivel anterior (80%+) para desbloquearlo.');return;} curLevel=l;store.set('curLevel',l);renderLevelBar();renderSub();renderContent(); };
+    btn.onclick=()=>{ if(lock){miloAlert('🔒 Nivel bloqueado. Aprueba el Examen del nivel anterior (80%+) para desbloquearlo.');return;} curLevel=l;store.set('curLevel',l);renderLevelBar();renderSub();renderContent(); };
     bar.appendChild(btn);
   });
 }
@@ -5427,6 +5431,46 @@ function checkAch(){ACHS.forEach(a=>{if(a.ok()&&!achShown.includes(a.id)){achSho
 
 let toastT=null;
 function toast(msg){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el);}el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
+/* ===== AVISO PROPIO DE MILO (reemplaza el miloAlert() nativo del navegador) =====
+   Mismo mensaje, misma lógica — solo con la identidad visual de Milo en vez
+   de la ventana genérica del sistema operativo. */
+function ensureMiloAlert(){
+  if(document.getElementById('miloAlertOv'))return;
+  var ov=document.createElement('div'); ov.id='miloAlertOv'; ov.className='milo-alert-ov';
+  ov.addEventListener('click',function(e){ if(e.target===ov) miloAlertClose(); });
+  document.body.appendChild(ov);
+}
+function miloAlert(msg){
+  try{ ensureMiloAlert(); }catch(e){}
+  var ov=document.getElementById('miloAlertOv'); if(!ov){ window.alert(msg); return; }
+  ov.innerHTML='<div class="milo-alert-card">'
+    +(typeof miloSVG==='function'?('<div style="display:flex;justify-content:center;margin-bottom:2px;">'+miloSVG(52)+'</div>'):'')
+    +'<div class="maa-msg">'+String(msg==null?'':msg).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>'
+    +'<button class="btn primary" style="width:100%;" onclick="miloAlertClose()">Entendido</button></div>';
+  ov.style.display='flex';
+}
+function miloAlertClose(){ var ov=document.getElementById('miloAlertOv'); if(ov) ov.style.display='none'; }
+/* Igual que miloAlert, pero con dos botones (Sí / No). Sustituye a confirm()
+   en las decisiones que son el ÚLTIMO paso de una acción (nada más abajo
+   depende del resultado de forma síncrona), para no romper el flujo. */
+var _miloConfirmCb=null;
+function miloConfirm(msg,onYes,onNo){
+  try{ ensureMiloAlert(); }catch(e){}
+  var ov=document.getElementById('miloAlertOv'); if(!ov){ if(window.confirm(msg))onYes&&onYes(); else onNo&&onNo(); return; }
+  _miloConfirmCb={yes:onYes,no:onNo};
+  ov.innerHTML='<div class="milo-alert-card">'
+    +(typeof miloSVG==='function'?('<div style="display:flex;justify-content:center;margin-bottom:2px;">'+miloSVG(52)+'</div>'):'')
+    +'<div class="maa-msg">'+String(msg==null?'':msg).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<button class="btn" style="flex:1;" onclick="miloConfirmPick(false)">Ahora no</button>'
+    +'<button class="btn primary" style="flex:1;" onclick="miloConfirmPick(true)">Sí</button>'
+    +'</div></div>';
+  ov.style.display='flex';
+}
+function miloConfirmPick(v){
+  var cb=_miloConfirmCb; _miloConfirmCb=null; miloAlertClose();
+  if(cb){ try{ v?(cb.yes&&cb.yes()):(cb.no&&cb.no()); }catch(e){} }
+}
 
 /* ===== XP / PUNTOS ===== */
 let xp=store.get('xp',0);
@@ -5576,10 +5620,10 @@ async function renderComments(){
   }catch(e){ b.innerHTML=form+'<p class="note">No se pudieron cargar (¿ya creaste la tabla <b>comments</b> en Supabase?).</p>'; }
 }
 async function submitComment(){
-  if(!supa||!sbUser){ alert('Inicia sesión para comentar.'); return; }
+  if(!supa||!sbUser){ miloAlert('Inicia sesión para comentar.'); return; }
   var t=((document.getElementById('cmtText')||{}).value||'').trim(); if(!t){toast('Escribe tu comentario 🐙');return;}
   try{ await supa.from('comments').insert({user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', rating:cmtRating, text:t}); toast('✅ ¡Gracias por tu comentario!'); cmtRating=5; renderComments(); }
-  catch(e){ alert('No se pudo publicar. Intenta de nuevo.'); }
+  catch(e){ miloAlert('No se pudo publicar. Intenta de nuevo.'); }
 }
 /* ===== REPORTAR UN PROBLEMA (botón flotante) ===== */
 function currentSection(){ try{ var b=document.querySelector('#mainNav button.active'); return b?b.textContent.replace(/[^\wáéíóúñ ]/gi,'').trim():'general'; }catch(e){ return 'general'; } }
@@ -5592,9 +5636,9 @@ async function reportProblem(){
 function ensureReportBtn(){ if(document.getElementById('reportBtn'))return; var b=document.createElement('button'); b.id='reportBtn'; b.innerHTML='🐞'; b.title='Reportar un problema'; b.setAttribute('onclick','reportProblem()'); b.style.cssText='position:fixed;left:14px;bottom:14px;z-index:500;width:46px;height:46px;border-radius:50%;border:none;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:1.3rem;cursor:pointer;'; document.body.appendChild(b); }
 function askFeedback(){
   if(store.get('fbAsked',false))return; store.set('fbAsked',true);
-  if(confirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejar un comentario? Nos ayuda muchísimo (y puede salir como reseña).')){
+  miloConfirm('🐙 ¿Te está gustando Milo hasta ahora?\n\n¿Quieres dejar un comentario? Nos ayuda muchísimo (y puede salir como reseña).', function(){
     try{ openComments(); }catch(e){}
-  }
+  });
 }
 var lbTab='global';
 function myNick(){ return (profile&&profile.nick)?profile.nick:''; }
@@ -5615,13 +5659,13 @@ function friendsPanel(){
     +'</div>';
 }
 function setNick(){
-  if(!sbUser){alert('Inicia sesión primero.');return;}
+  if(!sbUser){miloAlert('Inicia sesión primero.');return;}
   var v=prompt('Elige tu nickname (solo letras y números, sin espacios):',(profile&&profile.nick)||'');
   if(v===null)return; v=v.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
-  if(v.length<3){alert('El nickname debe tener al menos 3 caracteres (letras/números).');return;}
+  if(v.length<3){miloAlert('El nickname debe tener al menos 3 caracteres (letras/números).');return;}
   (async function(){
     try{ var r=await supa.from('leaderboard').select('user_id').eq('nick',v).maybeSingle();
-      if(r&&r.data&&r.data.user_id&&r.data.user_id!==sbUser.id){ alert('Ese nickname ya está tomado. Prueba otro.'); return; }
+      if(r&&r.data&&r.data.user_id&&r.data.user_id!==sbUser.id){ miloAlert('Ese nickname ya está tomado. Prueba otro.'); return; }
     }catch(e){}
     profile.nick=v; store.set('profile',profile); try{await publishStats();}catch(e){} toast('✅ Nickname guardado: @'+v); try{renderLeaderboard();}catch(e){} try{renderPerfil();}catch(e){}
   })();
@@ -5632,9 +5676,9 @@ async function addFriendByNick(){
   if(v===myNick()){toast('Ese eres tú 🐙');return;}
   try{
     var r=await supa.from('leaderboard').select('user_id,name,nick').eq('nick',v).maybeSingle();
-    if(!r||!r.data){ alert('No encontré a @'+v+'. Verifica el nickname (debe haber iniciado sesión al menos una vez).'); return; }
+    if(!r||!r.data){ miloAlert('No encontré a @'+v+'. Verifica el nickname (debe haber iniciado sesión al menos una vez).'); return; }
     addFriendId(r.data.user_id, r.data.name||('@'+v));
-  }catch(e){ alert('No se pudo buscar. Intenta de nuevo.'); }
+  }catch(e){ miloAlert('No se pudo buscar. Intenta de nuevo.'); }
 }
 function addFriendId(id,label){
   if(!id)return; if(sbUser&&id===sbUser.id){toast('Ese eres tú 🐙');return;}
@@ -5669,7 +5713,7 @@ var NUDGES=[
 ];
 function ensureNudge(){ if(document.getElementById('nudgeOv'))return; var d=document.createElement('div'); d.id='nudgeOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>👋 Animar a tu amigo</h3><button class="legal-x" onclick="document.getElementById(\'nudgeOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="nudgeBody"></div></div>'; document.body.appendChild(d); }
 function openNudge(fid,fname){
-  if(!supa||!sbUser){alert('Inicia sesión primero.');return;}
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
   try{ if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); } }catch(e){}
   ensureNudge(); var b=document.getElementById('nudgeBody'); document.getElementById('nudgeOv').style.display='flex';
   b.innerHTML='<p class="note" style="margin-top:0;">Envía un mensaje de ánimo a <b>'+(fname||'tu amigo')+'</b>. Le llegará como notificación cuando entre a Milo. 🐙</p>'
@@ -5680,7 +5724,7 @@ async function sendNudge(fid,fname,idx){
   try{
     await supa.from('nudges').insert({to_id:fid, from_id:sbUser.id, from_name:(profile&&profile.name)||'Un amigo', text:text});
     toast('✅ ¡Mensaje enviado a '+(fname||'tu amigo')+'!'); var o=document.getElementById('nudgeOv'); if(o)o.style.display='none';
-  }catch(e){ alert('No se pudo enviar. ¿Ya creaste la tabla "nudges" en Supabase? (revisa la guía).'); }
+  }catch(e){ miloAlert('No se pudo enviar. ¿Ya creaste la tabla "nudges" en Supabase? (revisa la guía).'); }
 }
 async function checkNudges(){
   if(!supa||!sbUser)return;
@@ -6245,8 +6289,8 @@ function exportProgress(){
 function importProgress(){
   var code=prompt('Pega aquí tu código de progreso:');
   if(!code)return;
-  try{ var o=JSON.parse(decodeURIComponent(escape(atob(code.trim())))); Object.keys(o).forEach(function(k){localStorage.setItem(k,o[k]);}); alert('✅ ¡Progreso restaurado! La página se va a recargar.'); location.reload(); }
-  catch(e){ alert('⚠️ El código no es válido. Verifica que lo copiaste completo.'); }
+  try{ var o=JSON.parse(decodeURIComponent(escape(atob(code.trim())))); Object.keys(o).forEach(function(k){localStorage.setItem(k,o[k]);}); miloAlert('✅ ¡Progreso restaurado! La página se va a recargar.'); location.reload(); }
+  catch(e){ miloAlert('⚠️ El código no es válido. Verifica que lo copiaste completo.'); }
 }
 
 /* ===== TOUR GUIADO (cuadros flotantes con "Siguiente") ===== */
@@ -6390,7 +6434,8 @@ function renderHome(){
     h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;"><span class="sec-label" style="margin:0;">'+T('secYourDay')+'</span>'
       +'<button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'homeSimple\',true);renderHome();">'+T('simpleMode')+'</button></div>';
     /* EXPLORAR: filas de material sencillo, un solo lenguaje visual */
-    h+='<div style="display:flex;flex-direction:column;gap:8px;margin:10px 0;">'
+    h+='<div class="sec-label" style="margin:10px 2px 6px;">📍 Accesos rápidos</div>';
+    h+='<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 10px;">'
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🏆</span><span style="flex:1;font-weight:600;color:var(--ink);">Ranking</span><span style="color:var(--muted);">›</span></div>'
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="goTab(\'progreso\')">'
@@ -6400,7 +6445,8 @@ function renderHome(){
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openAventura()">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(255,210,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗺️</span><span style="flex:1;font-weight:600;color:var(--ink);">Tu aventura</span><span style="color:var(--muted);">›</span></div>'
       +'</div>';
-    /* reto diario */
+    /* reto diario + TOEFL agrupados: "practica algo distinto hoy" (chunking) */
+    h+='<div class="sec-label" style="margin:14px 2px 6px;">🎯 Practica algo hoy</div>';
     h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
     /* TOEFL (cuando aprendes inglés) */
     if((profile.lang||'en')==='en'){
@@ -6485,24 +6531,38 @@ function renderPracticar(){
 function renderProgreso(){
   var el=document.getElementById('progresoContent'); if(!el)return;
   var ul=userLevel();
+  /* ===== PROTAGONISTA: cómo voy AHORA (racha, nivel, semana). Una sola pregunta. ===== */
   var h='<div class="card"><h2>'+T('prT')+'</h2><div class="stats">'
     +'<div class="stat"><div class="n">🔥 '+streak.count+'</div><div class="l">'+T('prStreak')+'</div></div>'
     +'<div class="stat"><div class="n">⭐ '+ul.lvl+'</div><div class="l">'+T('prLevel')+'</div></div>'
     +'<div class="stat"><div class="n">⚡ '+xp+'</div><div class="l">XP</div></div>'
     +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">'+T('prLevels')+'</div></div>'
     +'</div></div>';
-  try{ h+=jardinHTML(); }catch(e){}
-  try{ h+=wrappedHTML(); }catch(e){}
   h+=dailyGoalHTML()+weekCalHTML();
-  try{ h+=monthCalHTML(); }catch(e){}
-  try{ h+=forgotWordsHTML(); }catch(e){}
-  h+='<div class="card" id="achAnchor" style="scroll-margin-top:70px;"><h2>'+T('prAch')+'</h2><div class="ach-row">';
-  ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
-  h+='</div></div>';
-  h+=certificatesHTML();
-  h+='<div class="card"><h2>'+T('prRank')+'</h2><p class="note" style="margin:0 0 8px;">'+T('prRankD')+'</p><div id="lbHost"></div></div>';
-  h+=hubItem('🏅',T('prColl'),T('prCollD'),T('prView'),"goTab('collections')");
-  h+=premiumTeaserHTML();
+  /* ===== TODO lo demás vive plegado: jardín, mes, estadísticas, logros,
+     certificados, ranking y colecciones. Quien quiera profundizar, lo pide. ===== */
+  var prSimple=store.get('progresoSimple',true);
+  if(prSimple){
+    h+='<button class="btn" style="width:100%;margin-top:2px;" onclick="store.set(\'progresoSimple\',false);renderProgreso();">▾ Ver todo mi progreso</button>';
+  } else {
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin:16px 2px 6px;"><span class="sec-label" style="margin:0;">Todo tu progreso</span>'
+      +'<button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'progresoSimple\',true);renderProgreso();">Modo simple</button></div>';
+    try{ if(forgotTop(1).length){ h+='<div class="sec-label" style="margin:14px 2px 6px;">🧩 Palabras difíciles</div>'+forgotWordsHTML(); } }catch(e){}
+    h+='<div class="sec-label" style="margin:14px 2px 6px;">🌱 Tu jardín y calendario</div>';
+    try{ h+=jardinHTML(); }catch(e){}
+    try{ h+=monthCalHTML(); }catch(e){}
+    h+='<div class="sec-label" style="margin:14px 2px 6px;">✨ Tus estadísticas</div>';
+    try{ h+=wrappedHTML(); }catch(e){}
+    h+='<div class="sec-label" style="margin:14px 2px 6px;">🏆 Logros y certificados</div>';
+    h+='<div class="card" id="achAnchor" style="scroll-margin-top:70px;"><h2>'+T('prAch')+'</h2><div class="ach-row">';
+    ACHS.forEach(function(a){var ok=a.ok();h+='<div class="ach'+(ok?'':' locked')+'"><div class="ico">'+a.ico+'</div><div><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';});
+    h+='</div></div>';
+    h+=certificatesHTML();
+    h+='<div class="sec-label" style="margin:14px 2px 6px;">🏅 Comunidad</div>';
+    h+='<div class="card"><h2>'+T('prRank')+'</h2><p class="note" style="margin:0 0 8px;">'+T('prRankD')+'</p><div id="lbHost"></div></div>';
+    h+=hubItem('🏅',T('prColl'),T('prCollD'),T('prView'),"goTab('collections')");
+    h+=premiumTeaserHTML();
+  }
   el.innerHTML=h;
   try{ animateDonuts(); }catch(e){}
   try{renderLeaderboard();}catch(e){}
@@ -6510,7 +6570,7 @@ function renderProgreso(){
 /* ===== PERFIL ===== */
 function onPhotoPick(input){
   var f=input.files&&input.files[0]; if(!f)return;
-  if(f.size>2500000){alert('La imagen es muy grande. Elige una más pequeña (menos de 2MB).');return;}
+  if(f.size>2500000){miloAlert('La imagen es muy grande. Elige una más pequeña (menos de 2MB).');return;}
   var rd=new FileReader();
   rd.onload=function(e){ profile.photo=e.target.result; store.set('profile',profile); renderPerfil(); };
   rd.readAsDataURL(f);
@@ -6636,8 +6696,8 @@ function renderPerfil(){
    Contenido original basado en el FORMATO público del examen. No reproduce materiales con derechos de autor. */
 function ensureTOEFL(){ if(document.getElementById('toeflOv'))return; var d=document.createElement('div'); d.id='toeflOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🎓 Preparación TOEFL iBT</h3><button class="legal-x" onclick="document.getElementById(\'toeflOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="toeflBody"></div></div>'; document.body.appendChild(d); }
 function openTOEFL(){ ensureTOEFL(); document.getElementById('toeflOv').style.display='flex'; renderTOEFL(); }
-function toeflSec(ico,t,meta,desc,tips,btnLabel,onclick){
-  return '<div class="skillbox"><div class="vhead"><span class="vico">'+ico+'</span><span class="vt">'+t+'</span></div>'
+function toeflSec(ico,t,meta,desc,tips,btnLabel,onclick,secId){
+  return '<div class="skillbox"'+(secId?(' id="'+secId+'" style="scroll-margin-top:70px;"'):'')+'><div class="vhead"><span class="vico">'+ico+'</span><span class="vt">'+t+'</span></div>'
     +'<p class="note" style="margin:2px 0 6px;"><b>'+meta+'</b></p>'
     +'<p style="margin:0 0 6px;">'+desc+'</p>'
     +'<ul style="margin:0 0 8px;">'+tips.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'
@@ -6654,26 +6714,34 @@ function renderTOEFL(){
     +'<li><b>Duración:</b> ~2 horas.</li>'
     +'<li><b>Puntaje:</b> 0–30 por sección · <b>total 0–120</b>.</li>'
     +'<li>Muchas universidades piden entre <b>80 y 100</b>.</li></ul></div>';
+  /* accesos rápidos: salta directo a la sección que quieras, sin scrollear todo */
+  h+='<div class="chiprow" style="margin:2px 0 12px;">'
+    +'<span class="chip" style="cursor:pointer;" onclick="document.getElementById(\'toefl-reading\').scrollIntoView({behavior:\'smooth\'})">📖 Reading</span>'
+    +'<span class="chip" style="cursor:pointer;" onclick="document.getElementById(\'toefl-listening\').scrollIntoView({behavior:\'smooth\'})">🎧 Listening</span>'
+    +'<span class="chip" style="cursor:pointer;" onclick="document.getElementById(\'toefl-speaking\').scrollIntoView({behavior:\'smooth\'})">🎙️ Speaking</span>'
+    +'<span class="chip" style="cursor:pointer;" onclick="document.getElementById(\'toefl-writing\').scrollIntoView({behavior:\'smooth\'})">✍️ Writing</span>'
+    +'<span class="chip" style="cursor:pointer;" onclick="document.getElementById(\'toefl-vocab\').scrollIntoView({behavior:\'smooth\'})">🧠 Vocabulary</span>'
+    +'</div>';
   h+=toeflSec('📖','Reading','2 pasajes académicos · ~20 preguntas · ~35 min',
       'Textos de nivel universitario con preguntas de idea principal, detalle, vocabulario, inferencia y resumen.',
       ['Lee el primer párrafo con atención: suele traer la idea central.','No traduzcas todo: busca la respuesta escaneando (scanning).','En "vocabulary in context", tapa la opción y adivina por el contexto.'],
-      '📕 Practicar Reading','startTOEFLReading()');
+      '📕 Practicar Reading','startTOEFLReading()','toefl-reading');
   h+=toeflSec('🎧','Listening','Conferencias y conversaciones · notas · ~36 min',
       'Escuchas audios académicos una sola vez y respondes. Puedes tomar notas.',
       ['Toma notas de la ESTRUCTURA: tema → puntos → ejemplos.','Atiende al tono y a las palabras de transición (however, therefore…).','Practica con conferencias reales (TED, podcasts académicos).'],
-      '🎧 Practicar Listening','startTOEFLListening()');
+      '🎧 Practicar Listening','startTOEFLListening()','toefl-listening');
   h+=toeflSec('🎙️','Speaking','4 tareas (1 independiente + 3 integradas) · ~16 min',
       'Grabas respuestas habladas: das tu opinión y resumes lo que leíste/escuchaste.',
       ['Estructura: opinión + 2 razones + ejemplo. Cronométrate (45–60 s).','Habla claro y con ritmo; mejor fluidez que perfección.','Usa Speak Now de Milo para practicar en voz alta.'],
-      '🎤 Practicar Speaking (cronometrado)','startTOEFLSpeaking()');
+      '🎤 Practicar Speaking (cronometrado)','startTOEFLSpeaking()','toefl-speaking');
   h+=toeflSec('✍️','Writing','2 tareas (integrada + academic discussion) · ~29 min',
       'Escribes ensayos: uno combinando lectura + audio, y otro dando tu opinión argumentada.',
       ['Plantea tesis clara → 2–3 párrafos con razones → conclusión.','Usa conectores (First, Moreover, In contrast, Therefore).','Escribe tu respuesta abajo y Milo (IA) te da feedback.'],
-      '✍️ Practicar Writing','startTOEFLWriting()');
+      '✍️ Practicar Writing','startTOEFLWriting()','toefl-writing');
   h+=toeflSec('🧠','Academic Vocabulary','Las palabras que aparecen en TODOS los exámenes académicos',
       'El vocabulario académico (analyze, evidence, hypothesis…) es el 10% de cualquier texto TOEFL. Dominarlo sube tu Reading y tu Writing a la vez.',
       ['Aprende las palabras en familias: analyze → analysis → analytical.','Estas palabras se repiten en ciencia, historia y arte: son comodines.','Úsalas en tu Writing: suben tu puntaje de vocabulario.'],
-      '🧠 Practicar vocabulario académico','startTOEFLVocab()');
+      '🧠 Practicar vocabulario académico','startTOEFLVocab()','toefl-vocab');
   /* Bibliografía oficial (enlaces a la fuente oficial, sin reproducir su contenido) */
   h+='<div class="skillbox"><h4>📚 Recursos oficiales (ETS)</h4>'
     +'<p class="note" style="margin:0 0 6px;">La fuente oficial es <b>ETS</b>, creador del examen. Milo te prepara con práctica original basada en el formato; para material oficial acude a:</p>'
@@ -6876,7 +6944,7 @@ function gradeTOEFLWriting(){
 var ADMIN_EMAILS=['yeni.tapiaz32@gmail.com'];
 function isAdmin(){ try{ return !!(sbUser&&sbUser.email&&ADMIN_EMAILS.indexOf(String(sbUser.email).toLowerCase())>=0); }catch(e){ return false; } }
 function ensureAdmin(){ if(document.getElementById('admOv'))return; var d=document.createElement('div'); d.id='admOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🛠️ Panel de administrador</h3><button class="legal-x" onclick="document.getElementById(\'admOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="admBody"></div></div>'; document.body.appendChild(d); }
-function openAdmin(){ if(!isAdmin()){alert('Acceso solo para administrador.');return;} ensureAdmin(); document.getElementById('admOv').style.display='flex'; renderAdmin(); }
+function openAdmin(){ if(!isAdmin()){miloAlert('Acceso solo para administrador.');return;} ensureAdmin(); document.getElementById('admOv').style.display='flex'; renderAdmin(); }
 function admStat(label,val,color){ return '<div style="flex:1;min-width:120px;background:var(--card2);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.7rem;font-weight:800;color:'+(color||'var(--blue)')+';">'+val+'</div><div class="note" style="margin:0;">'+label+'</div></div>'; }
 async function renderAdmin(){
   var b=document.getElementById('admBody'); if(!b)return;
@@ -6981,7 +7049,7 @@ function chooseLangOnboard(code){profile.lang=code;store.set('profile',profile);
 function chooseCareerOnboard(id){profile.career=id;if(id==='dentistry')curDental=0;store.set('profile',profile);beep('good');confetti();renderDentalBar();renderDental();renderHome();}
 function chooseCareerOther(){
   var t=(document.getElementById('careerOtherIn').value||'').trim();
-  if(!t){alert('Escribe el nombre de tu carrera.');return;}
+  if(!t){miloAlert('Escribe el nombre de tu carrera.');return;}
   profile.career='other';profile.careerOther=t;store.set('profile',profile);
   var list=store.get('otherCareers',[]);list.push({career:t,date:new Date().toISOString()});store.set('otherCareers',list);
   beep('good');confetti();toast('¡Gracias! Anotamos: '+t);renderHome();
