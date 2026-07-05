@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EV83ZWFLYS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EV83ZWFLYS');
+</script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +18,7 @@
 <title>Milo · Aprende inglés, español, portugués y francés</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2456d6">
@@ -404,7 +412,7 @@
 
   /* Perfil premium: cabecera con degradado + lista de ajustes tipo iOS */
   .pf-hero{ border-radius:24px; padding:26px 20px 20px; text-align:center; color:#fff;
-    background:linear-gradient(140deg,#4c6fff,#2456d6 60%,#7c5cff); box-shadow:0 16px 40px rgba(76,111,255,.35); margin-bottom:16px; position:relative; overflow:hidden; }
+    background:linear-gradient(140deg,#4c6fff,#2456d6 60%,#1476A8); box-shadow:0 16px 40px rgba(76,111,255,.35); margin-bottom:16px; position:relative; overflow:hidden; }
   .pf-hero:before{ content:''; position:absolute; top:-40px; right:-30px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.12); }
   .pf-ava{ width:92px; height:92px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,.7); background:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:2.4rem; font-weight:800; color:#2456d6; box-shadow:0 8px 20px rgba(0,0,0,.18); }
   .pf-hero h2{ color:#fff!important; margin:10px 0 2px; font-size:1.4rem; }
@@ -431,16 +439,16 @@
   /* ============================================================
      DESIGN SYSTEM — ACENTO POR SECCIÓN (cada destino con personalidad)
      ============================================================ */
-  :root{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#7c5cff; }
-  body[data-sec="home"]{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#7c5cff; }
+  :root{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#1476A8; }
+  body[data-sec="home"]{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#1476A8; }
   body[data-sec="levels"]{ --accent:#4c6fff; --accent-d:#2456d6; --accent-2:#6d8bff; }
   body[data-sec="practicar"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
   body[data-sec="progreso"]{ --accent:#0ea5e9; --accent-d:#0369a1; --accent-2:#38bdf8; }
   body[data-sec="dental"]{ --accent:#f97316; --accent-d:#c2540b; --accent-2:#fb9a4b; }
-  body[data-sec="explorar"]{ --accent:#ec4899; --accent-d:#be1d67; --accent-2:#f472b6; }
+  body[data-sec="explorar"]{ --accent:#0FBB7C; --accent-d:#0E7A50; --accent-2:#5CE0A8; }
   body[data-sec="perfil"]{ --accent:#475569; --accent-d:#334155; --accent-2:#64748b; }
-  body[data-sec="pron"]{ --accent:#7c5cff; --accent-d:#5b34e0; --accent-2:#a78bfa; }
-  body[data-sec="speak"]{ --accent:#7c5cff; --accent-d:#5b34e0; --accent-2:#a78bfa; }
+  body[data-sec="pron"]{ --accent:#1476A8; --accent-d:#1476A8; --accent-2:#7EC8E3; }
+  body[data-sec="speak"]{ --accent:#1476A8; --accent-d:#1476A8; --accent-2:#7EC8E3; }
   body[data-sec="games"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
   body[data-sec="challenge"]{ --accent:#f59e0b; --accent-d:#b45309; --accent-2:#fbbf24; }
 
@@ -514,7 +522,7 @@
   .lvl-ov{ position:fixed; inset:0; z-index:100050; display:none; align-items:center; justify-content:center; padding:20px;
     background:rgba(10,18,45,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); opacity:0; transition:opacity .3s; }
   .lvl-ov.show{ display:flex; opacity:1; }
-  .lvl-card{ position:relative; background:linear-gradient(160deg,#1c3aa8,#2456d6 55%,#7c5cff); color:#fff; border-radius:28px;
+  .lvl-card{ position:relative; background:linear-gradient(160deg,#1c3aa8,#2456d6 55%,#1476A8); color:#fff; border-radius:28px;
     padding:34px 28px; max-width:340px; width:100%; text-align:center; box-shadow:0 30px 80px rgba(4,10,40,.55);
     animation:lvlIn .5s cubic-bezier(.22,1,.36,1) both; overflow:hidden; }
   @keyframes lvlIn{ from{opacity:0; transform:translateY(30px) scale(.9);} to{opacity:1; transform:translateY(0) scale(1);} }
@@ -576,7 +584,7 @@
   body[data-lang="en"]{ --atmo:#4c6fff; }  /* Nueva York · tech · azul */
   body[data-lang="es"]{ --atmo:#f59e0b; }  /* plazas · cálido · ámbar */
   body[data-lang="pt"]{ --atmo:#14b8a6; }  /* playas · turquesa */
-  body[data-lang="fr"]{ --atmo:#f472b6; }  /* París · crema-rosé */
+  body[data-lang="fr"]{ --atmo:#5CE0A8; }  /* París · crema-rosé */
   body:after{ content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
     background:
       radial-gradient(circle at 50% -8%, color-mix(in srgb,var(--atmo,#4c6fff) 14%,transparent), transparent 42%),
@@ -662,7 +670,7 @@
 
   /* ===== MILO CARD — tarjeta de perfil para compartir ===== */
   .mcard{ position:relative; border-radius:26px; overflow:hidden; color:#fff; padding:22px 20px 18px;
-    background:linear-gradient(150deg,#3b2d7a 0%,#5b34e0 45%,#9266cc 100%); box-shadow:0 20px 50px rgba(60,30,140,.4); margin-bottom:16px; }
+    background:linear-gradient(150deg,#0A2E3E 0%,#1476A8 45%,#3FA9D1 100%); box-shadow:0 20px 50px rgba(10,46,62,.4); margin-bottom:16px; }
   .mcard:before{ content:''; position:absolute; top:-50px; right:-40px; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.10); }
   .mcard:after{ content:''; position:absolute; bottom:-70px; left:-40px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.07); }
   .mcard .mc-top{ display:flex; align-items:center; gap:14px; position:relative; z-index:1; }
@@ -677,7 +685,7 @@
   .mcard .mc-l{ font-size:.66rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:rgba(255,255,255,.78); margin-top:2px; }
   .mcard .mc-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; position:relative; z-index:1; }
   .mcard .mc-brand{ font-family:'Poppins',sans-serif; font-weight:800; font-size:.78rem; color:rgba(255,255,255,.85); letter-spacing:.3px; }
-  .mcard .mc-share{ border:none; background:rgba(255,255,255,.95); color:#5b34e0; font-weight:800; font-size:.82rem;
+  .mcard .mc-share{ border:none; background:rgba(255,255,255,.95); color:#1476A8; font-weight:800; font-size:.82rem;
     border-radius:12px; padding:9px 14px; cursor:pointer; transition:transform .15s var(--spring),filter .2s; font-family:'Poppins',sans-serif; }
   .mcard .mc-share:hover{ transform:translateY(-1px); filter:brightness(1.03); }
   /* pulso de la tarjeta de repaso urgente */
@@ -738,55 +746,55 @@
   .kw-page{ font-size:3.6rem; text-align:center; line-height:1.2; margin:8px 0; }
 
   /* ============================================================
-     FASE 2 — MILO ADULTOS: "Lyfe vivo" (morado + rosa + amarillo,
+     FASE 3 — MILO ADULTOS: "Lyfe vivo" (morado + rosa + amarillo,
      blobs suaves, tipografía Baloo 2). Solo repinta lo existente.
      ============================================================ */
   :root{
-    --blue:#8b3bf0; --blue-d:#6a24c4; --purple:#8b3bf0; --pink:#ff4bc0; --amber:#e08a12;
-    --accent:#8b3bf0; --accent-d:#6a24c4; --accent-2:#ff4bc0;
+    --blue:#1476A8; --blue-d:#0A2E3E; --purple:#1476A8; --pink:#0FBB7C; --amber:#e08a12;
+    --accent:#1476A8; --accent-d:#0A2E3E; --accent-2:#0FBB7C;
   }
   h1,h2,h3,.fc-w,.stat .n,.ring .pct,.hero h2,.cta,.land-hero h1,.land-cta h2,.pf-hero h2{ font-family:'Baloo 2',sans-serif; }
-  header{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; }
-  #miloSplash{ background:linear-gradient(160deg,#3a1f6b,#6a24c4 55%,#8b3bf0)!important; }
+  header{ background:linear-gradient(135deg,#0A2E3E,#1476A8)!important; }
+  #miloSplash{ background:linear-gradient(160deg,#0A2E3E,#0A2E3E 55%,#1476A8)!important; }
   .auth-gate{ background:
-      radial-gradient(circle at 15% 12%, rgba(255,75,192,.35), transparent 42%),
+      radial-gradient(circle at 15% 12%, rgba(15,187,124,.35), transparent 42%),
       radial-gradient(circle at 85% 8%, rgba(255,210,75,.30), transparent 40%),
-      radial-gradient(circle at 50% 120%, rgba(139,59,240,.55), transparent 60%),
-      linear-gradient(160deg,#3a1f6b,#6a24c4 55%,#8b3bf0)!important; }
+      radial-gradient(circle at 50% 120%, rgba(20,118,168,.55), transparent 60%),
+      linear-gradient(160deg,#0A2E3E,#0A2E3E 55%,#1476A8)!important; }
   .land-top{ background:rgba(58,31,107,.6)!important; }
-  .land-cta{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; }
-  .land-top .btn{ background:#ffd24b!important; color:#3a1f6b!important; }
+  .land-cta{ background:linear-gradient(135deg,#0A2E3E,#1476A8)!important; }
+  .land-top .btn{ background:#ffd24b!important; color:#0A2E3E!important; }
   body{ background-image:
-    radial-gradient(circle at 10% 4%,rgba(139,59,240,.09),transparent 40%),
-    radial-gradient(circle at 92% 0%,rgba(255,75,192,.08),transparent 38%),
+    radial-gradient(circle at 10% 4%,rgba(20,118,168,.09),transparent 40%),
+    radial-gradient(circle at 92% 0%,rgba(15,187,124,.08),transparent 38%),
     radial-gradient(circle at 50% 120%,rgba(255,210,75,.07),transparent 55%)!important;
     background-attachment:fixed; }
-  body[data-sec="home"],body[data-sec="levels"]{ --accent:#8b3bf0; --accent-d:#6a24c4; --accent-2:#ff4bc0; }
+  body[data-sec="home"],body[data-sec="levels"]{ --accent:#1476A8; --accent-d:#0A2E3E; --accent-2:#0FBB7C; }
   body[data-sec="practicar"],body[data-sec="games"]{ --accent:#16a34a; --accent-d:#0f7a37; --accent-2:#34d17e; }
   body[data-sec="progreso"]{ --accent:#37b6e9; --accent-d:#1e8fc0; --accent-2:#5ec8ff; }
   body[data-sec="dental"]{ --accent:#ff9e2c; --accent-d:#c2540b; --accent-2:#ffb85c; }
-  body[data-sec="explorar"]{ --accent:#ff4bc0; --accent-d:#c9268f; --accent-2:#ff8fd8; }
+  body[data-sec="explorar"]{ --accent:#0FBB7C; --accent-d:#0E7A50; --accent-2:#ff8fd8; }
   body[data-sec="perfil"]{ --accent:#475569; --accent-d:#334155; --accent-2:#64748b; }
-  body[data-sec="pron"],body[data-sec="speak"]{ --accent:#9d5cff; --accent-d:#7a2ad0; --accent-2:#c3a0ff; }
+  body[data-sec="pron"],body[data-sec="speak"]{ --accent:#1476A8; --accent-d:#0A2E3E; --accent-2:#7EC8E3; }
   body[data-sec="challenge"]{ --accent:#ffd24b; --accent-d:#c99a0a; --accent-2:#ffe08a; }
-  .hero{ background:linear-gradient(135deg,#6a24c4,#8b3bf0)!important; position:relative; overflow:hidden; }
+  .hero{ background:linear-gradient(135deg,#0A2E3E,#1476A8)!important; position:relative; overflow:hidden; }
   .hero:before{ content:''; position:absolute; top:-30px; right:-24px; width:150px; height:120px; background:rgba(255,209,120,.22); border-radius:55% 60% 50% 65%; pointer-events:none; }
-  .hero:after{ content:''; position:absolute; bottom:-26px; left:-20px; width:100px; height:80px; background:rgba(255,75,192,.18); border-radius:60% 50% 65% 55%; pointer-events:none; }
-  .pf-hero{ background:linear-gradient(140deg,#8b3bf0,#6a24c4 60%,#ff4bc0)!important; }
+  .hero:after{ content:''; position:absolute; bottom:-26px; left:-20px; width:100px; height:80px; background:rgba(15,187,124,.18); border-radius:60% 50% 65% 55%; pointer-events:none; }
+  .pf-hero{ background:linear-gradient(140deg,#1476A8,#0A2E3E 60%,#0FBB7C)!important; }
   .ring{ background:conic-gradient(#ffd24b calc(var(--p)*1%), rgba(255,255,255,.22) 0)!important; }
-  .ring .inner{ background:#6a24c4!important; }
+  .ring .inner{ background:#0A2E3E!important; }
   nav button.active{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
   .cta{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 40%,transparent)!important; }
   .btn.primary{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
   .land-badge{ background:rgba(255,255,255,.16)!important; }
-  .idiom{ border-left-color:#ff4bc0; background:#fff3fb; }
-  .idiom .en{ color:#c9268f; }
-  .es{ color:#8b3bf0; }
+  .idiom{ border-left-color:#0FBB7C; background:#fff3fb; }
+  .idiom .en{ color:#0E7A50; }
+  .es{ color:#1476A8; }
   .tip{ border-left-color:#ffd24b; }
   .tip b{ color:#c99a0a; }
 
   /* ============================================================
-     FASE 2 — MILO KIDS: "Candy Pop" (rosa chicle + celeste + lima +
+     FASE 3 — MILO KIDS: "Candy Pop" (rosa chicle + celeste + lima +
      mandarina + morado, botones glossy, tipografía Fredoka/Baloo 2)
      ============================================================ */
   #kidsWorld{ background:linear-gradient(180deg,#fff0f7 0%,#eafaff 55%,#fffbe0 100%)!important; font-family:'Fredoka','Poppins',sans-serif!important; }
@@ -801,12 +809,194 @@
   #kidsWorld .kw-big.c3{ background:linear-gradient(160deg,#8fe0ff,#37b6e9)!important; color:#0a3a52; }
   #kidsWorld .kw-big.c4{ background:linear-gradient(160deg,#ffc98f,#ff9e2c)!important; color:#5a3200; }
   #kidsWorld .kw-big.c5{ background:linear-gradient(160deg,#fff29c,#ffd24b)!important; color:#5a4a10; }
-  #kidsWorld .kw-big.c6{ background:linear-gradient(160deg,#c9a8ff,#9d5cff)!important; color:#fff; }
-  #kidsWorld .kw-say{ background:#9d5cff!important; box-shadow:0 8px 20px rgba(157,92,255,.4)!important; font-family:'Baloo 2',cursive!important; }
+  #kidsWorld .kw-big.c6{ background:linear-gradient(160deg,#7EC8E3,#1476A8)!important; color:#fff; }
+  #kidsWorld .kw-say{ background:#1476A8!important; box-shadow:0 8px 20px rgba(20,118,168,.4)!important; font-family:'Baloo 2',cursive!important; }
   #kidsWorld .kw-say.green{ background:#37b6e9!important; box-shadow:0 8px 20px rgba(55,182,233,.35)!important; }
   #kidsWorld .kw-say.orange{ background:#ff9e2c!important; box-shadow:0 8px 20px rgba(255,158,44,.35)!important; }
   #kidsWorld .kw-opt.ok{ background:#d4f5a0!important; }
   #kidsWorld .kw-line.now{ background:#ffe08a!important; }
+
+  /* ============================================================
+     FASE 4 — REDISEÑO COMPLETO DE PLATAFORMA (todas las pantallas:
+     login/landing, tarjetas, lecciones, flashcards, planes, chat,
+     legal, pronunciación). Sigue siendo solo CSS: cero cambios de
+     lógica, contenido o estructura.
+     ============================================================ */
+  :root{ --radius:22px; }
+
+  /* ---- Formas: más aire y esquinas más suaves en toda la app ---- */
+  .card{ border-radius:26px; }
+  .lesson-card{ border-radius:22px; }
+  .lesson-ico{ background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 16%,var(--card2)),color-mix(in srgb,var(--accent) 6%,var(--card2))); }
+  .stat,.ach{ border-radius:20px; }
+  .skillbox{ border-radius:22px; }
+  .opt{ border-radius:16px; }
+  .chip{ border-radius:99px; }
+  .fc,.fcf{ border-radius:24px; }
+  .plan{ border-radius:24px; }
+  .feat{ border-radius:20px; }
+
+  /* ---- Pantalla de acceso / login (gate + landing) ---- */
+  .mouth-word,.mouth-tip{ color:#0A2E3E!important; }
+  .mouth-tip{ background:#f3e9ff!important; }
+  .gate-card h1{ color:#0A2E3E!important; }
+  .gate-tabs button.active{ color:#0A2E3E!important; }
+  .gate-card input:focus,.land-card input:focus{ border-color:#1476A8!important; box-shadow:0 0 0 3px rgba(20,118,168,.16)!important; }
+
+  /* ---- Marketing / landing page ---- */
+  .land-sec h2,.feat h3,.step h3,.testi .who,.plan h3,.plan .price,.faq-item h3,.legal-head h3,.legal-body h4{ color:#0A2E3E!important; }
+  .step .num{ background:linear-gradient(135deg,#1476A8,#0FBB7C)!important; }
+  .feat{ background:linear-gradient(160deg,#fbf5ff,#f6ecff)!important; border-color:#ecdcfb!important; }
+  .plan.pop{ border-color:#1476A8!important; box-shadow:0 12px 36px rgba(20,118,168,.22)!important; }
+  .plan .tag{ background:#1476A8!important; }
+  .scen{ color:#0A2E3E!important; background:#f6ecff!important; border-color:#ecdcfb!important; }
+  .scen:hover{ background:#efd9ff!important; }
+  .legal-tabs button.active{ background:#1476A8!important; }
+  .chat-head{ background:linear-gradient(135deg,#0A2E3E,#1476A8)!important; }
+  .cb.me{ background:#1476A8!important; }
+
+  /* ---- Flashcards: frente violeta/rosa, reverso verde de acierto (se mantiene el significado) ---- */
+  .fc-front{ background:linear-gradient(135deg,#1476A8,#0FBB7C)!important; }
+
+  /* ---- Blobs decorativos en héroes y tarjetas destacadas (identidad "Lyfe") ---- */
+  .land-hero{ position:relative; overflow:hidden; }
+  .land-hero:before{ content:''; position:absolute; top:-40px; right:-30px; width:170px; height:140px; background:rgba(255,209,120,.14); border-radius:55% 60% 50% 65%; pointer-events:none; }
+  .plan.pop{ position:relative; overflow:hidden; }
+  .plan.pop:before{ content:''; position:absolute; bottom:-30px; left:-24px; width:110px; height:90px; background:rgba(20,118,168,.06); border-radius:60% 50% 65% 55%; pointer-events:none; }
+
+  /* ============================================================
+     FASE 5 — MILO WATERMELON 🍉 (Pastèque, Zeste, Lagoon, Melon).
+     Repinta acentos + redondea/airea formas para que la disposición
+     se sienta como el mockup: tarjetas grandes, sombras suaves,
+     blobs decorativos, pills sólidas. Solo CSS.
+     ============================================================ */
+  :root{
+    --blue:#12A99C; --blue-d:#0B7A70; --purple:#12A99C; --pink:#FF8DC7; --amber:#F6A400; --green:#0B7A70;
+    --accent:#12A99C; --accent-d:#0B7A70; --accent-2:#FF8DC7; --radius:28px;
+    --bg:#FFF8EF; --card2:#FFF1E0;
+  }
+  body.dark{ --bg:#0f1626; --card2:#222c44; }
+  header{ background:linear-gradient(135deg,#0B7A70,#12A99C)!important; }
+  #miloSplash{ background:linear-gradient(160deg,#075049,#0B7A70 55%,#12A99C)!important; }
+  .auth-gate{ background:
+      radial-gradient(circle at 15% 12%, rgba(255,141,199,.32), transparent 42%),
+      radial-gradient(circle at 85% 8%, rgba(255,240,77,.30), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(18,169,156,.55), transparent 60%),
+      linear-gradient(160deg,#075049,#0B7A70 55%,#12A99C)!important; }
+  .land-top{ background:rgba(14,77,70,.6)!important; }
+  .land-cta{ background:linear-gradient(135deg,#0B7A70,#12A99C)!important; }
+  .land-top .btn{ background:#FFF04D!important; color:#075049!important; }
+  body{ background-image:
+    radial-gradient(circle at 10% 4%,rgba(18,169,156,.10),transparent 40%),
+    radial-gradient(circle at 92% 0%,rgba(255,141,199,.08),transparent 38%),
+    radial-gradient(circle at 50% 120%,rgba(255,240,77,.08),transparent 55%)!important;
+    background-attachment:fixed; }
+  body[data-sec="home"],body[data-sec="levels"]{ --accent:#12A99C; --accent-d:#0B7A70; --accent-2:#FF8DC7; }
+  body[data-sec="practicar"],body[data-sec="games"]{ --accent:#F6A400; --accent-d:#B87A00; --accent-2:#FFCB66; }
+  body[data-sec="progreso"]{ --accent:#12A99C; --accent-d:#0B7A70; --accent-2:#9FF3EA; }
+  body[data-sec="dental"]{ --accent:#F6A400; --accent-d:#B87A00; --accent-2:#FFCB66; }
+  body[data-sec="explorar"]{ --accent:#FF8DC7; --accent-d:#C2478E; --accent-2:#FFB8DE; }
+  body[data-sec="perfil"]{ --accent:#475569; --accent-d:#334155; --accent-2:#64748b; }
+  body[data-sec="pron"],body[data-sec="speak"]{ --accent:#FF8DC7; --accent-d:#C2478E; --accent-2:#FFB8DE; }
+  body[data-sec="challenge"]{ --accent:#F6A400; --accent-d:#B87A00; --accent-2:#FFF04D; }
+  .hero{ background:linear-gradient(135deg,#0B7A70,#12A99C)!important; border-radius:22px!important; padding:14px!important; position:relative; overflow:hidden; }
+  .card{ padding:14px!important; margin-bottom:10px!important; }
+  main{ padding:14px 12px 30px!important; }
+  .statpill{ font-size:.76rem!important; padding:4px 9px!important; }
+  .milo-mini{ width:64px; height:64px; flex:0 0 64px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .milo-mini .illus{ flex:none!important; transform:scale(.62); }
+  .hero:before{ content:''; position:absolute; top:-34px; right:-28px; width:170px; height:135px; background:rgba(255,240,77,.28); border-radius:55% 60% 50% 65%; pointer-events:none; }
+  .hero:after{ content:''; position:absolute; bottom:-30px; left:-22px; width:115px; height:92px; background:rgba(255,141,199,.24); border-radius:60% 50% 65% 55%; pointer-events:none; }
+  .pf-hero{ background:linear-gradient(140deg,#12A99C,#0B7A70 60%,#FF8DC7)!important; }
+  .ring{ background:conic-gradient(#FFF04D calc(var(--p)*1%), rgba(255,255,255,.22) 0)!important; }
+  .ring .inner{ background:#0B7A70!important; }
+  nav button.active{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
+  .cta{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 40%,transparent)!important; border-radius:99px!important; }
+  .btn.primary{ background:linear-gradient(135deg,var(--accent),var(--accent-d))!important; }
+  .land-badge{ background:rgba(255,255,255,.16)!important; }
+  .idiom{ border-left-color:#FF8DC7; background:#fff2f1; }
+  .idiom .en{ color:#C2478E; }
+  .es{ color:#0B7A70; }
+  .tip{ border-left-color:#FFF04D; }
+  .tip b{ color:#C9BC00; }
+
+  /* ---- Formas más redondas y airadas (como el mockup) ---- */
+  .card{ border-radius:30px!important; }
+  .bubble{ border-radius:20px!important; font-size:.95rem!important; padding:12px 18px!important; box-shadow:0 10px 26px rgba(20,60,55,.16)!important; }
+  .statpill{ background:#fff!important; color:var(--accent-d)!important; border:none!important; font-size:.9rem!important; padding:7px 14px!important; box-shadow:0 5px 14px rgba(20,60,55,.14); }
+  .pf-hero .statpill{ background:rgba(255,255,255,.22)!important; color:#fff!important; }
+  .lesson-card{ border-radius:26px!important; }
+  .chip{ border-radius:99px; }
+
+  /* ---- Kids world: paleta "Watermelon" (sustituye Candy Pop) ---- */
+  #kidsWorld{ background:linear-gradient(180deg,#FFEDEB 0%,#EAFBF8 55%,#FFF9E0 100%)!important; font-family:'Fredoka','Poppins',sans-serif!important; }
+  #kidsWorld .kw-exit{ color:#FF8DC7!important; box-shadow:0 4px 14px rgba(255,141,199,.28)!important; }
+  #kidsWorld .kw-stars{ color:#B87A00!important; box-shadow:0 4px 14px rgba(246,164,0,.3)!important; }
+  #kidsWorld .kw-bub{ font-family:'Fredoka',sans-serif; color:#7A2F58; }
+  #kidsWorld h2,#kidsWorld h3{ font-family:'Baloo 2',cursive!important; }
+  #kidsWorld .kw-big{ color:#20403B; }
+  #kidsWorld .kw-big .kt{ font-family:'Baloo 2',cursive; }
+  #kidsWorld .kw-big.c1{ background:linear-gradient(160deg,#FFB8DE,#FF8DC7)!important; color:#fff; }
+  #kidsWorld .kw-big.c2{ background:linear-gradient(160deg,#D4F5B0,#A3E86B)!important; color:#3D6B22; }
+  #kidsWorld .kw-big.c3{ background:linear-gradient(160deg,#FFF7B8,#FFF04D)!important; color:#6B6300; }
+  #kidsWorld .kw-big.c4{ background:linear-gradient(160deg,#FFC98F,#F6A400)!important; color:#5A3200; }
+  #kidsWorld .kw-big.c5{ background:linear-gradient(160deg,#FFE9C2,#FFCB66)!important; color:#5A3200; }
+  #kidsWorld .kw-big.c6{ background:linear-gradient(160deg,#7EC8E3,#1476A8)!important; color:#fff; }
+  #kidsWorld .kw-say{ background:#12A99C!important; box-shadow:0 8px 20px rgba(18,169,156,.4)!important; font-family:'Baloo 2',cursive!important; }
+  #kidsWorld .kw-say.green{ background:#0B7A70!important; box-shadow:0 8px 20px rgba(11,122,112,.35)!important; }
+  #kidsWorld .kw-say.orange{ background:#F6A400!important; box-shadow:0 8px 20px rgba(246,164,0,.35)!important; }
+  #kidsWorld .kw-opt.ok{ background:#D9F2DA!important; }
+  #kidsWorld .kw-line.now{ background:#FFF04D!important; }
+
+  /* ============================================================
+     FASE 6 — VISUAL DIRECTION 2.0 (solo Milo Adultos, no toca
+     #kidsWorld). Un único acento (turquesa), coral SOLO para
+     acción, dorado para logro, oliva para éxito. Materiales tipo
+     papel/cuaderno en vez de plástico brillante. Menos color,
+     más jerarquía, aire y calma.
+     ============================================================ */
+  :root{
+    --ink:#1B2E36; --muted:#6E8478; --line:#DFF0E7;
+    --accent:#1476A8!important; --accent-d:#0A2E3E!important; --accent-2:#1EC48A!important;
+    --blue:#1476A8; --blue-d:#0A2E3E; --purple:#1476A8; --pink:#0FBB7C; --amber:#FFD400; --green:#0FBB7C;
+    --bg:#FBF3D8; --card2:#EAF7DB; --shadow:0 2px 16px rgba(27,46,54,.07);
+  }
+  body.dark{ --ink:#EDE7DA; --muted:#a39b8c; --line:#2c2a26; --bg:#14201d; --card2:#1c2822; }
+  /* un único acento consistente: ya no rota por sección */
+  body[data-sec]{ --accent:#1476A8!important; --accent-d:#0A2E3E!important; --accent-2:#1EC48A!important; }
+  body[data-sec="perfil"]{ --accent:#6E8478!important; --accent-d:#5f594d!important; }
+  body{ font-family:'Inter',system-ui,sans-serif; background-image:none!important; background-attachment:scroll; }
+  h1,h2,h3,.hero h2,.land-hero h1,.land-cta h2,.pf-hero h2{ font-family:'Newsreader','Poppins',serif!important; font-weight:600!important; letter-spacing:0!important; }
+  #kidsWorld h1,#kidsWorld h2,#kidsWorld h3{ font-family:'Baloo 2',cursive!important; }
+  h2{ color:var(--ink)!important; }
+  .hero h2,.pf-hero h2{ color:#fff!important; }
+  h2[style*="color:#fff"]{ color:#fff!important; }
+  p,li{ color:var(--ink); }
+  /* Materiales: tarjetas tipo papel — bordes finos, sombra suave, más aire */
+  .card{ border-radius:20px!important; padding:20px!important; margin-bottom:14px!important; }
+  .card:not([style*="background"]){ border:1px solid var(--line)!important; box-shadow:var(--shadow)!important; }
+  main{ padding:20px 16px 34px!important; }
+  .lesson-card{ border-radius:16px!important; border:1px solid var(--line)!important; }
+  .chip,.statpill{ border-radius:99px; }
+  /* El botón principal invita, no grita */
+  .cta,.btn.primary{ background:#0FBB7C!important; box-shadow:0 4px 14px rgba(15,187,124,.3)!important;
+    border-radius:14px!important; font-weight:600!important; letter-spacing:0!important; }
+  nav button.active{ background:var(--accent)!important; box-shadow:0 3px 10px rgba(20,118,168,.28)!important; }
+  .idiom{ border-left-color:#1EC48A; background:#EEF6F0; }
+  .idiom .en{ color:#3F7A5E; }
+  .es{ color:#1476A8; }
+  .tip{ border-left-color:#FFD400; }
+  .tip b{ color:#8a6c0a; }
+  /* Hero: navy oscuro con acentos lima/dorado, como la paleta Inklo */
+  .hero{ background:linear-gradient(135deg,#0A2E3E,#1476A8)!important; border-radius:20px!important; padding:18px!important; box-shadow:none!important; }
+  .hero:before{ background:rgba(255,221,16,.18)!important; }
+  .hero:after{ background:rgba(211,220,124,.16)!important; }
+  .pf-hero{ background:linear-gradient(140deg,#1476A8,#0A2E3E)!important; }
+  .ring{ background:conic-gradient(#FFDD10 calc(var(--p)*1%), rgba(255,255,255,.2) 0)!important; }
+  .ring .inner{ background:#0A2E3E!important; }
+  .statpill{ background:rgba(255,255,255,.9)!important; color:#1476A8!important; box-shadow:none!important; font-weight:600!important; }
+  .bubble{ background:#fff!important; color:var(--ink)!important; box-shadow:0 4px 16px rgba(27,46,54,.12)!important; }
+  .milo-mini{ background:rgba(255,255,255,.18)!important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.40.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
@@ -828,17 +1018,17 @@
     #miloSplash .msD2{animation-delay:.2s;} #miloSplash .msD3{animation-delay:.4s;}
   </style>
   <svg width="130" height="130" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 18px 26px rgba(0,0,0,.4));">
-    <defs><radialGradient id="msg" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#b18aec"/><stop offset="60%" stop-color="#9266cc"/><stop offset="100%" stop-color="#7a4fb8"/></radialGradient></defs>
+    <defs><radialGradient id="msg" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#7EC8E3"/><stop offset="60%" stop-color="#3FA9D1"/><stop offset="100%" stop-color="#1D6E96"/></radialGradient></defs>
     <g class="msB">
-      <g><path class="msT" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#7a4fb8"/>
-      <path class="msT msT2" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#8659c2"/>
-      <path class="msT msT3" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#8659c2"/>
-      <path class="msT msT4" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#7a4fb8"/></g>
+      <g><path class="msT" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#1D6E96"/>
+      <path class="msT msT2" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#2B8AB8"/>
+      <path class="msT msT3" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#2B8AB8"/>
+      <path class="msT msT4" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#1D6E96"/></g>
       <ellipse cx="50" cy="46" rx="34" ry="32" fill="url(#msg)"/>
       <ellipse cx="38" cy="44" rx="7.5" ry="9" fill="#fff"/><ellipse cx="62" cy="44" rx="7.5" ry="9" fill="#fff"/>
       <circle cx="39.5" cy="46" r="3.6" fill="#2b2340"/><circle cx="60.5" cy="46" r="3.6" fill="#2b2340"/>
       <circle cx="41" cy="44.5" r="1.2" fill="#fff"/><circle cx="62" cy="44.5" r="1.2" fill="#fff"/>
-      <ellipse class="msL" cx="38" cy="44" rx="8" ry="9.5" fill="#9266cc"/><ellipse class="msL" cx="62" cy="44" rx="8" ry="9.5" fill="#9266cc"/>
+      <ellipse class="msL" cx="38" cy="44" rx="8" ry="9.5" fill="#3FA9D1"/><ellipse class="msL" cx="62" cy="44" rx="8" ry="9.5" fill="#3FA9D1"/>
       <circle cx="30" cy="56" r="4" fill="#e6a4d0" opacity=".75"/><circle cx="70" cy="56" r="4" fill="#e6a4d0" opacity=".75"/>
       <path d="M 42 62 Q 50 70 58 62" fill="none" stroke="#2b2340" stroke-width="2.6" stroke-linecap="round"/>
     </g>
@@ -856,13 +1046,11 @@
 
 <nav id="mainNav">
   <button class="active" data-tab="home">🏠 Inicio</button>
-  <button data-tab="progreso">📊 Progreso</button>
-  <button data-tab="levels">📚 Aprender</button>
-  <button data-tab="practicar">🎯 Practicar</button>
-  <button data-tab="dental">💼 Profesión</button>
+  <button data-tab="aprender">📚 Aprender</button>
   <button data-tab="explorar">🌎 Explorar</button>
   <button data-tab="perfil">👤 Perfil</button>
 </nav>
+<div id="subHubNav" class="subnav" style="display:none;padding:8px 12px 0;max-width:880px;margin:0 auto;"></div>
 
 <main>
 <section class="tab active" id="tab-home"><div id="homeContent"></div></section>
@@ -875,7 +1063,7 @@
     <h2>Tu ruta por niveles</h2>
     <p class="lead">Avanza nivel por nivel. El siguiente se <b>desbloquea</b> cuando apruebas el 🔓 Examen de nivel (80%+). Empiezas en A1.</p>
     <button class="btn primary" style="width:100%;margin-bottom:10px;" onclick="renderPlacement()">📊 Examen de nivelación — empieza en tu nivel, no desde cero</button>
-    <button class="btn" style="width:100%;margin-bottom:10px;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border-color:rgba(0,0,0,.15);" onclick="openTOEFL()">🎓 Preparación TOEFL iBT — formato oficial, estrategias y práctica</button>
+    <button class="btn" style="width:100%;margin-bottom:10px;background:linear-gradient(135deg,#0A2E3E,#1476A8);color:#fff;border-color:rgba(0,0,0,.1);" onclick="openTOEFL()">🎓 Preparación TOEFL iBT — formato oficial, estrategias y práctica</button>
     <div class="level-bar" id="levelBar"></div>
     <div class="subnav" id="subNav"></div>
     <div id="levelContent"></div>
@@ -3650,10 +3838,34 @@ function applyUILang(){
   var el;
   if((el=document.getElementById('appTitle'))) el.innerHTML='<span style="display:inline-block;vertical-align:-5px;margin-right:4px;">'+((typeof miloSVG==='function')?miloSVG(24):'🐙')+'</span>'+t.trainer;
   if((el=document.getElementById('appSub'))) el.textContent=t.sub;
-  var map={home:t.home,levels:t.learn,practicar:t.practice,dental:t.prof,progreso:t.progress,explorar:t.explore,perfil:t.profile};
+  var map={home:t.home,aprender:t.learn,explorar:t.explore,perfil:t.profile};
   document.querySelectorAll('#mainNav button').forEach(function(b){ if(map[b.dataset.tab]) b.textContent=map[b.dataset.tab]; });
 }
-function goTab(id){try{exitFocus();}catch(e){}document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
+/* ===== NAVEGACIÓN CONSOLIDADA A 4 PESTAÑAS =====
+   Inicio / Aprender / Explorar / Perfil. Todo lo demás (niveles,
+   practicar, profesión, pronunciación, speaking, juegos, reto,
+   colecciones, progreso) vive DENTRO de una de estas 4 como
+   sub-pestaña — cero funciones eliminadas, solo reorganizadas. */
+var HUB_OF={home:'home',progreso:'perfil',levels:'aprender',practicar:'aprender',dental:'aprender',pron:'aprender',speak:'aprender',games:'aprender',challenge:'aprender',accent:'aprender',extras:'aprender',explorar:'explorar',collections:'explorar',perfil:'perfil'};
+var HUB_DEFAULT_LEAF={home:'home',aprender:'levels',explorar:'explorar',perfil:'perfil'};
+var HUB_CHIPS={
+  aprender:[['levels','📚 Niveles'],['practicar','🎯 Practicar'],['dental','💼 Profesión']],
+  explorar:[['explorar','🌎 Descubre'],['collections','🏅 Colecciones']],
+  perfil:[['perfil','👤 Perfil'],['progreso','📊 Progreso']]
+};
+function renderSubHubNav(hub,activeId){
+  var el=document.getElementById('subHubNav'); if(!el) return;
+  var chips=HUB_CHIPS[hub];
+  if(!chips){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='flex';
+  el.innerHTML=chips.map(function(c){ return '<button class="'+(c[0]===activeId?'active':'')+'" onclick="goTab(\''+c[0]+'\')">'+c[1]+'</button>'; }).join('');
+}
+function goTab(id){try{exitFocus();}catch(e){}
+  if(HUB_DEFAULT_LEAF[id] && !document.getElementById('tab-'+id)){ id=store.get('hubLast_'+id, HUB_DEFAULT_LEAF[id]); }
+  var hub=HUB_OF[id]||id;
+  try{ store.set('hubLast_'+hub, id); }catch(e){}
+  document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===hub));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
+  try{ renderSubHubNav(hub,id); }catch(e){}
   try{ document.body.setAttribute('data-sec', id); }catch(e){} /* acento de color por sección */
   try{ if(id==='practicar')renderPracticar(); else if(id==='progreso')renderProgreso(); else if(id==='explorar')renderExplorar(); else if(id==='perfil')renderPerfil(); }catch(e){}
   window.scrollTo({top:0,behavior:'smooth'});}
@@ -4749,11 +4961,12 @@ function renderDental(){
     let h='<button class="backbtn" onclick="changeCareer()">← Cambiar carrera</button>';
     h+='<div class="skillbox" style="text-align:center;"><div style="font-size:2.4rem;">'+c.emoji+'</div><h4>Inglés para '+c.name+'</h4>';
     window.VG_POOL=collectPairs(c.modules);
+    h+='<button class="btn" style="margin-top:6px;margin-right:6px;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border-color:rgba(0,0,0,.15);" onclick="openCareerFeed()">🔮 Modo scroll</button>';
     h+='<button class="btn primary" style="margin-top:6px;" onclick="startVocabGame(window.VG_POOL,\'Inglés para '+c.name.replace(/'/g,"")+'\')">🎮 Jugar con estas palabras</button></div>';
     (c.modules||[]).forEach(function(mod){
-      h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
+      h+='<details class="skillbox" style="cursor:pointer;"><summary style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+mod.h+' <span class="note" style="font-weight:600;font-size:.76rem;">· toca para ver la lista ('+mod.items.length+')</span></summary><div style="margin-top:8px;">';
       mod.items.forEach(function(it){h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
-      h+='</div>';
+      h+='</div></details>';
     });
     h+='<p class="note" style="text-align:center;">Pronto: más módulos, diálogos y práctica para '+c.name+'. 🚀</p>';
     el.innerHTML=h; return;
@@ -4766,11 +4979,15 @@ function renderDental(){
   h+='<div class="tip" style="border-left-color:#0ea5e9;background:#eff8ff;">📍 Estás estudiando: <b>'+d.code+' · '+d.name+'</b> — el contenido está aquí abajo 👇</div>';
   h+='<div class="badge b-'+d.code.replace('D-','')+'">'+d.code+' · '+d.name+'</div>';
   window.VG_POOL=collectPairs(d.modules);
-  h+='<button class="btn primary" style="width:100%;margin:8px 0;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
+  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:12px;padding:16px;margin:8px 0;" onclick="openCareerFeed()">'
+    +'<div style="font-size:2rem;">🔮</div><div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Desliza y aprende</div>'
+    +'<div style="font-size:.8rem;color:#e9d5ff;">Tu inglés clínico en tarjetas: términos, retos de oído y frases reales. Sin listas aburridas.</div></div>'
+    +'<div style="font-size:1.3rem;color:#e9d5ff;">›</div></div>';
+  h+='<button class="btn primary" style="width:100%;margin:0 0 8px;" onclick="startVocabGame(window.VG_POOL,\'Odontología · '+d.code+'\')">🎮 Jugar con este vocabulario</button>';
   d.modules.forEach(mod=>{
-    h+='<div class="skillbox"><h4>'+mod.h+'</h4>';
+    h+='<details class="skillbox" style="cursor:pointer;"><summary style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+mod.h+' <span class="note" style="font-weight:600;font-size:.76rem;">· toca para ver la lista ('+mod.items.length+')</span></summary><div style="margin-top:8px;">';
     mod.items.forEach(it=>{h+='<p style="margin-bottom:7px;"><b>'+it[0]+'</b> '+sb(it[0])+'<br><span class="es">'+it[1]+'</span></p>';});
-    h+='</div>';
+    h+='</div></details>';
   });
   if(d.dialog){
     h+='<div class="skillbox"><h4>'+d.dialog.t+'</h4>';
@@ -5097,7 +5314,7 @@ function renderAccent(){let h='';accent.forEach(s=>{h+='<div class="skillbox"><h
 
 /* ===== TEMAS DE COLOR (marketing) ===== */
 const THEMES={
-  blue:{name:'Azul confianza',g1:'#16357f',g2:'#2456d6',blue:'#2456d6',bd:'#16357f',why:'Transmite confianza, calma y enfoque. Ideal para estudiar.'},
+  blue:{name:'Morado Lyfe',g1:'#0A2E3E',g2:'#1476A8',blue:'#1476A8',bd:'#0A2E3E',why:'Morado vivo + rosa: calma con energía. La identidad actual de Milo.'},
   coral:{name:'Coral energía',g1:'#e0455e',g2:'#fb7185',blue:'#e11d48',bd:'#9f1239',why:'Naranja/coral = energía y acción. Capta la atención y motiva (estilo Duolingo).'},
   green:{name:'Verde crecimiento',g1:'#0f7a4d',g2:'#16a34a',blue:'#15a34a',bd:'#0f5132',why:'Verde = crecimiento y progreso. Relajante y positivo para aprender.'},
   purple:{name:'Morado premium',g1:'#5b21b6',g2:'#7c3aed',blue:'#7c3aed',bd:'#4c1d95',why:'Morado = creatividad y lujo. Da sensación premium y aspiracional.'},
@@ -5117,7 +5334,8 @@ let profile=store.get('profile',{name:'',start:Date.now()});
 let done=store.get('done',{});            // {"B1.tenses":true,...}
 let streak=store.get('streak',{count:0,last:''});
 const LESSONS=[['tenses','⏳','Tiempos verbales'],['grammar','📖','Gramática'],['vocab','💡','Vocabulario'],['dialog','🗨️','Diálogos'],['idioms','💬','Modismos'],['skills','🎯','Habilidades'],['quiz','📝','Quiz'],['fill','✏️','Rellenar'],['flash','🃏','Flashcards'],['test','🔓','Examen de nivel']];
-function todayStr(){return new Date().toISOString().slice(0,10);}
+function dstr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayStr(){ return dstr(new Date()); } /* dia LOCAL: cambia a TU medianoche, no a las 7pm (antes usaba UTC) */
 function tickStreak(){
   var t=todayStr();
   /* 1) marca HOY como día activo (esta es la fuente de verdad de tu racha) */
@@ -5125,8 +5343,8 @@ function tickStreak(){
   /* 1.5) PROTECTOR DE RACHA 🛡️: si ayer faltaste y tienes escudo, lo usa y la racha vive */
   try{
     var days0=store.get('activeDays',[]); var set0={}; days0.forEach(function(x){set0[x]=1;});
-    var yd=new Date(); yd.setDate(yd.getDate()-1); var yk=yd.toISOString().slice(0,10);
-    var byd=new Date(); byd.setDate(byd.getDate()-2); var bk=byd.toISOString().slice(0,10);
+    var yd=new Date(); yd.setDate(yd.getDate()-1); var yk=dstr(yd);
+    var byd=new Date(); byd.setDate(byd.getDate()-2); var bk=dstr(byd);
     var shields=store.get('shields',0);
     if(!set0[yk] && set0[bk] && shields>0){
       days0.push(yk); store.set('activeDays',days0);
@@ -5137,7 +5355,7 @@ function tickStreak(){
   /* 2) recalcula la racha contando días activos CONSECUTIVOS que terminan hoy (se auto-repara) */
   var days=store.get('activeDays',[]); var set={}; days.forEach(function(x){ set[x]=1; });
   var count=0, cur=new Date();
-  while(true){ var k=cur.toISOString().slice(0,10); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
+  while(true){ var k=dstr(cur); if(set[k]){ count++; cur.setDate(cur.getDate()-1); } else break; }
   var prevCount=(streak&&streak.count)||0;
   streak={count:count,last:t}; store.set('streak',streak);
   try{ if(count>prevCount&&count>=2){ setTimeout(function(){miloReact('streak','🔥 ¡'+count+' días seguidos! Imparable');},900); } }catch(e){}
@@ -5597,7 +5815,7 @@ function weekCalHTML(){
   var cells='';
   for(var i=0;i<7;i++){
     var d=new Date(monday); d.setDate(monday.getDate()+i);
-    var s=d.toISOString().slice(0,10);
+    var s=dstr(d);
     var isToday=(s===todayStr());
     var isFuture=(i>dow);
     var on=act.indexOf(s)>=0;
@@ -5626,7 +5844,7 @@ function wrappedHTML(){
   var mx=Math.max(1,reading,listening,writing,speaking);
   function stat(n,l){ return '<div style="flex:1;min-width:78px;text-align:center;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.7rem;color:#fff;line-height:1.1;">'+n+'</div><div style="color:rgba(255,255,255,.82);font-size:.72rem;">'+l+'</div></div>'; }
   function bar(lbl,ico,v,color){ var w=Math.round(v/mx*100); return '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:.78rem;color:rgba(255,255,255,.9);margin-bottom:3px;"><span>'+ico+' '+lbl+'</span><span style="font-weight:800;">'+v+'</span></div><div style="background:rgba(255,255,255,.18);border-radius:99px;height:8px;overflow:hidden;"><div style="background:'+color+';height:100%;width:'+w+'%;border-radius:99px;transition:width .8s var(--spring);"></div></div></div>'; }
-  return '<div class="card" style="background:linear-gradient(150deg,#5b21b6,#7c3aed 55%,#ec4899);border:none;color:#fff;">'
+  return '<div class="card" style="background:linear-gradient(150deg,#5b21b6,#7c3aed 55%,#0FBB7C);border:none;color:#fff;">'
     +'<h2 style="color:#fff;">✨ '+T('wrapT')+'</h2>'
     +'<p class="note" style="color:rgba(255,255,255,.82);margin:0 0 12px;">'+T('wrapLead')+'</p>'
     +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">'
@@ -5637,7 +5855,7 @@ function wrappedHTML(){
       +bar(T('skReading'),'📕',reading,'#60a5fa')
       +bar(T('skListening'),'🎧',listening,'#34d399')
       +bar(T('skWriting'),'✍️',writing,'#fbbf24')
-      +bar(T('skSpeaking'),'🎙️',speaking,'#f472b6')
+      +bar(T('skSpeaking'),'🎙️',speaking,'#5CE0A8')
     +'</div></div>';
 }
 /* ===== ANILLOS (donas) de progreso — gráficos bonitos ===== */
@@ -5681,7 +5899,7 @@ function monthCalHTML(){
   for(var i=0;i<startDow;i++){ cells+='<div></div>'; }
   var todayS=todayStr(), cnt=0;
   for(var day=1;day<=dim;day++){
-    var ds=new Date(Date.UTC(y,m,day)).toISOString().slice(0,10);
+    var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
     var on=!!act[ds]; if(on)cnt++;
     var isToday=(ds===todayS);
     var isFuture=(ds>todayS);
@@ -5808,10 +6026,10 @@ function goalProgressHTML(){
 }
 function premiumTeaserHTML(){
   if(!FREE_MODE) return '';
-  return '<div class="card" style="background:linear-gradient(135deg,#16357f,#2456d6);color:#fff;">'
+  return '<div class="card" style="background:linear-gradient(135deg,#0F3E52,#1476A8);color:#fff;">'
     +'<h2 style="color:#fff;">✨ Pronto: Milo Premium</h2>'
-    +'<p style="margin:0 0 8px;color:#dde6ff;">Ahora todo es <b>gratis por lanzamiento</b> 🎉. Muy pronto llegará <b>Milo Premium</b> con lo mejor:</p>'
-    +'<ul style="margin:0 0 10px;padding-left:18px;color:#eaf0ff;font-size:.92rem;">'
+    +'<p style="margin:0 0 8px;color:#EAF6FC;">Ahora todo es <b>gratis por lanzamiento</b> 🎉. Muy pronto llegará <b>Milo Premium</b> con lo mejor:</p>'
+    +'<ul style="margin:0 0 10px;padding-left:18px;color:#EAF6FC;font-size:.92rem;">'
     +'<li>💬 Conversaciones con IA (entrevistas, consulta dental, viajes…)</li>'
     +'<li>👄 Boca animada y audio en cámara lenta sin límites</li>'
     +'<li>🧠 Repaso inteligente y ruta personalizada</li>'
@@ -5936,19 +6154,19 @@ function miloSVG(size,acc){
       +'<circle cx="50" cy="82" r="5" fill="#94a3b8" stroke="#475569" stroke-width="1.6"/><circle cx="50" cy="82" r="2" fill="#e2e8f0"/>';
   }
   return '<svg class="milo-svg" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
-    +'<defs><radialGradient id="mgBody" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#b18aec"/><stop offset="60%" stop-color="#9266cc"/><stop offset="100%" stop-color="#7a4fb8"/></radialGradient></defs>'
+    +'<defs><radialGradient id="mgBody" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#7EC8E3"/><stop offset="60%" stop-color="#3FA9D1"/><stop offset="100%" stop-color="#1D6E96"/></radialGradient></defs>'
     +'<g class="m-tents">'
-    +'<path class="m-tent" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#7a4fb8"/>'
-    +'<path class="m-tent" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#8659c2"/>'
-    +'<path class="m-tent" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#8659c2"/>'
-    +'<path class="m-tent" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#7a4fb8"/>'
+    +'<path class="m-tent" d="M30 68 Q 24 84 14 86 Q 24 92 32 82 Z" fill="#1D6E96"/>'
+    +'<path class="m-tent" d="M42 72 Q 40 88 32 92 Q 44 96 48 82 Z" fill="#2B8AB8"/>'
+    +'<path class="m-tent" d="M58 72 Q 60 88 68 92 Q 56 96 52 82 Z" fill="#2B8AB8"/>'
+    +'<path class="m-tent" d="M70 68 Q 76 84 86 86 Q 76 92 68 82 Z" fill="#1D6E96"/>'
     +'</g>'
     +'<g class="m-body">'
     +'<ellipse cx="50" cy="46" rx="34" ry="32" fill="url(#mgBody)"/>'
     +'<ellipse cx="38" cy="44" rx="7.5" ry="9" fill="#fff"/><ellipse cx="62" cy="44" rx="7.5" ry="9" fill="#fff"/>'
     +'<circle class="m-pupil" cx="39.5" cy="46" r="3.6" fill="#2b2340"/><circle class="m-pupil" cx="60.5" cy="46" r="3.6" fill="#2b2340"/>'
     +'<circle cx="41" cy="44.5" r="1.2" fill="#fff"/><circle cx="62" cy="44.5" r="1.2" fill="#fff"/>'
-    +'<ellipse class="m-lid" cx="38" cy="44" rx="8" ry="9.5" fill="#9266cc"/><ellipse class="m-lid" cx="62" cy="44" rx="8" ry="9.5" fill="#9266cc"/>'
+    +'<ellipse class="m-lid" cx="38" cy="44" rx="8" ry="9.5" fill="#3FA9D1"/><ellipse class="m-lid" cx="62" cy="44" rx="8" ry="9.5" fill="#3FA9D1"/>'
     +'<circle cx="30" cy="56" r="4" fill="#e6a4d0" opacity=".75"/><circle cx="70" cy="56" r="4" fill="#e6a4d0" opacity=".75"/>'
     +'<path class="m-mouth" d="M 42 62 Q 50 70 58 62" fill="none" stroke="#2b2340" stroke-width="2.6" stroke-linecap="round"/>'
     +accSVG
@@ -5973,7 +6191,6 @@ function miloAvatarHTML(){
     var face='<div style="position:relative;height:44px;">'+(it.emoji?'<span style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:1.05rem;z-index:2;">'+it.emoji+'</span>':'')+miloSVG(40,it.svg?it.id:'')+'</div>';
     var lockTxt=it.prem&&!premOk?'✨ Premium':('🔒 '+it.xp+' XP');
     return '<div onclick="'+(on?'setMiloHat(\''+it.id+'\')':(it.prem&&!premOk?'toast(\'✨ Accesorio Premium — mejora tu plan\')':'toast(\'🔒 '+it.xp+' XP\')'))+'" style="cursor:pointer;text-align:center;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';border-radius:16px;padding:10px 6px;background:'+(sel?'var(--card2)':'var(--card)')+';'+(on?'':'opacity:.55;filter:grayscale(.5);')+'transition:transform .15s var(--spring);position:relative;">'
-      +(it.prem?'<span style="position:absolute;top:4px;right:6px;font-size:.62rem;font-weight:800;color:#b8860b;">✨</span>':'')
       +face
       +'<div style="font-size:.72rem;font-weight:700;margin-top:2px;">'+label+'</div>'
       +'<div class="note" style="margin:0;font-size:.66rem;">'+(on?(sel?'✓':' '):lockTxt)+'</div></div>';
@@ -6137,41 +6354,32 @@ function renderHome(){
   const challengeDoneToday=store.get('challengeDate','')===todayStr();
   const unlockedAch=ACHS.filter(a=>a.ok()); const lastAch=unlockedAch.length?unlockedAch[unlockedAch.length-1]:null;
   /* 1) MILO PRIMERO: tu compañero te recibe — nada de muros de información */
-  let h='<div class="hero" style="text-align:center;padding:28px 18px 24px;">'
-    +'<div class="bubble" style="max-width:300px;">'+miloSays()+'</div>'
+  let h='<div style="position:relative;">'
+    +'<div class="hero" style="padding:20px 16px;overflow:hidden;text-align:center;">'
+    +'<div class="bubble" style="max-width:300px;margin:0 auto 6px;font-size:.85rem;">'+miloSays()+'</div>'
     +'<div style="display:flex;justify-content:center;">'+ILLUS+'</div>'
-    +'<h2 style="margin:8px 0 2px;">'+greet+', '+profile.name+' 👋</h2>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;">'
-      +'<span class="statpill">🔥 '+streak.count+' '+(streak.count===1?T('dayU'):T('dayP'))+'</span>'
-      +'<span class="statpill">⚡ '+xp+' XP</span>'
-      +(store.get('shields',0)>0?('<span class="statpill" title="Protector de racha">🛡️ '+store.get('shields',0)+'</span>'):'')
+    +'<h2 style="margin:4px 0 0;font-size:1.15rem;color:#fff;">'+greet+', '+profile.name+' 👋</h2>'
+    +'</div>'
+    +'<div style="position:absolute;top:-10px;right:-8px;background:#FFDD10;color:#0A2E3E;font-weight:800;border-radius:50%;width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:.8rem;box-shadow:0 8px 18px rgba(255,221,16,.5);border:3px solid #fff;">🔥'+streak.count+'</div>'
+    +'</div>';
+  /* 2) ÚNICA acción principal: CONTINUAR, protagonista claro */
+  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#0A2E3E,#1476A8);color:#fff;border:none;box-shadow:0 6px 20px rgba(18,48,63,.3);padding:18px;position:relative;overflow:hidden;" onclick="continuarHoy()">'
+    +'<div style="font-size:.66rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.8;">CONTINUAR · '+curLevel+'</div>'
+    +'<div style="font-family:\'Newsreader\',serif;font-weight:600;font-size:1.3rem;margin-top:3px;">'+T('cont')+'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-top:10px;">'
+    +'<div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.68rem;flex:0 0 auto;">▶</div>'
+    +'<div style="flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;"><div style="width:'+p+'%;height:100%;background:#FFDD10;border-radius:99px;"></div></div>'
+    +'<span style="font-size:.7rem;font-weight:600;opacity:.9;">⚡ '+xp+'</span>'
     +'</div></div>';
-  /* 2) ÚNICA acción principal: CONTINUAR */
-  h+='<button class="cta" style="font-size:1.35rem;padding:22px;width:100%;margin:6px 0 10px;letter-spacing:.5px;" onclick="continuarHoy()">'+T('cont')+'</button>';
   /* 2.5) MISIÓN DE HOY: cada día, un propósito de vida real */
   try{ h+=missionCardHTML(); }catch(e){}
-  /* 3) Motivación a un toque: ranking y progreso */
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
-      +'<div style="font-size:2rem;line-height:1;">🏆</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Ranking</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">¿Quién va ganando hoy?</div></div>'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="goTab(\'progreso\')">'
-      +'<div style="font-size:2rem;line-height:1;">📊</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">'+p+'% del curso</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">Mira cuánto has crecido</div></div>'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="openMiPlan()">'
-      +'<div style="font-size:2rem;line-height:1;">🎯</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Mi plan</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">Hecho a tu medida</div></div>'
-    +'<div class="card" style="margin:0;text-align:center;cursor:pointer;padding:16px 8px;" onclick="openAventura()">'
-      +'<div style="font-size:2rem;line-height:1;">🗺️</div><div style="font-weight:800;font-family:\'Poppins\',sans-serif;margin-top:4px;">Tu aventura</div>'
-      +'<div class="note" style="margin:0;font-size:.74rem;">Algo nuevo cada día</div></div>'
-    +'</div>';
   /* repaso solo si hay pendientes — tarjeta llamativa: es urgente para la memoria */
   if(review.length){
-    h+='<div onclick="renderRepaso()" style="cursor:pointer;margin:0 0 12px;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#7c3aed,#ec4899);animation:repasoPulse 2.4s ease-in-out infinite;transition:transform .15s var(--spring);" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">'
-      +'<div style="font-size:2.1rem;line-height:1;animation:wiggle 2.4s ease-in-out infinite;">🧠</div>'
-      +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;font-size:1.02rem;">¡Rescata tus palabras!</div>'
-      +'<div style="font-size:.8rem;color:#fbe8ff;">Están a punto de escaparse de tu memoria</div></div>'
-      +'<div style="background:rgba(255,255,255,.28);border-radius:99px;min-width:40px;text-align:center;padding:7px 12px;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums;">'+review.length+'</div>'
+    h+='<div onclick="renderRepaso()" style="cursor:pointer;margin:0 0 14px;border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);">'
+      +'<div style="font-size:1.6rem;line-height:1;">🧠</div>'
+      +'<div style="flex:1;"><div style="font-weight:600;font-family:\'Newsreader\',serif;font-size:1rem;color:var(--ink);">Rescata tus palabras</div>'
+      +'<div style="font-size:.78rem;color:var(--muted);">Están a punto de escaparse de tu memoria</div></div>'
+      +'<div style="background:rgba(15,187,124,.14);color:#0E7A4E;border-radius:99px;min-width:36px;text-align:center;padding:6px 11px;font-weight:700;font-size:.95rem;font-variant-numeric:tabular-nums;">'+review.length+'</div>'
     +'</div>';
   }
   /* 4) TODO lo demás vive plegado: quien quiera más, lo pide */
@@ -6181,15 +6389,26 @@ function renderHome(){
   } else {
     h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;"><span class="sec-label" style="margin:0;">'+T('secYourDay')+'</span>'
       +'<button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'homeSimple\',true);renderHome();">'+T('simpleMode')+'</button></div>';
+    /* EXPLORAR: filas de material sencillo, un solo lenguaje visual */
+    h+='<div style="display:flex;flex-direction:column;gap:8px;margin:10px 0;">'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="goTab(\'progreso\');setTimeout(function(){try{var e=document.getElementById(\'lbHost\');if(e)e.scrollIntoView({behavior:\'smooth\'});}catch(e){}},250);">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🏆</span><span style="flex:1;font-weight:600;color:var(--ink);">Ranking</span><span style="color:var(--muted);">›</span></div>'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="goTab(\'progreso\')">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">📊</span><span style="flex:1;font-weight:600;color:var(--ink);">'+p+'% del curso</span><span style="color:var(--muted);">›</span></div>'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openMiPlan()">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(15,187,124,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🎯</span><span style="flex:1;font-weight:600;color:var(--ink);">Mi plan</span><span style="color:var(--muted);">›</span></div>'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openAventura()">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(255,210,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗺️</span><span style="flex:1;font-weight:600;color:var(--ink);">Tu aventura</span><span style="color:var(--muted);">›</span></div>'
+      +'</div>';
     /* reto diario */
     h+='<button class="btn'+(challengeDoneToday?'':' primary')+'" style="width:100%;margin-bottom:10px;" onclick="goTab(\'challenge\')">'+(challengeDoneToday?T('challDone'):T('challDo'))+'</button>';
     /* TOEFL (cuando aprendes inglés) */
     if((profile.lang||'en')==='en'){
-      h+='<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;" onclick="openTOEFL()">'
-        +'<div style="font-size:1.8rem;">🎓</div>'
-        +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">Preparación TOEFL iBT</div>'
-        +'<div style="font-size:.8rem;color:#c7d2fe;">Formato oficial ETS · estrategias · práctica con IA</div></div>'
-        +'<div style="font-size:1.2rem;color:#c7d2fe;">›</div></div>';
+      h+='<div class="card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;" onclick="openTOEFL()">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🎓</span>'
+        +'<div style="flex:1;"><div style="font-weight:600;color:var(--ink);font-size:.9rem;">Preparación TOEFL iBT</div>'
+        +'<div style="font-size:.72rem;color:var(--muted);">Formato oficial ETS · práctica con IA</div></div>'
+        +'<div style="font-size:1rem;color:var(--muted);">›</div></div>';
     }
     /* ritmo semanal + curiosidad de mañana */
     try{ h+=homeRhythmHTML(); }catch(e){}
@@ -6259,7 +6478,6 @@ function renderPracticar(){
   h+=hubItem('💬',T('pChat'),T('pChatD'),T('pChatBtn'),'openMiloChat()');
   h+=hubItem('🗣️',T('pPron'),T('pPronD'),T('pView'),"goTab('pron')");
   h+=hubItem('🎮',T('pGames'),T('pGamesD'),T('pPlay'),"goTab('games')");
-  h+=hubItem('🔮','Descubrir','Algo nuevo cada vez: palabras, retos y curiosidades elegidas para ti.','Explorar','openFeed()');
   if(review.length) h+=hubItem('🔁',T('pReview'),T('pReviewD')+' ('+review.length+').',T('pReviewBtn'),'renderRepaso()');
   el.innerHTML=h;
 }
@@ -6273,7 +6491,6 @@ function renderProgreso(){
     +'<div class="stat"><div class="n">⚡ '+xp+'</div><div class="l">XP</div></div>'
     +'<div class="stat"><div class="n">'+unlocked.length+'/5</div><div class="l">'+T('prLevels')+'</div></div>'
     +'</div></div>';
-  try{ h+=donutRingsHTML(); }catch(e){}
   try{ h+=jardinHTML(); }catch(e){}
   try{ h+=wrappedHTML(); }catch(e){}
   h+=dailyGoalHTML()+weekCalHTML();
@@ -6332,6 +6549,7 @@ function shareMiloCard(){
   }catch(e){}
   try{ navigator.clipboard.writeText(txt); toast('📋 ¡Copiado! Pégalo donde quieras'); }catch(e){ toast('Toma una captura de tu tarjeta 📸'); }
 }
+function pfToggle(id){ try{ var cur=store.get('pfOpen',''); store.set('pfOpen', cur===id?'':id); }catch(e){} renderPerfil(); }
 function renderPerfil(){
   var el=document.getElementById('perfilContent'); if(!el)return;
   var nm=(profile&&profile.name)||'Estudiante';
@@ -6354,38 +6572,54 @@ function renderPerfil(){
       +'<span class="statpill">⚡ '+xp+' XP</span></div>'
     +'<div style="margin-top:12px;"><button class="btn" style="padding:7px 16px;background:rgba(255,255,255,.9);border:none;color:#2456d6;" onclick="document.getElementById(\'photoIn\').click()">📷 '+T('pfPhoto')+'</button></div>'
     +'</div>';
-  try{ h+=miloCardHTML(); }catch(e){}
-  try{ h+=journalHTML(); }catch(e){}
-  try{ h+=miloAvatarHTML(); }catch(e){}
-  /* Cuenta / info + editar */
-  h+='<div class="pf-list"><div class="pf-title">'+T('pfInfo')+'</div>'
+  try{ h+=donutRingsHTML(); }catch(e){}
+  try{ var pfOpen=store.get('pfOpen',''); }catch(e){ var pfOpen=''; }
+  h+='<div class="pf-list"><div class="pf-title">Personalizar</div>'
+    +pfRow('🎴','Tarjeta de Milo','','pfToggle(\'card\')')
+    +pfRow('📔','Diario','','pfToggle(\'journal\')')
+    +pfRow('🎨',T('avatarT'),'','pfToggle(\'avatar\')')
+    +'</div>';
+  if(pfOpen==='card'){ try{ h+=miloCardHTML(); }catch(e){} }
+  if(pfOpen==='journal'){ try{ h+=journalHTML(); }catch(e){} }
+  if(pfOpen==='avatar'){ try{ h+=miloAvatarHTML(); }catch(e){} }
+  /* Cuenta y ajustes: info + editar + idiomas/suscripción/ayuda, todo junto */
+  h+='<div class="pf-list"><div class="pf-title">Cuenta y ajustes</div>'
     +pfRow('✏️',T('pfName'),nm,'editName()')
     +pfRow('🏷️',T('pfNick'),(profile.nick?('@'+profile.nick):'—'),'setNick()')
     +pfInfo('📧',T('pfEmail'),(sbUser&&sbUser.email)||'—')
     +pfInfo('🎯',T('pfGoal'),profile.goal?goalLabel(profile.goal):'—')
     +pfInfo('💼',T('pfCareer'),(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
     +pfInfo('⏰',T('pfDaily'),(profile.minutes||10)+' '+T('min'))
+    +pfRow('🌐',T('pfLangs'),'','pfToggle(\'langs\')')
+    +pfRow('💳',T('pfSub'),'','pfToggle(\'sub\')')
+    +pfRow('❓',T('pfHelp'),'','pfToggle(\'help\')')
     +'</div>';
   /* Idiomas */
+  if(pfOpen==='langs'){
   h+='<div class="pf-list"><div class="pf-title">'+T('pfLangs')+'</div>'
     +pfRow('📚',T('pfChangeLang'),TL[profile.lang]||'Inglés','showLangSelector()')
     +pfRow('🗣️',T('pfChangeNative'),TL[profile.native]||'—','showNativeSelector()')
     +pfRow('🧑',T('pfGender'),'','showGenderSelector()')
     +'</div>';
+  }
   /* Suscripción */
+  if(pfOpen==='sub'){
   h+='<div class="pf-list"><div class="pf-title">'+T('pfSub')+'</div>'
     +pfInfo('💳',T('pfPlanNow'),planTxt);
   if(FREE_MODE){ h+=pfRow('🔔',T('pfNotifyPrem'),'','notifyPremium()'); }
   else if(pre){ if(!profile.premiumCanceled) h+=pfRow('↩️','Cancelar suscripción','','cancelPremium()'); }
   else { h+=pfRow('⭐','Ver planes','','goTab(\'progreso\')'); }
   h+='</div>';
+  }
   /* Ayuda y legal */
+  if(pfOpen==='help'){
   h+='<div class="pf-list"><div class="pf-title">'+T('pfHelp')+'</div>'
     +'<a class="pf-row" style="text-decoration:none;color:inherit;" href="'+waLink('Hola Milo 🐙, necesito ayuda con la plataforma.')+'" target="_blank"><span class="pf-ic">💬</span><span class="pf-lb">'+T('pfContact')+'</span><span class="pf-ch">›</span></a>'
     +pfRow('📄',T('pfTerms'),'','openLegal(\'terms\')')
     +pfRow('🔒',T('pfPrivacy'),'','openLegal(\'privacy\')')
     +pfRow('↩️',T('pfCancel'),'','openLegal(\'cancel\')')
     +'</div>';
+  }
   /* Panel de administrador (SOLO para ti) */
   if(isAdmin()){
     h+='<div class="card" style="border:2px solid #1B2436;background:#0f1626;color:#fff;">'
@@ -6696,26 +6930,29 @@ function renderExplorar(){
     +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;color:#3d405b;">🐙 Milo Kids</div>'
     +'<div style="font-size:.85rem;color:#8d99ae;">El mundo para los peques (2-13 años): canciones, cuentos, aventuras y juegos. Aprenden sin darse cuenta.</div></div>'
     +'<div style="font-size:1.3rem;color:#f2a541;">›</div></div>';
-  h+='<div class="card" style="cursor:pointer;background:linear-gradient(135deg,#6d28d9,#a21caf);color:#fff;border:none;display:flex;align-items:center;gap:14px;" onclick="openFeed()">'
-    +'<div style="font-size:2.2rem;">🔮</div>'
-    +'<div style="flex:1;"><div style="font-family:\'Poppins\',sans-serif;font-weight:800;font-size:1.1rem;">Descubrir</div>'
-    +'<div style="font-size:.85rem;color:#e9d5ff;">Palabras, retos, curiosidades y secretos del idioma, elegidos para ti. Aquí siempre hay algo nuevo.</div></div>'
-    +'<div style="font-size:1.3rem;color:#e9d5ff;">›</div></div>';
+  h+='<div class="sec-label" style="margin:16px 2px 6px;">✨ Descubre hoy</div>';
   h+=wordOfDayHTML();
-  h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
   h+=hubItem('🌟',T('exExtras'),T('exExtrasD'),T('exView'),"goTab('extras')");
   h+=hubItem('🇺🇸',T('exAccent'),T('exAccentD'),T('exView'),"goTab('accent')");
+  h+='<div class="sec-label" style="margin:16px 2px 6px;">🎯 Práctica dirigida</div>';
   h+=hubItem('🎓','TOEFL iBT','Prepárate para el examen oficial: formato, estrategias, puntaje estimado y práctica.','Preparar','openTOEFL()');
   h+=hubItem('🧠','Aprende a Aprender','El laboratorio: ciencia del aprendizaje, mitos, políglotas y experimentos para estudiar mejor.','Entrar','openLearnLab()');
+  h+='<div class="sec-label" style="margin:16px 2px 6px;">📺 Contenido</div>';
   h+=hubItem('📺','Series y canales gratis','Contenido oficial y legal en el idioma que aprendes: series, canales y episodios completos.','Ver','openMediaLib()');
   h+=hubItem('📚','Biblioteca de recursos','Lo mejor de internet para aprender, curado por Milo: ETS, YouTube, podcasts y diccionarios.','Explorar','openBiblioteca()');
-  h+='<div class="card"><h2>'+T('exSettings')+'</h2>'
-    +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
+  h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
+  var exSettingsOpen=store.get('exSettingsOpen',false);
+  if(!exSettingsOpen){
+    h+='<button class="btn" style="width:100%;margin-top:6px;" onclick="store.set(\'exSettingsOpen\',true);renderExplorar();">⚙️ '+T('exSettings')+'</button>';
+  } else {
+  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;"><h2 style="margin:0;">'+T('exSettings')+'</h2><button class="btn" style="padding:5px 12px;font-size:.78rem;min-height:34px;" onclick="store.set(\'exSettingsOpen\',false);renderExplorar();">Ocultar</button></div>'
+    +'<button class="btn" style="width:100%;margin:10px 0 6px;" onclick="showLangSelector()">'+T('exLangBtn')+' '+((typeof TARGET_INFO!=='undefined'&&TARGET_INFO[curTarget])?TARGET_INFO[curTarget].flag+' '+TARGET_INFO[curTarget].name:'🇺🇸 Inglés')+'</button>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="startTour()">'+T('exTour')+'</button>'
     +'<button class="btn" style="width:100%;margin-bottom:6px;" onclick="testAudio()">'+T('exTestAudio')+'</button>'
     +'<div id="audioDiag" class="note" style="display:none;background:#0b1f4d;color:#fff;padding:10px;border-radius:10px;margin:6px 0;font-size:13px;"></div>'
     +'<div style="margin-top:8px;"><p class="note" style="margin:0 0 4px;">'+T('exTheme')+'</p><div class="chiprow" id="themeChips"></div><p class="note" id="themeWhy"></p></div>'
     +'</div>';
+  }
   el.innerHTML=h;
   var tc=document.getElementById('themeChips');var cur=store.get('theme','blue');
   if(tc){Object.keys(THEMES).forEach(function(k){var sp=document.createElement('span');sp.className='chip';sp.textContent=THEMES[k].name;sp.style.cursor='pointer';if(k===cur){sp.style.color='#fff';sp.style.background=THEMES[k].blue;}sp.onclick=function(){applyTheme(k);renderExplorar();};tc.appendChild(sp);});}
@@ -7057,7 +7294,7 @@ function fcWord(){ var d=DATA[feedLvl()]; var v=rpick(d.vocab); if(!v)return '';
 }
 function fcIdiom(){ var d=DATA[feedLvl()]; var it=rpick(d.idioms); if(!it)return '';
   var i=FEED_D.push({say:enOnly(it[0])})-1;
-  return feedShell('💬','Modismo real','#7c5cff',
+  return feedShell('💬','Modismo real','#1476A8',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
     +'<div class="es">'+feedEsc(it[1])+'</div>'
     +(it[2]?'<p class="note" style="margin:6px 0 10px;">'+feedEsc(String(it[2]).split('|')[0])+'</p>':'')
@@ -7065,7 +7302,7 @@ function fcIdiom(){ var d=DATA[feedLvl()]; var it=rpick(d.idioms); if(!it)return
 }
 function fcColloq(){ var c=rpick(COLLOQUIAL); if(!c)return '';
   var i=FEED_D.push({say:enOnly(c[0])})-1;
-  return feedShell('🇺🇸','Así hablan en la calle','#ec4899',
+  return feedShell('🇺🇸','Así hablan en la calle','#0FBB7C',
     '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(c[0])+'</div>'
     +'<div class="es">'+feedEsc(c[1])+'</div>'
     +'<button class="btn" style="margin-top:8px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>');
@@ -7261,6 +7498,93 @@ function seasonDecor(){
 }
 try{ seasonDecor(); }catch(e){}
 
+/* ============================================================
+   💼 MODO SCROLL DE TU CARRERA — el contenido profesional, deslizable
+   (mismas tarjetas adictivas-sanas del feed, solo con TU profesión)
+   ============================================================ */
+function careerPool(){
+  try{
+    if(profile.career==='dentistry'){ var a=[]; DENTAL_ACADEMY.forEach(function(d){ d.modules.forEach(function(m){ a=a.concat(m.items); }); }); return a; }
+    var c=careerById(profile.career); return (c&&c.modules)?collectPairs(c.modules):[];
+  }catch(e){ return []; }
+}
+function ccPick(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
+function ccWrong(pool,correct,idx,n){
+  var out=[],t=0; while(out.length<n&&t<60){ t++; var o=ccPick(pool); if(o&&o[idx]!==correct&&out.indexOf(o[idx])<0) out.push(o[idx]); }
+  return out;
+}
+function ccWord(pool){ var it=ccPick(pool); if(!it)return '';
+  var i=FEED_D.push({say:enOnly(it[0])})-1;
+  return feedShell('💼','Término de tu carrera','#f97316',
+    '<div style="font-family:\'Poppins\',sans-serif;font-size:1.15rem;font-weight:800;">'+feedEsc(it[0])+'</div>'
+    +'<div class="es">'+feedEsc(it[1])+'</div>'
+    +'<button class="btn" style="margin-top:8px;margin-right:6px;" onclick="feedSpeak('+i+')">🔊 Escuchar</button>'
+    +'<button class="btn secondary" style="margin-top:8px;" onclick="feedSave('+i+')">🌱 Plantar</button>');
+}
+function ccGuess(pool){ var it=ccPick(pool); if(!it)return '';
+  var wrong=ccWrong(pool,it[1],1,2); if(wrong.length<2)return ccWord(pool);
+  var opts=shuffle([it[1]].concat(wrong));
+  return feedShell('🎯','¿Qué significa? (+4 XP)','#16a34a',
+    '<div class="q" style="margin-bottom:8px;">'+feedEsc(it[0])+'</div><div class="opts">'
+    +opts.map(function(o){ var ok=(o===it[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+}
+function ccSay(pool){ var it=ccPick(pool); if(!it)return '';
+  var wrong=ccWrong(pool,it[0],0,2); if(wrong.length<2)return ccWord(pool);
+  var opts=shuffle([it[0]].concat(wrong));
+  return feedShell('🗣️','¿Cómo se dice? (+4 XP)','#1476A8',
+    '<div class="q" style="margin-bottom:8px;">'+feedEsc(it[1])+'</div><div class="opts">'
+    +opts.map(function(o){ var ok=(o===it[0]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+}
+function ccListen(pool){ var it=ccPick(pool); if(!it)return '';
+  var wrong=ccWrong(pool,it[1],1,2); if(wrong.length<2)return ccWord(pool);
+  var i=FEED_D.push({say:enOnly(it[0])})-1;
+  var opts=shuffle([it[1]].concat(wrong));
+  return feedShell('🎧','Oído clínico (+4 XP)','#14b8a6',
+    '<button class="btn primary" style="margin-bottom:10px;" onclick="feedSpeak('+i+')">🔊 Escuchar el término</button>'
+    +'<p class="note" style="margin:0 0 8px;">¿Qué escuchaste?</p><div class="opts">'
+    +opts.map(function(o){ var ok=(o===it[1]); return '<button class="opt" data-ok="'+(ok?1:0)+'" onclick="feedAns(this,'+(ok?1:0)+')">'+feedEsc(o)+'</button>'; }).join('')+'</div>');
+}
+function ccPhrase(pool){
+  var frases=pool.filter(function(x){ return String(x[0]).split(' ').length>=3; });
+  var it=frases.length?ccPick(frases):ccPick(pool); if(!it)return '';
+  var i=FEED_D.push({say:enOnly(it[0])})-1;
+  return feedShell('💬','Frase real de tu trabajo','#0FBB7C',
+    '<div style="font-weight:800;font-size:1.02rem;">'+feedEsc(it[0])+'</div>'
+    +'<div class="es" style="margin:4px 0 10px;">'+feedEsc(it[1])+'</div>'
+    +'<button class="btn" style="margin-right:6px;" onclick="feedSpeak('+i+')">🔊</button>'
+    +'<button class="btn secondary" onclick="feedSpeak('+i+');toast(\'Ahora dila tú en voz alta 🗣️\')">🗣️ Repetirla yo</button>');
+}
+function careerBatch(n){
+  var pool=careerPool(); if(!pool.length) return '<p class="note" style="text-align:center;">Elige tu carrera en Profesión para activar este modo 💼</p>';
+  var gens=[ccWord,ccWord,ccGuess,ccSay,ccListen,ccPhrase];
+  var h=''; for(var i=0;i<(n||4);i++){ try{ h+=gens[Math.floor(Math.random()*gens.length)](pool)||''; }catch(e){} }
+  return h;
+}
+function openCareerFeed(){
+  var ov=document.getElementById('cfeedOv');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='cfeedOv'; ov.className='legal-ov';
+    ov.innerHTML='<div class="legal-card" style="max-width:520px;"><div class="legal-head"><h3 id="cfeedTitle">💼 Tu carrera</h3><button class="legal-x" onclick="document.getElementById(\'cfeedOv\').style.display=\'none\'">✕</button></div>'
+      +'<div class="legal-body" id="cfeedBody" style="background:var(--bg);padding:14px;"></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('cfeedBody').addEventListener('scroll',function(){
+      var el=this;
+      if(el.scrollTop+el.clientHeight>=el.scrollHeight-200){
+        if(el._loading)return; el._loading=true;
+        var d=document.createElement('div'); d.innerHTML=careerBatch(4); while(d.firstChild)el.appendChild(d.firstChild);
+        setTimeout(function(){ el._loading=false; },300);
+      }
+    });
+  }
+  var c=(typeof careerById==='function'&&profile.career)?careerById(profile.career):null;
+  var tt=document.getElementById('cfeedTitle'); if(tt)tt.textContent='💼 '+(c?c.name:'Tu carrera')+' · desliza y domina';
+  FEED_D=FEED_D||[];
+  var b=document.getElementById('cfeedBody');
+  b.innerHTML='<p class="note" style="text-align:center;margin:0 0 12px;">El inglés de TU trabajo, deslizable: términos, frases y retos sin fin 💼</p>'+careerBatch(6);
+  b.scrollTop=0;
+  ov.style.display='flex';
+}
+
 /* --- REFLEXIÓN: metacognición al cerrar (aprender a aprender) --- */
 function reflectionHTML(){
   try{ if(store.get('reflexDate','')===todayStr()) return ''; }catch(e){}
@@ -7360,7 +7684,7 @@ function toeflScoreCardHTML(){
   var skills=[['reading','Reading','📖'],['listening','Listening','🎧'],['speaking','Speaking','🎤'],['writing','Writing','✍️']];
   skills.sort(function(a,b){ return (st[a[0]]||0)-(st[b[0]]||0); });
   var weak=skills[0];
-  return '<div class="skillbox" style="background:linear-gradient(135deg,#312e81,#4338ca);color:#fff;border:none;">'
+  return '<div class="skillbox" style="background:linear-gradient(135deg,#0A2E3E,#1476A8);color:#fff;border:none;">'
     +'<h4 style="margin-top:0;color:#fff;">🎯 Tu puntaje TOEFL estimado</h4>'
     +'<div style="font-family:\'Poppins\',sans-serif;font-size:1.8rem;font-weight:800;">'+band+' <span style="font-size:.9rem;font-weight:600;opacity:.8;">/ 120</span></div>'
     +'<p style="margin:4px 0 8px;color:#c7d2fe;font-size:.85rem;">Estimado según tu nivel '+curLevel+' del curso (equivalencia CEFR↔TOEFL). Sube de nivel en Milo y esta banda sube contigo.</p>'
@@ -7555,7 +7879,6 @@ var MISSIONS=[
  {ico:'☕',t:'Pide un café sin errores',d:'Conversa con Milo: saluda, pide tu café y agradece. Como lo harás en la vida real.',go:"openMiloChat()"},
  {ico:'✈️',t:'Sobrevive al aeropuerto',d:'Estudia el diálogo de viaje de tu nivel y dilo EN VOZ ALTA, papel por papel.',go:"curSub='dialog';try{renderSub();renderContent();}catch(e){};goTab('levels')"},
  {ico:'💼',t:'Misión profesional',d:'Domina 5 frases del inglés de TU trabajo y aprueba el quiz del módulo.',go:"goTab('dental')"},
- {ico:'🎓',t:'Misión TOEFL',d:'Resuelve un pasaje de Reading estilo examen. Cronómetro mental activado.',go:"openTOEFL()"},
  {ico:'🎬',t:'Misión cultural',d:'Mira 3 minutos de un canal oficial en tu idioma meta y caza 1 palabra nueva.',go:"openMediaLib()"},
  {ico:'🎤',t:'Misión de voz',d:'Speak Now: pronuncia 3 frases seguidas hasta que Milo te dé 80% o más.',go:"goTab('speak')"},
  {ico:'🌱',t:'Misión de rescate',d:'Cinco palabras están a punto de olvidarse. Riega tu jardín y sálvalas.',go:"renderRepaso()"}
@@ -7581,15 +7904,15 @@ function missionCardHTML(){
   var m=todayMission(); var done=missionDoneToday();
   if(done) return '<div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1.5px solid var(--green);background:linear-gradient(135deg,#f0fdf4,var(--card));">'
     +'<div style="font-size:1.6rem;">🎯</div><div style="flex:1;font-weight:700;color:#166534;">Misión de hoy: cumplida ✅ <span class="note" style="font-weight:600;">('+store.get('missionsDone',0)+' en total)</span></div></div>';
-  return '<div class="card" style="padding:14px 16px;border:none;background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;">'
-    +'<div style="font-size:.68rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#7dd3fc;">🎯 Misión de hoy</div>'
-    +'<div style="display:flex;align-items:center;gap:12px;margin-top:6px;">'
-    +'<div style="font-size:2rem;">'+m.ico+'</div>'
-    +'<div style="flex:1;"><div style="font-weight:800;font-family:\'Poppins\',sans-serif;">'+m.t+'</div>'
-    +'<div style="font-size:.8rem;color:#bae6fd;">'+m.d+'</div></div></div>'
-    +'<div style="display:flex;gap:8px;margin-top:12px;">'
-    +'<button class="btn" style="flex:1;background:#fff;color:#0f172a;border:none;font-weight:800;" onclick="'+m.go.replace(/"/g,'&quot;')+'">▶️ A la misión</button>'
-    +'<button class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);" onclick="completeMission()">✅ La cumplí</button></div></div>';
+  return '<div class="card" style="padding:14px 16px;">'
+    +'<div style="font-size:.62rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#0E7A4E;">🎯 Misión de hoy</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-top:5px;">'
+    +'<span style="width:32px;height:32px;border-radius:9px;background:rgba(15,187,124,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;">'+m.ico+'</span>'
+    +'<div style="flex:1;"><div style="font-weight:600;font-family:\'Newsreader\',serif;font-size:.95rem;color:var(--ink);">'+m.t+'</div>'
+    +'<div style="font-size:.74rem;color:var(--muted);">'+m.d+'</div></div></div>'
+    +'<div style="display:flex;gap:8px;margin-top:10px;">'
+    +'<button class="btn primary" style="flex:1;padding:9px;min-height:0;font-size:.82rem;" onclick="'+m.go.replace(/"/g,'&quot;')+'">▶️ A la misión</button>'
+    +'<button class="btn" style="padding:9px 12px;min-height:0;font-size:.82rem;" onclick="completeMission()">✅ La cumplí</button></div></div>';
 }
 /* misión también aparece en el scroll "Para ti" (una vez) */
 var _fcMisShown=false;
@@ -7662,31 +7985,26 @@ function openMediaLib(lang){
 var K={stars:store.get('kidsStars',0), age:store.get('kidsAge',''), scr:'home', timer:null};
 /* Voz de Milo Kids: usa la voz NATURAL de Google (la misma del resto de la app),
    con respaldo del navegador en tono normal (nada de voz de ardilla) */
-var kAudio=null;
+var kAudio=null; /* (reservado) */
+/* kSay = LA MISMA voz que el resto de Milo (speak con Google + respaldo),
+   cambiando temporalmente el idioma del motor y restaurándolo después. */
 function kSay(text,lang){
   try{
-    if(kAudio){ try{kAudio.pause();}catch(e){} kAudio=null; }
-    try{ speechSynthesis.cancel(); }catch(e){}
     var L=lang||curTarget||'en';
-    var tl=L==='en'?'en':L==='pt'?'pt':L==='fr'?'fr':'es';
-    var url='https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&q='+encodeURIComponent(text);
-    var a=new Audio(); try{a.referrerPolicy='no-referrer';}catch(e){}
-    a.src=url; kAudio=a;
-    var started=false;
-    a.onplaying=function(){ started=true; };
-    a.onerror=function(){ if(!started) kSayBrowser(text,L); };
-    a.play().catch(function(){ kSayBrowser(text,L); });
-    setTimeout(function(){ if(!started && kAudio===a){ try{a.pause();}catch(e){} kSayBrowser(text,L); } },1400);
-  }catch(e){ kSayBrowser(text,lang||'en'); }
-}
-function kSayBrowser(text,L){
-  try{
-    var u=new SpeechSynthesisUtterance(text);
-    u.lang=L==='en'?'en-US':L==='pt'?'pt-BR':L==='fr'?'fr-FR':'es-ES';
-    u.rate=0.9; u.pitch=1.05; /* cálida pero natural */
-    try{ var v=pickVoice(u.lang); if(v)u.voice=v; }catch(e){}
-    speechSynthesis.speak(u);
-  }catch(e){}
+    var tl=(L==='en'||L==='es'||L==='pt'||L==='fr')?L:'es';
+    var prev=TTS_LANG;
+    TTS_LANG=tl;
+    try{ speak(text); }catch(e){}
+    /* restaurar el idioma cuando la frase ya arrancó (los textos kids son cortos) */
+    setTimeout(function(){ TTS_LANG=prev; }, 250);
+  }catch(e){
+    try{
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang=(lang==='en')?'en-US':(lang==='pt')?'pt-BR':(lang==='fr')?'fr-FR':'es-ES';
+      u.rate=0.9; u.pitch=1.05;
+      speechSynthesis.speak(u);
+    }catch(e2){}
+  }
 }
 function kNat(){ return (profile&&profile.native)||'es'; }
 function kT(it){ return it[curTarget]||it.en; } /* palabra en el idioma que aprende */
@@ -8042,7 +8360,7 @@ function kGameCount(forcedItem,forcedN,isAdv){
 /* ---- AVENTURAS: historias jugables ---- */
 var kAdvState=null;
 function kAdvMenu(){
-  kShell('<h2 style="text-align:center;color:#9266cc;">🗺️ Aventuras de Milo</h2>'
+  kShell('<h2 style="text-align:center;color:#3FA9D1;">🗺️ Aventuras de Milo</h2>'
     +KADV.map(function(a,i){ return '<button class="kw-big c'+((i%3)+4)+'" style="width:100%;margin-bottom:12px;" onclick="kAdv('+i+')"><span class="ki">'+a.e+'</span><span class="kt">'+a.t+'</span></button>'; }).join(''),'kHome()');
 }
 function kAdv(i){ kAdvState={adv:i,sc:0}; kAdvScene(); }
@@ -8050,7 +8368,7 @@ function kAdvNext(){ if(!kAdvState)return; kAdvState.sc++; kAdvScene(); }
 function kAdvScene(){
   var a=KADV[kAdvState.adv]; var s=a.scenes[kAdvState.sc];
   if(!s){ kAdvState=null; kHome(); return; }
-  var dots=a.scenes.map(function(_,di){ return '<span style="width:10px;height:10px;border-radius:50%;display:inline-block;margin:0 3px;background:'+(di<=kAdvState.sc?'#9266cc':'#e2d5f8')+';"></span>'; }).join('');
+  var dots=a.scenes.map(function(_,di){ return '<span style="width:10px;height:10px;border-radius:50%;display:inline-block;margin:0 3px;background:'+(di<=kAdvState.sc?'#3FA9D1':'#e2d5f8')+';"></span>'; }).join('');
   if(s.type==='talk'||s.type==='end'){
     kShell('<div style="text-align:center;margin-bottom:6px;">'+dots+'</div>'
       +'<div class="kw-card" style="text-align:center;">'
