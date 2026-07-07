@@ -1155,6 +1155,18 @@ async function loadCloud(){
   }catch(e){}
   cloudReady=true; try{ tickStreak(); }catch(e){} saveCloud(); /* primera vez: sube lo que ya tiene local */
 }
+/* ===== EVENTOS PARA EL SISTEMA DE EMAILS (email_events) =====
+   Registra momentos clave de la vida del usuario (registro, racha, logros...)
+   en una tabla de Supabase. Hoy nadie lee esta tabla todavía: es la base para
+   que, cuando conectes un proveedor de envío (ver Guia_Activar_Emails.md),
+   una función programada decida qué correo mandar a partir de estos eventos.
+   No bloquea nada de la app si falla o si la tabla aún no existe. */
+function logEmailEvent(type,payload){
+  try{
+    if(!supa||!sbUser) return;
+    supa.from('email_events').insert({user_id:sbUser.id,type:type,payload:payload||{}}).then(function(){},function(){});
+  }catch(e){}
+}
 var sbInited=false;
 async function sbInitSession(){
   if(!supa||sbInited) return; sbInited=true;
@@ -1700,6 +1712,7 @@ async function gateSignUp(){
       sbUser=r.data.session.user;
       profile.name=nm; store.set('profile',profile);
       cloudReady=true; await saveCloud();
+      try{ logEmailEvent('signup',{name:nm}); }catch(e){}
       renderGate(); renderAll();
     } else {
       miloAlert('¡Cuenta creada! 📧 Revisa tu correo para confirmar la cuenta y luego inicia sesión.');
@@ -5427,7 +5440,7 @@ const ACHS=[
   {id:'all',ico:'👑',t:'Maestra',d:'Completa todo C1',ok:()=>levelPct('C1')===100}
 ];
 let achShown=store.get('achShown',[]);
-function checkAch(){ACHS.forEach(a=>{if(a.ok()&&!achShown.includes(a.id)){achShown.push(a.id);store.set('achShown',achShown);setTimeout(()=>toast('🏆 ¡Logro: '+a.t+'!'),900);}});}
+function checkAch(){ACHS.forEach(a=>{if(a.ok()&&!achShown.includes(a.id)){achShown.push(a.id);store.set('achShown',achShown);setTimeout(()=>toast('🏆 ¡Logro: '+a.t+'!'),900);try{logEmailEvent('achievement',{id:a.id,title:a.t});}catch(e){}}});}
 
 let toastT=null;
 function toast(msg){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el);}el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
@@ -5598,6 +5611,203 @@ function programTaskHTML(){
     +'</div>';
 }
 function markProgramDone(){ var pr=store.get('miProgram',null); if(!pr)return; if(pr.lastDay===todayStr()){toast('Ya hiciste tu tarea de hoy 🐙');return;} pr.ptr=(pr.ptr||0)+1; pr.lastDay=todayStr(); store.set('miProgram',pr); try{addXP(10);}catch(e){} confetti(); toast('✅ ¡Tarea del plan completada! +10 XP'); try{renderHome();}catch(e){} }
+
+/* ============================================================
+   MI RUTINA — planificador inteligente con sincronización de
+   calendario (.ics estándar + enlace directo a Google Calendar).
+   No reemplaza a Mi Plan (miProgram): lo complementa con días de
+   la semana, hora y duración reales, para que la sesión de hoy
+   pueda vivir también en el calendario del usuario.
+   ============================================================ */
+var RUTINA_DOW=['sun','mon','tue','wed','thu','fri','sat'];
+var RUTINA_DAYLABEL={mon:'Lunes',tue:'Martes',wed:'Miércoles',thu:'Jueves',fri:'Viernes',sat:'Sábado',sun:'Domingo'};
+var RUTINA_DAYSHORT=[['mon','L'],['tue','M'],['wed','X'],['thu','J'],['fri','V'],['sat','S'],['sun','D']];
+var RUTINA_SEQ=['hablar','aprender','pronunciacion','aprender','conversar','juego','aprender'];
+var _rutinaDraft=null;
+function rutinaTodayKey(){ return RUTINA_DOW[new Date().getDay()]; }
+function ensureRutina(){ if(document.getElementById('rutinaOv'))return; var d=document.createElement('div'); d.id='rutinaOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🗓️ Mi rutina</h3><button class="legal-x" onclick="document.getElementById(\'rutinaOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="rutinaBody"></div></div>'; document.body.appendChild(d); }
+function openRutina(){
+  ensureRutina(); document.getElementById('rutinaOv').style.display='flex';
+  var r=store.get('miRutina',null);
+  if(r&&r.days&&r.days.length){ renderRutinaSummary(); }
+  else{ _rutinaDraft={goal:profile.goal||'',days:[],minutes:(profile&&profile.minutes)||10,time:'19:00',reminder:10}; renderRutinaWizard(1); }
+}
+function rutinaStepHead(step,title,sub){
+  return '<p class="note" style="margin:0 0 10px;">Paso '+step+' de 5</p><h4 style="margin:0 0 4px;">'+title+'</h4>'+(sub?('<p class="note" style="margin:0 0 12px;">'+sub+'</p>'):'<div style="height:8px;"></div>');
+}
+function renderRutinaWizard(step){
+  var b=document.getElementById('rutinaBody'); if(!b)return; var h='';
+  if(step===1){
+    h+=rutinaStepHead(1,'¿Cuál es tu objetivo?','Con esto Milo elige qué practicas cada día.');
+    h+='<div class="pill-row">'+GOALS.map(function(g){return '<span style="cursor:pointer;font-size:.95rem;padding:9px 14px;'+(_rutinaDraft.goal===g[0]?'background:var(--blue);color:#fff;':'')+'" onclick="_rutinaDraft.goal=\''+g[0]+'\';renderRutinaWizard(2);">'+g[1]+' '+g[2]+'</span>';}).join('')+'</div>';
+  } else if(step===2){
+    h+=rutinaStepHead(2,'¿Qué días quieres estudiar?','Toca los días — puedes elegir los que quieras.');
+    h+='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">'+RUTINA_DAYSHORT.map(function(d){var on=_rutinaDraft.days.indexOf(d[0])>=0;return '<div onclick="rutinaToggleDay(\''+d[0]+'\')" style="cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;'+(on?'background:var(--blue);color:#fff;':'background:var(--card2);color:var(--muted);')+'">'+d[1]+'</div>';}).join('')+'</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;">'
+      +'<button class="btn" style="padding:7px 12px;font-size:.8rem;" onclick="rutinaSetDays([\'mon\',\'tue\',\'wed\',\'thu\',\'fri\'])">Lunes a viernes</button>'
+      +'<button class="btn" style="padding:7px 12px;font-size:.8rem;" onclick="rutinaSetDays([\'sat\',\'sun\'])">Fines de semana</button>'
+      +'<button class="btn" style="padding:7px 12px;font-size:.8rem;" onclick="rutinaSetDays([\'mon\',\'tue\',\'wed\',\'thu\',\'fri\',\'sat\',\'sun\'])">Todos los días</button>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;"><button class="btn" onclick="renderRutinaWizard(1)">← Atrás</button><button class="btn primary" onclick="rutinaGoStep3()">Siguiente →</button></div>';
+  } else if(step===3){
+    h+=rutinaStepHead(3,'¿Cuánto tiempo tienes?','');
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
+      +[10,20,30,60].map(function(m){return '<button class="btn'+(_rutinaDraft.minutes===m?' primary':'')+'" style="padding:14px;" onclick="_rutinaDraft.minutes='+m+';renderRutinaWizard(4);">'+m+' min</button>';}).join('')
+      +'</div><button class="btn" onclick="renderRutinaWizard(2)">← Atrás</button>';
+  } else if(step===4){
+    h+=rutinaStepHead(4,'¿A qué hora tienes más energía?','');
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">'
+      +'<button class="btn" onclick="_rutinaDraft.time=\'08:00\';renderRutinaWizard(5);">🌅 Mañana<br><span class="note">8:00 am</span></button>'
+      +'<button class="btn" onclick="_rutinaDraft.time=\'14:00\';renderRutinaWizard(5);">☀️ Tarde<br><span class="note">2:00 pm</span></button>'
+      +'<button class="btn" onclick="_rutinaDraft.time=\'19:00\';renderRutinaWizard(5);">🌙 Noche<br><span class="note">7:00 pm</span></button>'
+      +'</div><p class="note" style="margin:0 0 6px;">¿Prefieres una hora exacta?</p>'
+      +'<input type="time" value="'+_rutinaDraft.time+'" style="padding:9px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;" onchange="_rutinaDraft.time=this.value;">'
+      +'<div><button class="btn" onclick="renderRutinaWizard(3)">← Atrás</button> <button class="btn primary" onclick="renderRutinaWizard(5)">Siguiente →</button></div>';
+  } else if(step===5){
+    var chosen=_rutinaDraft.days.slice().sort(function(a,b){return RUTINA_DOW.indexOf(a)-RUTINA_DOW.indexOf(b==='sun'?7:RUTINA_DOW.indexOf(b));});
+    var daysTxt=_rutinaDraft.days.length?_rutinaDraft.days.map(function(d){return RUTINA_DAYLABEL[d];}).join(', '):'ningún día todavía';
+    h+=rutinaStepHead(5,'Confirma tu rutina','');
+    h+='<div class="card2" style="background:var(--card2);border-radius:14px;padding:12px 14px;margin-bottom:12px;">'
+      +'<div style="margin-bottom:4px;"><b>🎯 Objetivo:</b> '+(goalLabel(_rutinaDraft.goal)||'General')+'</div>'
+      +'<div style="margin-bottom:4px;"><b>📅 Días:</b> '+daysTxt+'</div>'
+      +'<div style="margin-bottom:4px;"><b>⏱️ Duración:</b> '+_rutinaDraft.minutes+' min</div>'
+      +'<div><b>🕐 Hora:</b> '+_rutinaDraft.time+'</div></div>';
+    if(!_rutinaDraft.days.length){ h+='<p class="note" style="color:var(--red);">Vuelve al paso 2 y elige al menos un día.</p><button class="btn" onclick="renderRutinaWizard(2)">← Elegir días</button>'; }
+    else{
+      h+='<button class="btn primary" style="width:100%;margin-bottom:8px;" onclick="finishRutina()">✓ Guardar mi rutina</button>'
+        +'<button class="btn" style="width:100%;" onclick="renderRutinaWizard(4)">← Atrás</button>';
+    }
+  }
+  b.innerHTML=h;
+}
+function rutinaToggleDay(d){ var i=_rutinaDraft.days.indexOf(d); if(i>=0)_rutinaDraft.days.splice(i,1); else _rutinaDraft.days.push(d); renderRutinaWizard(2); }
+function rutinaSetDays(arr){ _rutinaDraft.days=arr.slice(); renderRutinaWizard(2); }
+function rutinaGoStep3(){ if(!_rutinaDraft.days.length){ toast('Elige al menos un día 🐙'); return; } renderRutinaWizard(3); }
+function rutinaBuildDayActions(days){
+  var out={}; var ordered=RUTINA_DOW.filter(function(d){return days.indexOf(d)>=0;});
+  ordered.forEach(function(d,i){ out[d]=RUTINA_SEQ[i%RUTINA_SEQ.length]; });
+  return out;
+}
+function finishRutina(){
+  if(!_rutinaDraft.days.length){ toast('Elige al menos un día 🐙'); return; }
+  var dayActions=rutinaBuildDayActions(_rutinaDraft.days);
+  var r={goal:_rutinaDraft.goal,days:_rutinaDraft.days.slice(),dayActions:dayActions,minutes:_rutinaDraft.minutes,time:_rutinaDraft.time,reminder:_rutinaDraft.reminder||10,createdAt:Date.now()};
+  store.set('miRutina',r); if(_rutinaDraft.goal){ profile.goal=_rutinaDraft.goal; store.set('profile',profile); }
+  beep('good'); confetti(); toast('🗓️ ¡Tu rutina quedó lista!');
+  renderRutinaSummary(); try{renderHome();}catch(e){}
+}
+function rutinaActionLabelForDay(dayKey){ var r=store.get('miRutina',null); if(!r||!r.dayActions)return ''; var a=PLAN_ACT[r.dayActions[dayKey]]; return a?(a.ico+' '+a.label):''; }
+function renderRutinaSummary(){
+  var b=document.getElementById('rutinaBody'); if(!b)return;
+  var r=store.get('miRutina',null); if(!r){ renderRutinaWizard(1); return; }
+  var h='<p class="note" style="margin:0 0 10px;">Tu rutina actual — Milo elige la actividad de cada día por ti.</p>';
+  RUTINA_DOW.forEach(function(d){
+    if(r.days.indexOf(d)<0) return;
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);"><b>'+RUTINA_DAYLABEL[d]+'</b><span>'+rutinaActionLabelForDay(d)+'</span></div>';
+  });
+  h+='<p class="note" style="margin:10px 0 4px;">⏱️ '+r.minutes+' min · 🕐 '+r.time+' · 🔔 recordatorio '+r.reminder+' min antes</p>';
+  h+='<div style="margin-top:14px;"><div class="sec-label" style="margin:0 0 8px;">Sincronizar con tu calendario</div>'
+    +'<a class="btn" style="width:100%;display:block;text-align:center;box-sizing:border-box;margin-bottom:8px;" href="'+googleCalLink()+'" target="_blank" rel="noopener">📅 Agregar a Google Calendar</a>'
+    +'<button class="btn" style="width:100%;margin-bottom:8px;" onclick="downloadICS()">📥 Descargar para Apple / Outlook (.ics)</button>'
+    +'</div>'
+    +'<button class="btn" style="width:100%;margin-top:6px;" onclick="_rutinaDraft={goal:r.goal,days:r.days.slice(),minutes:r.minutes,time:r.time,reminder:r.reminder};renderRutinaWizard(1);">✏️ Editar mi rutina</button>';
+  b.innerHTML=h;
+}
+function pad2(n){ return (n<10?'0':'')+n; }
+function icsDate(d){ return d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+'T'+pad2(d.getHours())+pad2(d.getMinutes())+'00'; }
+function rutinaByDayRRULE(){ var map={mon:'MO',tue:'TU',wed:'WE',thu:'TH',fri:'FR',sat:'SA',sun:'SU'}; var r=store.get('miRutina',null); if(!r)return ''; return r.days.map(function(d){return map[d];}).join(','); }
+function rutinaNextStart(){
+  var r=store.get('miRutina',null); if(!r||!r.days||!r.days.length) return null;
+  var now=new Date(); var todayDow=now.getDay(); var addDays=0;
+  var dows=r.days.map(function(d){return RUTINA_DOW.indexOf(d);});
+  while(dows.indexOf((todayDow+addDays)%7)<0 && addDays<8){ addDays++; }
+  var start=new Date(now); start.setDate(now.getDate()+addDays);
+  var parts=(r.time||'19:00').split(':'); start.setHours(parseInt(parts[0],10)||19,parseInt(parts[1],10)||0,0,0);
+  return start;
+}
+function buildICS(){
+  var r=store.get('miRutina',null); if(!r||!r.days||!r.days.length) return '';
+  var start=rutinaNextStart(); if(!start) return '';
+  var end=new Date(start.getTime()+(r.minutes||20)*60000);
+  var uid='milo-rutina-'+Date.now()+'@aprendeconmilo.com';
+  var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Milo//Rutina//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+icsDate(new Date())+'Z','DTSTART:'+icsDate(start),'DTEND:'+icsDate(end),
+    'RRULE:FREQ=WEEKLY;BYDAY='+rutinaByDayRRULE(),
+    'SUMMARY:📚 Milo – Tu sesión de idiomas ('+(r.minutes||20)+' min)',
+    'DESCRIPTION:Hoy practicas con Milo 🐙. Abre la app: https://aprendeconmilo.com',
+    'BEGIN:VALARM','TRIGGER:-PT'+(r.reminder||10)+'M','ACTION:DISPLAY','DESCRIPTION:Tu sesión con Milo empieza pronto','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'];
+  return lines.join('\r\n');
+}
+function downloadICS(){
+  var ics=buildICS(); if(!ics){ toast('Primero elige tus días en el paso 2 🐙'); return; }
+  try{
+    var blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=url; a.download='mi-rutina-milo.ics'; document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{document.body.removeChild(a);}catch(e){} try{URL.revokeObjectURL(url);}catch(e){} },300);
+    toast('📥 Descargado — ábrelo para agregarlo a tu calendario');
+  }catch(e){ toast('No se pudo descargar. Inténtalo de nuevo.'); }
+}
+function googleCalLink(){
+  var r=store.get('miRutina',null); if(!r||!r.days||!r.days.length) return '#';
+  var start=rutinaNextStart(); if(!start) return '#';
+  var end=new Date(start.getTime()+(r.minutes||20)*60000);
+  var dates=icsDate(start)+'/'+icsDate(end);
+  var details=encodeURIComponent('Tu sesión de idiomas con Milo 🐙. Abre la app: https://aprendeconmilo.com');
+  var text=encodeURIComponent('📚 Milo – Tu sesión de idiomas');
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+text+'&dates='+dates+'&details='+details+'&recur=RRULE:FREQ=WEEKLY;BYDAY='+rutinaByDayRRULE();
+}
+function rutinaDoneToday(){ var log=store.get('rutinaLog',{}); return !!log[todayStr()]; }
+function markRutinaDone(){
+  var log=store.get('rutinaLog',{}); if(log[todayStr()]){ toast('Ya hiciste tu sesión de hoy 🐙'); return; }
+  log[todayStr()]=true; store.set('rutinaLog',log);
+  try{ addXP(15); }catch(e){} try{ tickStreak(); }catch(e){} confetti(); toast('✅ ¡Sesión completada! +15 XP');
+  try{ renderHome(); }catch(e){}
+}
+function rutinaNextSessionHTML(){
+  var r=store.get('miRutina',null); if(!r||!r.days||!r.days.length) return '';
+  var todayKey=rutinaTodayKey(); var isToday=r.days.indexOf(todayKey)>=0; var doneToday=rutinaDoneToday();
+  var actKey=(r.dayActions&&r.dayActions[todayKey])?r.dayActions[todayKey]:'aprender';
+  var act=PLAN_ACT[actKey]||PLAN_ACT.aprender;
+  var when;
+  if(isToday&&!doneToday){ when='Hoy · '+r.time; }
+  else{
+    var start=rutinaNextStart();
+    if(!start) return '';
+    var sameDay=(start.getDate()===new Date().getDate())&&doneToday;
+    when=(sameDay?'Mañana':RUTINA_DAYLABEL[RUTINA_DOW[start.getDay()]])+' · '+r.time;
+  }
+  var goAction=(isToday&&!doneToday)?act.go:'openRutina()';
+  return '<div class="card" style="border:2px solid var(--blue);cursor:pointer;" onclick="'+goAction+'">'
+    +'<div class="sec-label" style="margin:0 0 6px;">Tu próxima sesión</div>'
+    +'<div style="font-weight:800;font-family:\'Newsreader\',serif;font-size:1.1rem;color:var(--ink);">📅 '+when+'</div>'
+    +'<div style="margin:6px 0;color:var(--ink);">'+act.ico+' '+act.label+' · ⏱️ '+r.minutes+' min</div>'
+    +'<div style="color:var(--muted);font-size:.85rem;margin-bottom:'+(isToday&&!doneToday?'8px':'0')+';">🔥 Llevas '+streak.count+' '+(streak.count===1?'día':'días')+' seguidos</div>'
+    +(isToday&&!doneToday?('<button class="btn primary" style="width:100%;" onclick="event.stopPropagation();markRutinaDone();'+act.go+'">Comenzar ahora</button>'):'')
+    +'</div>';
+}
+function rutinaMissedCheck(){
+  try{
+    var r=store.get('miRutina',null); if(!r||!r.days||!r.days.length) return;
+    var asked=store.get('rutinaMissedAsked',{});
+    var y=new Date(); y.setDate(y.getDate()-1);
+    var yKey=RUTINA_DOW[y.getDay()]; var yStr=dstr(y);
+    if(r.days.indexOf(yKey)<0) return;
+    var log=store.get('rutinaLog',{}); if(log[yStr]) return;
+    if(asked[yStr]) return;
+    asked[yStr]=true; store.set('rutinaMissedAsked',asked);
+    setTimeout(function(){
+      miloConfirm('No pudiste ayer. ¿Quieres mover esa sesión a hoy?', function(){
+        var todayKey=rutinaTodayKey();
+        if(r.days.indexOf(todayKey)<0){ r.days.push(todayKey); }
+        if(!r.dayActions) r.dayActions={};
+        if(!r.dayActions[todayKey]) r.dayActions[todayKey]=r.dayActions[yKey]||'aprender';
+        store.set('miRutina',r); toast('🗓️ Movida a hoy — ¡vamos!'); try{renderHome();}catch(e){}
+      });
+    },1200);
+  }catch(e){}
+}
 /* ===== COMENTARIOS / RESEÑAS (en la página, vía Supabase) ===== */
 var cmtRating=5;
 function starPicker(){ var h=''; for(var i=1;i<=5;i++){h+='<span onclick="cmtSetStars('+i+')" style="cursor:pointer;font-size:1.7rem;">'+(i<=cmtRating?'⭐':'☆')+'</span>';} return h; }
@@ -6415,6 +6625,8 @@ function renderHome(){
     +'<div style="flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;"><div style="width:'+p+'%;height:100%;background:#FFDD10;border-radius:99px;"></div></div>'
     +'<span style="font-size:.7rem;font-weight:600;opacity:.9;">⚡ '+xp+'</span>'
     +'</div></div>';
+  /* MI RUTINA: tarjeta de próxima sesión si el usuario ya configuró su rutina */
+  try{ h+=rutinaNextSessionHTML(); }catch(e){}
   /* 2.5) MISIÓN DE HOY: cada día, un propósito de vida real */
   try{ h+=missionCardHTML(); }catch(e){}
   /* repaso solo si hay pendientes — tarjeta llamativa: es urgente para la memoria */
@@ -6440,8 +6652,8 @@ function renderHome(){
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🏆</span><span style="flex:1;font-weight:600;color:var(--ink);">Ranking</span><span style="color:var(--muted);">›</span></div>'
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="goTab(\'progreso\')">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">📊</span><span style="flex:1;font-weight:600;color:var(--ink);">'+p+'% del curso</span><span style="color:var(--muted);">›</span></div>'
-      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openMiPlan()">'
-        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(15,187,124,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🎯</span><span style="flex:1;font-weight:600;color:var(--ink);">Mi plan</span><span style="color:var(--muted);">›</span></div>'
+      +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openRutina()">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(15,187,124,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗓️</span><span style="flex:1;font-weight:600;color:var(--ink);">Mi rutina</span><span style="color:var(--muted);">›</span></div>'
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openAventura()">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(255,210,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗺️</span><span style="flex:1;font-weight:600;color:var(--ink);">Tu aventura</span><span style="color:var(--muted);">›</span></div>'
       +'</div>';
