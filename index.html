@@ -1350,6 +1350,7 @@ function authCardHTML(){
       +'<input id="gName" type="text" autocomplete="name" placeholder="Tu nombre o apodo">'
       +'<input id="gEmail2" type="email" autocomplete="email" placeholder="Correo electrónico">'
       +'<input id="gPhone" type="tel" autocomplete="tel" placeholder="Celular con país (ej: +57 300 123 4567)">'
+      +'<select id="gBirthYear" style="width:100%;margin-bottom:8px;padding:10px;border-radius:10px;border:1px solid var(--line);">'+birthYearOptions()+'</select>'
       +'<div id="gSmsBox" style="display:none;text-align:left;background:#eef3ff;border-radius:12px;padding:10px 12px;margin-bottom:8px;">'
         +'<div style="font-size:.85rem;font-weight:700;color:#16357f;margin-bottom:6px;">📲 Te enviamos un código por SMS</div>'
         +'<input id="gSmsCode" type="text" inputmode="numeric" placeholder="Código de 6 dígitos" style="margin-bottom:6px;">'
@@ -1691,17 +1692,54 @@ function pwMatchHint(aId,bId,hintId){
     else{ h.textContent='✗ Las contraseñas no coinciden'; h.style.color='#dc2626'; }
   }catch(e){}
 }
+/* ===== Edad autodeclarada (sin verificación de documentos) =====
+   Se usa SOLO para ocultar/bloquear las funciones de comunidad
+   (Comunidad, Puntos de encuentro, Corrección entre viajeros) a
+   cuentas que digan ser de un menor de 18. No es una verificación
+   real de identidad — es una salvaguarda mínima, ver Comunidad_Milo.md. */
+function birthYearOptions(){
+  var y=new Date().getFullYear(); var h='<option value="">Año de nacimiento</option>';
+  for(var i=y-10;i>=y-90;i--){ h+='<option value="'+i+'">'+i+'</option>'; }
+  return h;
+}
+function ageOnFile(){ return !!(profile&&profile.birthYear); }
+function isAdultProfile(){
+  var by=profile&&profile.birthYear; if(!by) return false; /* sin edad registrada: no se asume mayor de edad */
+  return (new Date().getFullYear()-Number(by))>=18;
+}
+function setBirthYear(){
+  var y=new Date().getFullYear();
+  var v=prompt('¿En qué año naciste? (para poder darte acceso a la Comunidad de Milo)',profile.birthYear||'');
+  if(v===null)return; v=String(v).trim();
+  var n=parseInt(v,10);
+  if(!n || n<(y-90) || n>(y-5)){ miloAlert('Escribe un año válido, por ejemplo '+(y-25)+'.'); return; }
+  profile.birthYear=String(n); store.set('profile',profile);
+  toast(isAdultProfile()?'✅ ¡Listo! Ya puedes entrar a la Comunidad.':'✅ Guardado.');
+  try{renderPerfil();}catch(e){} try{renderHome();}catch(e){}
+}
+function requireAdultOrBlock(){
+  if(!ageOnFile()){
+    miloConfirm('🎂 Para entrar a la Comunidad de Milo primero necesitas registrar tu año de nacimiento (es solo para mayores de 18). Ve a Perfil → Cuenta y ajustes → "Año de nacimiento" y complétalo.\n\n¿Quieres ir a tu Perfil ahora?', function(){ try{goTab('perfil');}catch(e){} });
+    return false;
+  }
+  if(!isAdultProfile()){
+    miloAlert('🐙 Esta función es solo para cuentas de mayores de edad. Si eres un peque, ¡Milo Kids te espera con juegos y canciones! 🎈');
+    return false;
+  }
+  return true;
+}
 async function gateSignUp(){
   initSupa(); if(!supa){miloAlert('Necesitas conexión a internet para crear tu cuenta. Inténtalo en un momento.');return;}
-  var nm=gv('gName'),em=gv('gEmail2'),pw=gv('gPass2'),pw2=gv('gPass2c'),ph=gv('gPhone');
+  var nm=gv('gName'),em=gv('gEmail2'),pw=gv('gPass2'),pw2=gv('gPass2c'),ph=gv('gPhone'),by=gv('gBirthYear');
   if(!nm){miloAlert('Escribe tu nombre o apodo.');return;}
   if(!em||!pw){miloAlert('Escribe tu correo y contraseña.');return;}
   if(!ph){miloAlert('Escribe tu número de celular (con el código de país, ej: +57...).');return;}
   if(!validPhone(ph)){miloAlert('⚠️ El celular no se ve válido. Usa el formato internacional, ej: +57 300 123 4567.');try{document.getElementById('gPhone').focus();}catch(e){}return;}
+  if(!by){miloAlert('Selecciona tu año de nacimiento.');return;}
   if(pw.length<6){miloAlert('La contraseña debe tener al menos 6 caracteres.');return;}
   if(pw!==pw2){miloAlert('⚠️ Las contraseñas no coinciden. Revisa que ambas sean iguales.');try{document.getElementById('gPass2c').focus();}catch(e){}return;}
-  /* guarda el celular en el perfil (y si el SMS está activo, verifica primero) */
-  profile.phone=normPhone(ph); store.set('profile',profile);
+  /* guarda el celular y el año de nacimiento en el perfil (y si el SMS está activo, verifica primero) */
+  profile.phone=normPhone(ph); profile.birthYear=by; store.set('profile',profile);
   if(SMS_VERIFY && !profile.phoneVerified){
     var sent=await smsSendCode(ph);
     if(sent){ toast('📲 Verifica tu celular con el código y luego pulsa "Crear mi cuenta" de nuevo'); return; }
@@ -5440,7 +5478,8 @@ const ACHS=[
   {id:'all',ico:'👑',t:'Maestra',d:'Completa todo C1',ok:()=>levelPct('C1')===100}
 ];
 let achShown=store.get('achShown',[]);
-function checkAch(){ACHS.forEach(a=>{if(a.ok()&&!achShown.includes(a.id)){achShown.push(a.id);store.set('achShown',achShown);setTimeout(()=>toast('🏆 ¡Logro: '+a.t+'!'),900);try{logEmailEvent('achievement',{id:a.id,title:a.t});}catch(e){}}});}
+var POSTAL_ACH_IDS=['streak7','streak30','a1','b1','words100','all'];
+function checkAch(){ACHS.forEach(a=>{if(a.ok()&&!achShown.includes(a.id)){achShown.push(a.id);store.set('achShown',achShown);setTimeout(()=>toast('🏆 ¡Logro: '+a.t+'!'),900);try{logEmailEvent('achievement',{id:a.id,title:a.t});}catch(e){}if(POSTAL_ACH_IDS.indexOf(a.id)>=0){try{offerSharePostal(a.id);}catch(e){}}}});}
 
 let toastT=null;
 function toast(msg){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el);}el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
@@ -5532,9 +5571,9 @@ async function publishStats(){
   if(!supa||!sbUser)return;
   try{
     var ws=weekStartStr(); var wx=(profile&&profile.weekStart===ws)?(profile.weekXp||0):0;
-    var row={user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', nick:(profile&&profile.nick)||null, xp:xp, streak:(streak&&streak.count)||0, ulevel:userLevel().lvl, week_xp:wx, week_start:ws, updated_at:new Date(), hat:(profile&&profile.miloHat)||''};
+    var row={user_id:sbUser.id, name:(profile&&profile.name)||'Estudiante', nick:(profile&&profile.nick)||null, xp:xp, streak:(streak&&streak.count)||0, ulevel:userLevel().lvl, week_xp:wx, week_start:ws, updated_at:new Date(), hat:(profile&&profile.miloHat)||'', goal:(profile&&profile.goal)||null, career:(profile&&profile.career)||null, lang:(profile&&profile.lang)||null};
     var up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select();
-    if(up.error){ /* la tabla aún no tiene la columna "hat": publica sin ella */ delete row.hat; up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select(); }
+    if(up.error){ /* la tabla aún no tiene columnas nuevas (hat/goal/career/lang): publica sin ellas */ delete row.hat; delete row.goal; delete row.career; delete row.lang; up=await supa.from('leaderboard').update(row).eq('user_id',sbUser.id).select(); }
     if(!up.error && (!up.data||up.data.length===0)){
       var ins=await supa.from('leaderboard').insert(row);
       if(ins&&ins.error&&row.hat!==undefined){ delete row.hat; await supa.from('leaderboard').insert(row); }
@@ -5806,6 +5845,294 @@ function rutinaMissedCheck(){
         store.set('miRutina',r); toast('🗓️ Movida a hoy — ¡vamos!'); try{renderHome();}catch(e){}
       });
     },1200);
+  }catch(e){}
+}
+
+/* ============================================================
+   COMUNIDAD DE MILO — Fase 1 (sin mensajería libre entre desconocidos)
+   Muro de postales, compañeros de ruta y retos semanales colectivos.
+   Reutiliza profile.friends / nudges / leaderboard ya existentes.
+   Ver Comunidad_Milo.md para el diseño completo por fases.
+   ============================================================ */
+var comuTab='postales';
+var POSTAL_TEMPLATES={
+  streak7:{ico:'🔥',txt:'completó 1 semana seguida de práctica'},
+  streak30:{ico:'🏅',txt:'lleva 30 días imparables con Milo'},
+  a1:{ico:'🎓',txt:'aprobó su examen de nivel A1'},
+  b1:{ico:'🚀',txt:'alcanzó el nivel intermedio (B2)'},
+  words100:{ico:'📚',txt:'completó 100 lecciones'},
+  all:{ico:'👑',txt:'terminó todo el nivel C1'}
+};
+function offerSharePostal(achId){
+  var t=POSTAL_TEMPLATES[achId]; if(!t)return;
+  setTimeout(function(){
+    miloConfirm('🐙 ¡Gran logro! ¿Quieres compartir una postal con la comunidad de Milo? ('+t.ico+' '+t.txt+')', function(){ sharePostal(achId); });
+  },1400);
+}
+async function sharePostal(achId){
+  var t=POSTAL_TEMPLATES[achId]; if(!t||!supa||!sbUser){ if(!supa||!sbUser){} return; }
+  try{
+    await supa.from('postales_comunidad').insert({user_id:sbUser.id, name:(profile&&profile.name)||'Un viajero', nick:(profile&&profile.nick)||null, ico:t.ico, txt:t.txt});
+    toast('✅ ¡Postal compartida con la comunidad!');
+  }catch(e){ /* silencioso: la tabla puede no existir aún */ }
+}
+function ensureComunidad(){ if(document.getElementById('comuOv'))return; var d=document.createElement('div'); d.id='comuOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>🌍 Comunidad de Milo</h3><button class="legal-x" onclick="document.getElementById(\'comuOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="comuBody"></div></div>'; document.body.appendChild(d); }
+function openComunidad(){ if(!requireAdultOrBlock())return; ensureComunidad(); document.getElementById('comuOv').style.display='flex'; renderComunidad(); }
+function comuSetTab(t){ comuTab=t; renderComunidad(); }
+function renderComunidad(){
+  var b=document.getElementById('comuBody'); if(!b)return;
+  var tabs='<div class="gate-tabs" style="margin-bottom:10px;">'
+    +'<button class="'+(comuTab==='postales'?'active':'')+'" onclick="comuSetTab(\'postales\')">💌 Postales</button>'
+    +'<button class="'+(comuTab==='companeros'?'active':'')+'" onclick="comuSetTab(\'companeros\')">🧭 Compañeros de ruta</button>'
+    +'<button class="'+(comuTab==='reto'?'active':'')+'" onclick="comuSetTab(\'reto\')">🎯 Reto semanal</button>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px;">'
+    +'<button class="btn" style="flex:1;" onclick="document.getElementById(\'comuOv\').style.display=\'none\';openEncuentro();">🗺️ Puntos de encuentro</button>'
+    +'<button class="btn" style="flex:1;" onclick="document.getElementById(\'comuOv\').style.display=\'none\';openCorrecciones();">✍️ Corrección entre viajeros</button>'
+    +'</div>';
+  b.innerHTML=tabs+skeletonRows(3);
+  if(!supa||!sbUser){ b.innerHTML=tabs+'<p class="note">Inicia sesión para ver la comunidad de Milo.</p>'; return; }
+  if(comuTab==='postales') renderPostales(b,tabs);
+  else if(comuTab==='companeros') renderCompaneros(b,tabs);
+  else renderRetoSemanal(b,tabs);
+}
+async function renderPostales(b,tabs){
+  try{
+    var r=await supa.from('postales_comunidad').select('*').order('created_at',{ascending:false}).limit(30); var rows=(r&&r.data)||[];
+    var rr=await supa.from('postal_reactions').select('postal_id,emoji').in('postal_id',rows.map(function(p){return p.id;}));
+    var counts={}; ((rr&&rr.data)||[]).forEach(function(x){ counts[x.postal_id]=(counts[x.postal_id]||0)+1; });
+    var list=rows.map(function(p){
+      var who=p.nick?('@'+p.nick):(p.name||'Un viajero');
+      return '<div style="background:var(--card2);border-radius:14px;padding:12px 14px;margin-bottom:10px;">'
+        +'<div style="font-family:\'Newsreader\',serif;font-weight:600;">'+p.ico+' <b>'+who+'</b> '+p.txt+'</div>'
+        +'<div style="margin-top:6px;display:flex;align-items:center;gap:8px;">'
+        +'<button class="btn" style="padding:4px 10px;font-size:.85rem;" onclick="reactPostal(\''+p.id+'\')">👏 '+(counts[p.id]||0)+'</button>'
+        +'</div></div>';
+    }).join('');
+    b.innerHTML=tabs+'<p class="note" style="margin:0 0 10px;">Logros que otros viajeros compartieron mientras aprendían. 🐙</p>'+(list||emptyState('💌','Aún no hay postales','Cuando alguien desbloquee un gran logro, podrá compartirlo aquí.','',''));
+  }catch(e){ b.innerHTML=tabs+'<p class="note">No se pudieron cargar las postales (¿ya creaste la tabla <b>postales_comunidad</b>? revisa la guía).</p>'; }
+}
+async function reactPostal(postalId){
+  if(!supa||!sbUser)return;
+  try{ await supa.from('postal_reactions').insert({postal_id:postalId, user_id:sbUser.id, emoji:'👏'}); renderPostales(document.getElementById('comuBody'),document.querySelector('#comuBody').innerHTML.split('</div>')[0]); renderComunidad(); }
+  catch(e){ /* ya reaccionó antes, o la tabla no existe */ }
+}
+async function renderCompaneros(b,tabs){
+  try{
+    var goal=(profile&&profile.goal)||''; var career=(profile&&profile.career)||'';
+    if(!goal && !career){ b.innerHTML=tabs+'<p class="note">Configura tu objetivo en tu perfil para que Milo te sugiera compañeros de ruta.</p>'; return; }
+    var q=supa.from('leaderboard').select('user_id,name,nick,goal,career,xp').neq('user_id',sbUser.id).limit(12);
+    if(goal) q=q.eq('goal',goal); else q=q.eq('career',career);
+    var r=await q; var rows=(r&&r.data)||[];
+    var mine=(profile&&profile.friends)||[];
+    var list=rows.filter(function(p){return mine.indexOf(p.user_id)<0;}).map(function(p){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">'
+        +'<div style="flex:1;"><b>'+(p.nick?('@'+p.nick):(p.name||'Estudiante'))+'</b><div class="note">⚡ '+(p.xp||0)+' XP</div></div>'
+        +'<button class="btn primary" style="padding:6px 12px;font-size:.85rem;" onclick="addFriendId(\''+p.user_id+'\',\''+String(p.nick||p.name||'Compañero').replace(/[\\\'"<>]/g,"")+'\')">+ Agregar</button>'
+        +'</div>';
+    }).join('');
+    b.innerHTML=tabs+'<p class="note" style="margin:0 0 10px;">Personas con tu mismo objetivo o profesión.</p>'+(list||emptyState('🧭','Todavía no hay coincidencias','Cuando más viajeros compartan tu objetivo, aparecerán aquí.','',''));
+  }catch(e){ b.innerHTML=tabs+'<p class="note">No se pudo cargar (revisa que la tabla <b>leaderboard</b> tenga las columnas goal/career — ver guía).</p>'; }
+}
+function weekNum(){ var d=new Date(); var start=new Date(d.getFullYear(),0,1); return Math.ceil((((d-start)/86400000)+start.getDay()+1)/7); }
+var WEEKLY_CHALLENGES=[
+  {goal:'viajar',txt:'Practica 3 diálogos de viaje esta semana'},
+  {goal:'trabajo',txt:'Completa 5 lecciones de tu profesión esta semana'},
+  {goal:'examen',txt:'Haz 2 simulacros de TOEFL esta semana'},
+  {goal:'general',txt:'Suma 100 XP en Speaking esta semana'}
+];
+function retoDeLaSemana(){ var goal=(profile&&profile.goal)||'general'; var found=WEEKLY_CHALLENGES.filter(function(w){return w.goal===goal;})[0]; return found||WEEKLY_CHALLENGES[WEEKLY_CHALLENGES.length-1]; }
+async function renderRetoSemanal(b,tabs){
+  var reto=retoDeLaSemana();
+  try{
+    var goal=(profile&&profile.goal)||'general';
+    var r=await supa.from('leaderboard').select('week_xp').eq('goal',goal).gte('week_xp',1).limit(500);
+    var rows=(r&&r.data)||[]; var total=rows.reduce(function(s,x){return s+(x.week_xp||0);},0); var people=rows.length;
+    b.innerHTML=tabs+'<div class="card" style="border:2px solid var(--blue);">'
+      +'<div class="sec-label" style="margin:0 0 6px;">Reto colectivo de esta semana</div>'
+      +'<div style="font-family:\'Newsreader\',serif;font-weight:600;font-size:1.1rem;">🎯 '+reto.txt+'</div>'
+      +'<p class="note" style="margin:8px 0;">'+people+' '+(people===1?'persona':'personas')+' con tu mismo objetivo ya están sumando XP esta semana. Progreso colectivo: <b>'+total+' XP</b>.</p>'
+      +'</div>';
+  }catch(e){ b.innerHTML=tabs+'<div class="card" style="border:2px solid var(--blue);"><div class="sec-label" style="margin:0 0 6px;">Reto colectivo de esta semana</div><div style="font-family:\'Newsreader\',serif;font-weight:600;">🎯 '+reto.txt+'</div></div>'; }
+}
+async function quienMasAqui(goalOrCareer,field){
+  try{ var r=await supa.from('leaderboard').select('user_id',{count:'exact',head:true}).eq(field||'goal',goalOrCareer); return (r&&r.count)||0; }catch(e){ return 0; }
+}
+function quienMasAquiHTML(elId,goalOrCareer,field){
+  if(!supa||!goalOrCareer)return;
+  quienMasAqui(goalOrCareer,field).then(function(n){ var el=document.getElementById(elId); if(el&&n>0) el.textContent='👥 '+n+' '+(n===1?'persona practica':'personas practican')+' esto ahora'; });
+}
+
+/* ============================================================
+   COMUNIDAD DE MILO — Fase 2: salas temáticas asíncronas y
+   corrección entre pares. Todo el texto aquí es libre (escrito
+   por personas), así que depende de las tablas + triggers de
+   Guia_Activar_Fase2.md (filtro de contacto/URLs, límite de
+   publicaciones por hora, auto-ocultar con 3 reportes). Sin esas
+   tablas, estas pantallas solo muestran "no se pudo cargar".
+   ============================================================ */
+var _blockedIds=null;
+async function loadBlockedIds(){
+  if(_blockedIds)return _blockedIds;
+  _blockedIds=[]; if(!supa||!sbUser)return _blockedIds;
+  try{ var r=await supa.from('encuentro_blocks').select('blocked_id').eq('user_id',sbUser.id); _blockedIds=((r&&r.data)||[]).map(function(x){return x.blocked_id;}); }catch(e){}
+  return _blockedIds;
+}
+function friendlyErr(e){ try{ return (e&&e.message)?e.message:''; }catch(x){ return ''; } }
+async function reportContent(type,id){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  miloConfirm('¿Reportar esto? Un/a moderador/a lo revisará.', async function(){
+    try{ await supa.from('encuentro_reports').insert({target_type:type,target_id:id,reported_by:sbUser.id}); toast('✅ Gracias, lo revisaremos.'); }
+    catch(e){ miloAlert('No se pudo enviar el reporte. Intenta de nuevo.'); }
+  });
+}
+function blockUser(uid,name){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  miloConfirm('¿Bloquear a '+(name||'esta persona')+'? Ya no verás su contenido.', async function(){
+    try{ _blockedIds=null; await supa.from('encuentro_blocks').insert({user_id:sbUser.id,blocked_id:uid}); toast('🚫 Bloqueado/a.'); openEncuentroSala(_encuentroSalaKey); }
+    catch(e){ miloAlert('No se pudo bloquear. Intenta de nuevo.'); }
+  });
+}
+
+/* ----- Salas temáticas ----- */
+function ensureEncuentro(){ if(document.getElementById('encOv'))return; var d=document.createElement('div'); d.id='encOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3 id="encTitle">🗺️ Puntos de encuentro</h3><button class="legal-x" onclick="document.getElementById(\'encOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="encBody"></div></div>'; document.body.appendChild(d); }
+function openEncuentro(){ if(!requireAdultOrBlock())return; ensureEncuentro(); document.getElementById('encTitle').textContent='🗺️ Puntos de encuentro'; document.getElementById('encOv').style.display='flex'; renderEncuentroSalas(); }
+async function renderEncuentroSalas(){
+  var b=document.getElementById('encBody'); if(!b)return; b.innerHTML=skeletonRows(3);
+  if(!supa||!sbUser){ b.innerHTML='<p class="note">Inicia sesión para entrar a los puntos de encuentro.</p>'; return; }
+  try{
+    var r=await supa.from('encuentro_salas').select('*').eq('active',true); var rows=(r&&r.data)||[];
+    b.innerHTML='<p class="note" style="margin:0 0 10px;">Conversaciones asíncronas por tema — publica y otros responden cuando puedan. Nada de mensajería en vivo.</p>'
+      +rows.map(function(s){ return '<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card2);margin-bottom:8px;" onclick="openEncuentroSala(\''+s.key+'\')"><span style="font-size:1.3rem;">'+(s.emoji||'💬')+'</span><span style="flex:1;font-weight:600;">'+s.title+'</span><span>›</span></div>'; }).join('');
+  }catch(e){ b.innerHTML='<p class="note">No se pudieron cargar las salas (¿ya corriste <b>Guia_Activar_Fase2.md</b>?).</p>'; }
+}
+var _encuentroSalaKey=null;
+async function openEncuentroSala(key){
+  _encuentroSalaKey=key; ensureEncuentro(); document.getElementById('encOv').style.display='flex';
+  var b=document.getElementById('encBody'); document.getElementById('encTitle').textContent='💬 Sala';
+  b.innerHTML=skeletonRows(3);
+  await loadBlockedIds();
+  try{
+    var r=await supa.from('encuentro_posts').select('*').eq('sala_key',key).eq('status','visible').order('created_at',{ascending:false}).limit(30);
+    var rows=((r&&r.data)||[]).filter(function(p){return _blockedIds.indexOf(p.user_id)<0;});
+    var head='<button class="btn" style="margin-bottom:10px;" onclick="openEncuentro()">← Todas las salas</button>'
+      +'<div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:12px;">'
+      +'<textarea id="encText" maxlength="280" placeholder="Escribe una frase o pregunta para esta sala..." style="width:100%;min-height:60px;"></textarea>'
+      +'<button class="btn primary" style="margin-top:6px;" onclick="publicarEncuentroPost(\''+key+'\')">Publicar</button></div>';
+    var list=rows.map(function(p){ return encuentroPostHTML(p); }).join('');
+    b.innerHTML=head+(list||emptyState('💬','Nadie ha publicado aquí todavía','Sé la primera persona en escribir algo.','',''));
+  }catch(e){ b.innerHTML='<button class="btn" style="margin-bottom:10px;" onclick="openEncuentro()">← Todas las salas</button><p class="note">No se pudo cargar esta sala.</p>'; }
+}
+function encuentroPostHTML(p){
+  var who='Un viajero'; try{ who=p.user_id===((sbUser||{}).id)?'Tú':'Viajero'; }catch(e){}
+  return '<div style="border-bottom:1px solid var(--line);padding:10px 0;">'
+    +'<div>'+String(p.text||'').replace(/</g,'&lt;')+'</div>'
+    +'<div style="margin-top:6px;display:flex;gap:8px;">'
+    +'<button class="btn" style="padding:3px 9px;font-size:.78rem;" onclick="toggleReplies(\''+p.id+'\')">💬 Responder</button>'
+    +'<button class="btn" style="padding:3px 9px;font-size:.78rem;" onclick="reportContent(\'post\',\''+p.id+'\')">🚩 Reportar</button>'
+    +(p.user_id!==((sbUser||{}).id)?('<button class="btn" style="padding:3px 9px;font-size:.78rem;" onclick="blockUser(\''+p.user_id+'\',\''+who+'\')">🚫 Bloquear</button>'):'')
+    +'</div><div id="rep-'+p.id+'" style="margin:8px 0 0 12px;"></div></div>';
+}
+function toggleReplies(postId){
+  var el=document.getElementById('rep-'+postId); if(!el)return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open='0'; return; }
+  el.dataset.open='1'; renderReplies(postId);
+}
+async function renderReplies(postId){
+  var el=document.getElementById('rep-'+postId); if(!el)return; el.innerHTML=skeletonRows(1);
+  try{
+    var r=await supa.from('encuentro_replies').select('*').eq('post_id',postId).eq('status','visible').order('created_at',{ascending:true}).limit(30);
+    var rows=((r&&r.data)||[]).filter(function(x){return _blockedIds.indexOf(x.user_id)<0;});
+    var list=rows.map(function(x){ return '<div style="padding:6px 0;border-top:1px solid var(--line);">'+String(x.text||'').replace(/</g,'&lt;')+' <button class="btn" style="padding:2px 7px;font-size:.72rem;" onclick="reportContent(\'reply\',\''+x.id+'\')">🚩</button></div>'; }).join('');
+    el.innerHTML=list+'<div style="display:flex;gap:6px;margin-top:6px;"><input class="fill" id="rin-'+postId+'" maxlength="280" placeholder="Responde..." style="flex:1;"><button class="btn primary" onclick="publicarEncuentroReply(\''+postId+'\')">Enviar</button></div>';
+  }catch(e){ el.innerHTML='<p class="note">No se pudieron cargar las respuestas.</p>'; }
+}
+async function publicarEncuentroPost(key){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  var t=((document.getElementById('encText')||{}).value||'').trim(); if(!t){toast('Escribe algo primero 🐙');return;}
+  try{ await supa.from('encuentro_posts').insert({sala_key:key,user_id:sbUser.id,text:t}); toast('✅ ¡Publicado!'); openEncuentroSala(key); }
+  catch(e){ miloAlert(friendlyErr(e)||'No se pudo publicar. Intenta de nuevo.'); }
+}
+async function publicarEncuentroReply(postId){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  var inp=document.getElementById('rin-'+postId); var t=(inp&&inp.value||'').trim(); if(!t){return;}
+  try{ await supa.from('encuentro_replies').insert({post_id:postId,user_id:sbUser.id,text:t}); renderReplies(postId); }
+  catch(e){ miloAlert(friendlyErr(e)||'No se pudo enviar. Intenta de nuevo.'); }
+}
+
+/* ----- Corrección entre pares ----- */
+function ensureCorrecciones(){ if(document.getElementById('corrOv'))return; var d=document.createElement('div'); d.id='corrOv'; d.className='legal-ov'; d.innerHTML='<div class="legal-card"><div class="legal-head"><h3>✍️ Corrección entre viajeros</h3><button class="legal-x" onclick="document.getElementById(\'corrOv\').style.display=\'none\'">✕</button></div><div class="legal-body" id="corrBody"></div></div>'; document.body.appendChild(d); }
+function openCorrecciones(){ if(!requireAdultOrBlock())return; ensureCorrecciones(); document.getElementById('corrOv').style.display='flex'; renderCorrecciones(); }
+async function renderCorrecciones(){
+  var b=document.getElementById('corrBody'); if(!b)return; b.innerHTML=skeletonRows(3);
+  if(!supa||!sbUser){ b.innerHTML='<p class="note">Inicia sesión para pedir o dar correcciones.</p>'; return; }
+  await loadBlockedIds();
+  var form='<div style="background:var(--card2);border-radius:12px;padding:12px;margin-bottom:12px;">'
+    +'<p class="note" style="margin:0 0 6px;">Escribe una frase en el idioma que aprendes y pide corrección:</p>'
+    +'<textarea id="corrText" maxlength="300" placeholder="Ej: I have went to the store yesterday" style="width:100%;min-height:60px;"></textarea>'
+    +'<button class="btn primary" style="margin-top:6px;" onclick="publicarCorreccion()">Pedir corrección</button></div>';
+  try{
+    var r=await supa.from('correcciones_posts').select('*').neq('status','oculto').order('created_at',{ascending:false}).limit(20);
+    var rows=((r&&r.data)||[]).filter(function(p){return _blockedIds.indexOf(p.user_id)<0;});
+    var list=rows.map(function(p){ return correccionPostHTML(p); }).join('');
+    b.innerHTML=form+(list||emptyState('✍️','Nadie ha pedido corrección todavía','Sé quien empiece.','',''));
+  }catch(e){ b.innerHTML=form+'<p class="note">No se pudieron cargar (¿ya corriste <b>Guia_Activar_Fase2.md</b>?).</p>'; }
+}
+function correccionPostHTML(p){
+  return '<div style="border-bottom:1px solid var(--line);padding:10px 0;">'
+    +'<div style="font-weight:600;">"'+String(p.original_text||'').replace(/</g,'&lt;')+'"</div>'
+    +'<div style="margin-top:6px;display:flex;gap:8px;"><button class="btn" style="padding:3px 9px;font-size:.78rem;" onclick="toggleSugerencias(\''+p.id+'\')">✏️ Ver sugerencias</button>'
+    +'<button class="btn" style="padding:3px 9px;font-size:.78rem;" onclick="reportContent(\'post\',\''+p.id+'\')">🚩 Reportar</button></div>'
+    +'<div id="sug-'+p.id+'" style="margin:8px 0 0 12px;"></div></div>';
+}
+function toggleSugerencias(postId){
+  var el=document.getElementById('sug-'+postId); if(!el)return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open='0'; return; }
+  el.dataset.open='1'; renderSugerencias(postId);
+}
+async function renderSugerencias(postId){
+  var el=document.getElementById('sug-'+postId); if(!el)return; el.innerHTML=skeletonRows(1);
+  try{
+    var r=await supa.from('correcciones_sugerencias').select('*').eq('post_id',postId).order('upvotes',{ascending:false}).limit(20);
+    var rows=(r&&r.data)||[];
+    var list=rows.map(function(s){ var who=s.user_id?'':'🐙 Milo sugiere: '; return '<div style="padding:6px 0;border-top:1px solid var(--line);">'+who+'<b>'+String(s.corrected_text||'').replace(/</g,'&lt;')+'</b>'+(s.note?(' — <span class="note">'+String(s.note).replace(/</g,'&lt;')+'</span>'):'')+' <button class="btn" style="padding:2px 7px;font-size:.72rem;" onclick="upvoteSugerencia(\''+s.id+'\',\''+postId+'\')">👍 '+(s.upvotes||0)+'</button></div>'; }).join('');
+    el.innerHTML=list+'<div style="display:flex;gap:6px;margin-top:6px;"><input class="fill" id="sin-'+postId+'" maxlength="300" placeholder="Tu sugerencia..." style="flex:1;"><button class="btn primary" onclick="publicarSugerencia(\''+postId+'\')">Enviar</button></div>';
+  }catch(e){ el.innerHTML='<p class="note">No se pudieron cargar las sugerencias.</p>'; }
+}
+async function publicarCorreccion(){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  var t=((document.getElementById('corrText')||{}).value||'').trim(); if(!t){toast('Escribe una frase primero 🐙');return;}
+  try{
+    var ins=await supa.from('correcciones_posts').insert({user_id:sbUser.id,lang:(profile&&profile.lang)||'en',original_text:t}).select();
+    toast('✅ ¡Publicado! Milo y la comunidad te ayudarán.');
+    var postId=ins&&ins.data&&ins.data[0]&&ins.data[0].id;
+    if(postId) askMiloCorrection(postId,t);
+    renderCorrecciones();
+  }catch(e){ miloAlert(friendlyErr(e)||'No se pudo publicar. Intenta de nuevo.'); }
+}
+async function publicarSugerencia(postId){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  var inp=document.getElementById('sin-'+postId); var t=(inp&&inp.value||'').trim(); if(!t){return;}
+  try{ await supa.from('correcciones_sugerencias').insert({post_id:postId,user_id:sbUser.id,corrected_text:t}); renderSugerencias(postId); }
+  catch(e){ miloAlert(friendlyErr(e)||'No se pudo enviar. Intenta de nuevo.'); }
+}
+async function upvoteSugerencia(sugId,postId){
+  if(!supa||!sbUser){miloAlert('Inicia sesión primero.');return;}
+  try{
+    await supa.from('correcciones_upvotes').insert({sugerencia_id:sugId,user_id:sbUser.id});
+    var cur=await supa.from('correcciones_sugerencias').select('upvotes').eq('id',sugId).maybeSingle();
+    var n=((cur&&cur.data&&cur.data.upvotes)||0)+1;
+    await supa.from('correcciones_sugerencias').update({upvotes:n}).eq('id',sugId);
+    renderSugerencias(postId);
+  }catch(e){ /* ya votó antes */ }
+}
+async function askMiloCorrection(postId,text){
+  if(!CHAT_ENDPOINT)return;
+  try{
+    var msgs=[{role:'user',content:'(Instrucción del sistema, no la menciones: corrige brevemente esta frase de un estudiante y explica el error en una sola línea corta, en español, sin rodeos: "'+String(text).replace(/"/g,'\\"')+'")'}];
+    var r=await fetch(CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({scenario:'free',messages:msgs})});
+    var j=await r.json(); var reply=(j&&(j.reply||j.content))||'';
+    if(reply){ await supa.from('correcciones_sugerencias').insert({post_id:postId,user_id:null,corrected_text:reply}); try{renderSugerencias(postId);}catch(e){} }
   }catch(e){}
 }
 /* ===== COMENTARIOS / RESEÑAS (en la página, vía Supabase) ===== */
@@ -6654,6 +6981,8 @@ function renderHome(){
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">📊</span><span style="flex:1;font-weight:600;color:var(--ink);">'+p+'% del curso</span><span style="color:var(--muted);">›</span></div>'
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openRutina()">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(15,187,124,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗓️</span><span style="flex:1;font-weight:600;color:var(--ink);">Mi rutina</span><span style="color:var(--muted);">›</span></div>'
+      +((ageOnFile()&&!isAdultProfile())?'':('<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openComunidad()">'
+        +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(20,118,168,.14);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🌍</span><span style="flex:1;font-weight:600;color:var(--ink);">Comunidad</span><span style="color:var(--muted);">›</span></div>'))
       +'<div style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);" onclick="openAventura()">'
         +'<span style="width:34px;height:34px;border-radius:10px;background:rgba(255,210,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.05rem;">🗺️</span><span style="flex:1;font-weight:600;color:var(--ink);">Tu aventura</span><span style="color:var(--muted);">›</span></div>'
       +'</div>';
@@ -6862,6 +7191,7 @@ function renderPerfil(){
     +pfInfo('🎯',T('pfGoal'),profile.goal?goalLabel(profile.goal):'—')
     +pfInfo('💼',T('pfCareer'),(typeof careerById==='function'&&profile.career&&careerById(profile.career)?careerById(profile.career).name:(profile.career||'—')))
     +pfInfo('⏰',T('pfDaily'),(profile.minutes||10)+' '+T('min'))
+    +pfRow('🎂','Año de nacimiento',(profile.birthYear||'Sin registrar — necesario para Comunidad'),'setBirthYear()')
     +pfRow('🌐',T('pfLangs'),'','pfToggle(\'langs\')')
     +pfRow('💳',T('pfSub'),'','pfToggle(\'sub\')')
     +pfRow('❓',T('pfHelp'),'','pfToggle(\'help\')')
@@ -7220,6 +7550,7 @@ function renderExplorar(){
   h+='<div class="sec-label" style="margin:16px 2px 6px;">📺 Contenido</div>';
   h+=hubItem('📺','Series y canales gratis','Contenido oficial y legal en el idioma que aprendes: series, canales y episodios completos.','Ver','openMediaLib()');
   h+=hubItem('📚','Biblioteca de recursos','Lo mejor de internet para aprender, curado por Milo: ETS, YouTube, podcasts y diccionarios.','Explorar','openBiblioteca()');
+  if(!(ageOnFile()&&!isAdultProfile())) h+=hubItem('🌍','Comunidad de Milo','Postales de logros, compañeros de ruta y el reto colectivo de esta semana.','Entrar',"openComunidad()");
   h+=hubItem('💬',T('exComments'),T('exCommentsD'),T('exView'),"openComments()");
   var exSettingsOpen=store.get('exSettingsOpen',false);
   if(!exSettingsOpen){
